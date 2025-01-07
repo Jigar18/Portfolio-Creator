@@ -1,12 +1,10 @@
+import InfoCard from "./components/InfoCard";
+
 export default function Home() {
   return (
-    <div className="bg-red-500 flex justify-center items-center">
-      <main className="bg-white max-w-[90rem] h-full">
-        <h1>
-          This is going to be a website through which a user can create a
-          portfolio website for themselves (can also be considered as a digital
-          resume website.)
-        </h1>
+    <div className="flex items-center justify-center h-full w-full">
+      <main className="bg-slate-400 w-[85rem] h-screen text-slate-950 mt-6 mb-6 rounded-3xl flex justify-center">
+        <InfoCard />
       </main>
     </div>
   );
