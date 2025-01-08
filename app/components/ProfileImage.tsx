@@ -8,7 +8,7 @@ export default function ProfileImage() {
 
   return (
     <div
-      className="relative rounded-[100%] bg-amber-700 h-32 w-32 ml-10 overflow-hidden"
+      className="relative rounded-[100%] bg-amber-700 h-32 w-32 ml-20 overflow-hidden"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -24,7 +24,7 @@ export default function ProfileImage() {
           alt="Profile Image Icon"
           width={500}
           height={500}
-          className="absolute inset-0 m-auto h-16 w-16 opacity-100"
+          className="absolute inset-0 m-auto h-16 w-16 opacity-100 cursor-pointer"
         />
       )}
     </div>
