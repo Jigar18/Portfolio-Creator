@@ -1,5 +1,6 @@
 import About from "./components/AboutSection";
 import InfoCard from "./components/InfoCard";
+import Projects from "./components/Projects";
 
 export default function Home() {
   return (
@@ -9,6 +10,7 @@ export default function Home() {
           <InfoCard />
         </span>
           <About />
+          <Projects />
       </main>
     </div>
   );
