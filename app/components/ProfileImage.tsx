@@ -7,9 +7,9 @@ export default function ProfileImage() {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="h-[80%] w-[16%]">
+    <div className="h-32 w-32 bg-gray-500 flex justify-center items-center rounded-full overflow-hidden">
       <div
-        className="relative rounded-[100%] bg-amber-700 h-[100%] w-[8rem] ml-16 overflow-hidden"
+        className="relative rounded-full bg-amber-700 aspect-square w-full h-full max-w-full overflow-hidden"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
