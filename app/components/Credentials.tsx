@@ -5,7 +5,7 @@ import Skills from "./Skills";
 
 export default function Credentials() {
     return (
-        <div className="m-auto p-2 flex flex-col gap-6">
+        <div className="m-auto p-2 flex flex-col gap-3">
             <Connect />
             <Skills />
             <Certifications />
