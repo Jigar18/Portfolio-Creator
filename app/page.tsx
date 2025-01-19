@@ -16,7 +16,7 @@ export default function Home() {
             <About />
             <Projects />
           </div>
-          <div className="bg-slate-600 w-full rounded-3xl">
+          <div className="bg-slate-600 w-full rounded-3xl mt-10">
             <Credentials />
           </div>
         </div>

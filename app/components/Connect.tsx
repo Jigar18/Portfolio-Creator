@@ -1,8 +1,31 @@
 export default function Connect() {
   return (
     <div className="bg-sky-500 rounded-3xl space-y-4 p-4">
-      <h1 className="text-pretty text-2xl font-bold tracking-normal">Connect</h1>
-      <div className="flex flex-1 basis-0 gap-3 pt-1 font-mono text-sm print:hidden">
+      <h1 className="text-pretty text-2xl font-bold tracking-normal">
+        Connect
+      </h1>
+      <div className="flex flex-1 basis-0 gap-3 pt-1 font-mono text-sm print:hidden flex-wrap justify-start">
+        <a
+          href="https://twitter.com/jigark0"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-800 disabled:pointer-events-none disabled:opacity-50 border-2 border-gray-950 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground size-12 text-gray-700"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="1.5"
+            stroke="currentColor"
+            className="size-9"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+            />
+          </svg>
+        </a>
         <a
           href="https://twitter.com/jigark0"
           target="_blank"
