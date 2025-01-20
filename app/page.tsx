@@ -11,7 +11,7 @@ export default function Home() {
         <span className="flex flex-col items-center justify-center">
           <InfoCard />
         </span>
-        <div className="grid grid-cols-3 gap-x-10">
+        <div className="grid grid-cols-3 gap-x-8">
           <div className="col-span-2">
             <About />
             <Projects />
