@@ -30,7 +30,7 @@ export default function EditCertifications() {
   } = useForm<FormValues>();
   const [open, setOpen] = useState(false);
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = (data: FormValues) => {
     try {
       console.log("Submitting data:", data);
       if (!data.fileInput || !data.fileInput[0]) {
@@ -60,12 +60,7 @@ export default function EditCertifications() {
         <Button variant="outline">Add Certificates</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] bg-white text-black">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            console.log("Raw form submitted!");
-          }}
-        >
+        <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
             <DialogTitle>Add Certificate</DialogTitle>
             <DialogDescription className="text-gray-500">
@@ -137,9 +132,9 @@ export default function EditCertifications() {
               </div>
             </div>
           </div>
-            {/* <DialogFooter className="px-6 pb-6"> */}
-              <Button type="submit" className="px-6 pb-6">Save changes</Button>
-            {/* </DialogFooter> */}
+          <DialogFooter className="px-6 pb-6">
+            <Button type="submit">Save changes</Button>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
