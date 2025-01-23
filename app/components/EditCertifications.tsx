@@ -22,17 +22,27 @@ interface FormValues {
   fileInput: FileList;
 }
 
-export default function EditCertifications() {
+interface Card {
+  title: string;
+  pdf: string;
+  description: string;
+}
+
+export default function EditCertifications({
+  onAddCard,
+}: {
+  onAddCard: (card: Card) => void;
+}) {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FormValues>();
   const [open, setOpen] = useState(false);
 
   const onSubmit = (data: FormValues) => {
     try {
-      console.log("Submitting data:", data);
       if (!data.fileInput || !data.fileInput[0]) {
         throw new Error("File is not selected");
       }
@@ -40,14 +50,22 @@ export default function EditCertifications() {
       const formData = new FormData();
       formData.append("title", data.title);
       formData.append("description", data.description);
-      formData.append("file", data.fileInput[0]);
+      formData.append("pdf", data.fileInput[0]);
 
-      console.log({
+      const newCard = {
         title: data.title,
         description: data.description,
-        fileName: data.fileInput[0]?.name,
-      });
+        pdf: data.fileInput[0].name,
+      };
 
+      fetch("/api/uploadPDF", { method: "POST", body: formData });
+
+      // Add the new card using the callback
+      onAddCard(newCard);
+      console.log("New card added:", newCard);
+
+      // Reset form and close dialog
+      reset();
       setOpen(false);
     } catch (error) {
       console.error("Error during form submission:", error);
@@ -59,7 +77,8 @@ export default function EditCertifications() {
       <DialogTrigger asChild>
         <Button variant="outline">Add Certificates</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] bg-white text-black">
+      <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-full sm:max-w-[600px] bg-white text-black z-[60] rounded-lg">
+        <div aria-hidden="true" />
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
             <DialogTitle>Add Certificate</DialogTitle>
@@ -140,39 +159,3 @@ export default function EditCertifications() {
     </Dialog>
   );
 }
-
-export const cards = [
-  {
-    title: "Summertime Sadness",
-    src: "/tab-icon.png",
-    description: (
-      <p>
-        Lana Del Rey, an iconic American singer-songwriter, is celebrated for
-        her melancholic and cinematic music style. Born Elizabeth Woolridge
-        Grant in New York City, she has captivated audiences worldwide with her
-        haunting voice and introspective lyrics. <br /> <br /> Her songs often
-        explore themes of tragic romance, glamour, and melancholia, drawing
-        inspiration from both contemporary and vintage pop culture. With a
-        career that has seen numerous critically acclaimed albums, Lana Del Rey
-        has established herself as a unique and influential figure in the music
-        industry, earning a dedicated fan base and numerous accolades.
-      </p>
-    ),
-  },
-  {
-    title: "Mitran Di Chhatri",
-    src: "/tab-icon.png",
-    description: (
-      <p>
-        Babu Maan, a legendary Punjabi singer, is renowned for his soulful voice
-        and profound lyrics that resonate deeply with his audience. Born in the
-        village of Khant Maanpur in Punjab, India, he has become a cultural icon
-        in the Punjabi music industry. <br /> <br /> His songs often reflect the
-        struggles and triumphs of everyday life, capturing the essence of
-        Punjabi culture and traditions. With a career spanning over two decades,
-        Babu Maan has released numerous hit albums and singles that have
-        garnered him a massive fan following both in India and abroad.
-      </p>
-    ),
-  },
-];

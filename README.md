@@ -3,3 +3,4 @@
 - [] Add the "show more skills button" in the skills section.
 - [] Add the option to remove the certifications on clicking the edit button
 - [] Setup file upload of images on uploadThings for access of files on cloud.
+- [] Setup database for data entry in it, So that it can be fetched and used at different places.

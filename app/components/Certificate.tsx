@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import React, { useEffect, useId, useRef, useState } from "react";
 import { useOutsideClick } from "../hooks/use-outside-click";
@@ -5,8 +7,8 @@ import { AnimatePresence, motion } from "framer-motion";
 
 interface Card {
   title: string;
-  src: string;
-  description: React.ReactNode;
+  pdf: string;
+  description: string;
 }
 
 interface CertificateProps {
@@ -60,13 +62,12 @@ export default function Certificate({ cards }: CertificateProps) {
             >
               <motion.div 
                 layoutId={`image-${active.title}-${id}`}
-                className="h-[65%] relative flex items-center justify-center p-4"
+                className="h-[80%] relative flex items-center justify-center p-4"
               >
-                <Image
-                  priority
-                  src={active.src}
-                  alt={active.title}
-                  fill
+                <embed
+                  src={`/uploads/${active.pdf}#toolbar=0`}
+                  height="100%"
+                  width="100%"
                   className="object-contain"
                 />
               </motion.div>
@@ -85,7 +86,9 @@ export default function Certificate({ cards }: CertificateProps) {
                   exit={{ opacity: 0 }}
                   className="text-neutral-600 dark:text-neutral-400 text-base overflow-auto"
                 >
-                  {active.description}
+                  <p>
+                    {active.description}
+                  </p>
                 </motion.div>
               </div>
             </motion.div>
@@ -98,14 +101,14 @@ export default function Certificate({ cards }: CertificateProps) {
             layoutId={`card-${card.title}-${id}`}
             key={`card-${card.title}-${id}`}
             onClick={() => setActive(card)}
-            className="flex flex-col md:flex-row justify-between items-center hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl cursor-pointer m-auto"
+            className="flex flex-col md:flex-row justify-between items-center hover:bg-neutral-400 dark:hover:bg-neutral-800 rounded-xl cursor-pointer m-auto"
           >
             <div className="flex gap-4 flex-col md:flex-row ">
               <motion.div layoutId={`image-${card.title}-${id}`}>
                 <Image
                   width={100}
                   height={100}
-                  src={card.src}
+                  src={"/icons8-certificate-64.png"}
                   alt={card.title}
                   className="h-40 w-40 md:h-14 md:w-14 rounded-lg object-cover object-top"
                 />
