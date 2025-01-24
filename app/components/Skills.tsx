@@ -2,14 +2,14 @@ import Skill from "./Skill";
 
 export default function Skills() {
   const arr: string[] = [
-    "Typescript",
-    "Node.js",
-    "Tailwind CSS",
     "React.js",
+    "Node.js",
+    "EXPRESS.JS",
+    "Typescript",
+    "Tailwind CSS",
+    "SCIKIT-LEARN",
     "TYPESCRIPT",
     "JAVASCRIPT",
-    "SCIKIT-LEARN",
-    "EXPRESS.JS",
     "TAILWIND CSS",
   ];
   return (
