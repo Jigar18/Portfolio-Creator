@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import Image from "next/image";
 import React, { useEffect, useId, useRef, useState } from "react";
@@ -9,7 +10,7 @@ export default function ExpandableCardDemo() {
     null
   );
   const id = useId();
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
