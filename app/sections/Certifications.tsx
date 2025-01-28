@@ -1,7 +1,7 @@
 "use client";
 
-import Certificate from "./Certificate";
-import EditCertifications from "./EditCertifications";
+import Certificate from "../components/Certificate";
+import EditCertifications from "../components/EditCertifications";
 import { useState } from "react";
 
 interface Card {

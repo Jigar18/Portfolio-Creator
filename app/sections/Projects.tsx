@@ -1,6 +1,6 @@
 "use client";
 
-import ProjectCard from "./ProjectCard";
+import ProjectCard from "../components/ProjectCard";
 
 export default function Projects() {
   return (
@@ -11,12 +11,12 @@ export default function Projects() {
         </span>
 
         <div className="bg-neutral-300 rounded-3xl rounded-tl-none mb-6 flex flex-col items-center justify-center py-4">
-        <div className=" grid grid-cols-2 gap-8 gap-y-10 py-5 h-auto w-[90%]">
-          <ProjectCard />
-          <ProjectCard />
-          <ProjectCard />
-          <ProjectCard />
-        </div>
+          <div className=" grid grid-cols-2 gap-8 gap-y-10 py-5 h-auto w-[90%]">
+            <ProjectCard />
+            <ProjectCard />
+            <ProjectCard />
+            <ProjectCard />
+          </div>
         </div>
       </div>
     </div>

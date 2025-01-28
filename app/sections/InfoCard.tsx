@@ -1,8 +1,8 @@
 "use client";
 
-import CurrentOrganization from "./CurrentOrganization";
-import NameBlock from "./NameBlock";
-import ProfileImage from "./ProfileImage";
+import CurrentOrganization from "../components/CurrentOrganization";
+import NameBlock from "../components/NameBlock";
+import ProfileImage from "../components/ProfileImage";
 
 function InfoCard() {
   return (
