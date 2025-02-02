@@ -3,8 +3,7 @@
 // You installed the `dotenv` and `octokit` modules earlier. The `@octokit/webhooks` is a dependency of the `octokit` module, so you don't need to install it separately. The `fs` and `http` dependencies are built-in Node.js modules.
 import dotenv from "dotenv";
 import { App } from "octokit";
-import { createNodeMiddleware,  } from "@octokit/webhooks";
-import {EventPayloadMap} from "@octokit/webhooks-types";
+import { createNodeMiddleware, EmitterWebhookEvent } from "@octokit/webhooks";
 import { Octokit } from "@octokit/core";
 import fs from "fs";
 import http from "http";
@@ -18,13 +17,11 @@ const webhookSecret = process.env.WEBHOOK_SECRET;
 const privateKeyPath = process.env.PRIVATE_KEY_PATH;
 
 // This reads the contents of your private key file.
-const privateKey = fs.readFileSync(privateKeyPath!, "utf8");
-
-if (!appId || !webhookSecret) {
-  throw new Error(
-    "Missing required environment variables: APP_ID or WEBHOOK_SECRET"
-  );
+if (!appId || !webhookSecret || !privateKeyPath) {
+  throw new Error('Required environment variables are not set');
 }
+
+const privateKey = fs.readFileSync(privateKeyPath, "utf8");
 
 // This creates a new instance of the Octokit App class.
 const app = new App({
@@ -46,7 +43,7 @@ async function handlePullRequestOpened({
   payload,
 }: {
   octokit: Octokit;
-  payload: EventPayloadMap["pull_request.opened"];
+  payload: EmitterWebhookEvent<'pull_request.opened'>['payload'];
 }) {
   console.log(
     `Received a pull request event for #${payload.pull_request.number}`
