@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { App } from "octokit";
-import { Octokit } from "@octokit/core";
 
 // Load environment variables
 const appId = process.env.APP_ID!;
@@ -25,6 +24,7 @@ async function getUserRepositories(installationId: number) {
     });
 
     // Extract and format repository details
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const repositories = response.data.repositories.map((repo: any) => ({
       name: repo.name,
       full_name: repo.full_name,
