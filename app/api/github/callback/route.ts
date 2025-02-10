@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import { NextApiResponse } from 'next';
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, res: NextApiResponse) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code'); // Get OAuth `code` from GitHub
 
@@ -22,22 +23,19 @@ export async function GET(req: NextRequest) {
     );
 
     const accessToken = tokenResponse.data.access_token;
-
-    // Step 2: Fetch the user's GitHub App installations
-    const installationsResponse = await axios.get(
-      'https://api.github.com/user/installations',
-      { headers: { Authorization: `token ${accessToken}` } }
-    );
-
-    // Step 3: Get the first installation ID
-    const installationId = installationsResponse.data.installations[0]?.id;
-
-    if (!installationId) {
-      return NextResponse.json({ error: 'No GitHub App installation found' }, { status: 400 });
+    if (!accessToken) {
+      return res.status(400).json({ error: 'Failed to obtain access token' });
     }
 
-    // Step 4: Redirect to GitHub App installation page
-    return NextResponse.redirect(`https://github.com/apps/portfolio-creator/installations/${installationId}`);
+    // Step 2: Fetch the user's GitHub App installations
+    const userResponse = await axios.get('https://api.github.com/user', {
+      headers: { Authorization: `token ${accessToken}` },
+    });
+
+    const user = userResponse.data;
+
+    // Step 3: Redirect to GitHub App installation
+    return res.redirect(`/app-install?access_token=${accessToken}&login=${user.login}`);
   } catch (error) {
     console.error('GitHub Auth Error:', error);
     return NextResponse.json({ error: 'Authentication failed' }, { status: 500 });
