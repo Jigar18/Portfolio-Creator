@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function installation(req: NextApiRequest, res: NextApiResponse) {
   const event = req.headers['x-github-event'];
 
   if (event === 'installation') {
