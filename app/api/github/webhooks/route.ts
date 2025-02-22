@@ -1,17 +1,23 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 
-export default async function POST(req: NextApiRequest, res: NextApiResponse) {
-  const event = req.headers['x-github-event'];
+export async function POST(req: NextRequest) {
+  try {
+    const event = req.headers.get('x-github-event');
 
-  if (event === 'installation') {
-    const { installation } = req.body;
-    console.log('New GitHub App Installation:', installation.id);
+    if (event === 'installation') {
+      const body = await req.json();
+      console.log('New GitHub App Installation:', body.installation.id);
 
-    // Save the installation ID in the database (for future API calls)
+      // Save the installation ID in the database (if needed)
+    }
+
+    return NextResponse.json({ message: 'Webhook received' }, { status: 200 });
+  } catch (error) {
+    console.error('Webhook Error:', error);
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
   }
-
-  return res.status(200).json({ message: 'Webhook received' });
 }
+
 
 // import {PrismaClient} from "@prisma/client";
 
