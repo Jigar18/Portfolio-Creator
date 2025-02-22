@@ -4,7 +4,7 @@ import { NextApiResponse } from 'next';
 
 export async function GET(req: NextRequest, res: NextApiResponse) {
   const { searchParams } = new URL(req.url);
-  const code = searchParams.get('code'); // Get OAuth `code` from GitHub
+  const code = searchParams.get('code');
 
   if (!code) {
     return NextResponse.json({ error: 'GitHub OAuth code is missing' }, { status: 400 });
