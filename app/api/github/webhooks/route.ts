@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function installation(req: NextApiRequest, res: NextApiResponse) {
+export default async function POST(req: NextApiRequest, res: NextApiResponse) {
   const event = req.headers['x-github-event'];
 
   if (event === 'installation') {
@@ -10,7 +10,7 @@ export default async function installation(req: NextApiRequest, res: NextApiResp
     // Save the installation ID in the database (for future API calls)
   }
 
-  res.status(200).json({ message: 'Webhook received' });
+  return res.status(200).json({ message: 'Webhook received' });
 }
 
 // import {PrismaClient} from "@prisma/client";
