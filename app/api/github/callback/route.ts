@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
-import { NextApiResponse } from 'next';
 
-export async function GET(req: NextRequest, res: NextApiResponse) {
+export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
 
@@ -11,7 +10,7 @@ export async function GET(req: NextRequest, res: NextApiResponse) {
   }
 
   try {
-    // Step 1: Exchange code for a user access token
+    // Step 1: Exchange code for an access token
     const tokenResponse = await axios.post(
       'https://github.com/login/oauth/access_token',
       {
@@ -24,18 +23,18 @@ export async function GET(req: NextRequest, res: NextApiResponse) {
 
     const accessToken = tokenResponse.data.access_token;
     if (!accessToken) {
-      return res.status(400).json({ error: 'Failed to obtain access token' });
+      return NextResponse.json({ error: 'Failed to obtain access token' }, { status: 400 });
     }
 
-    // Step 2: Fetch the user's GitHub App installations
+    // Step 2: Fetch the user's GitHub profile
     const userResponse = await axios.get('https://api.github.com/user', {
       headers: { Authorization: `token ${accessToken}` },
     });
 
     const user = userResponse.data;
 
-    // Step 3: Redirect to GitHub App installation
-    return res.redirect(`/app-install?access_token=${accessToken}&login=${user.login}`);
+    // Step 3: Redirect to frontend with user data
+    return NextResponse.redirect(new URL(`/app-install?access_token=${accessToken}&login=${user.login}`, req.url));
   } catch (error) {
     console.error('GitHub Auth Error:', error);
     return NextResponse.json({ error: 'Authentication failed' }, { status: 500 });
