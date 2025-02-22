@@ -1,11 +1,11 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
 import axios from 'axios';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export async function GET() {
   const installationId = process.env.GITHUB_APP_INSTALLATION_ID; // Fetch from DB in production
 
   if (!installationId) {
-    return res.status(400).json({ error: 'Installation ID is missing' });
+    return NextResponse.json({ error: 'Installation ID is missing' }, { status: 400 });
   }
 
   try {
@@ -28,9 +28,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       headers: { Authorization: `token ${accessToken}` },
     });
 
-    return res.status(200).json(reposResponse.data.repositories);
+    return NextResponse.json(reposResponse.data.repositories, { status: 200 });
   } catch (error) {
     console.error('Error fetching repositories:', error);
-    return res.status(500).json({ error: 'Failed to fetch repositories' });
+    return NextResponse.json({ error: 'Failed to fetch repositories' }, { status: 500 });
   }
 }
