@@ -7,8 +7,6 @@ export async function POST(req: NextRequest) {
     if (event === 'installation') {
       const body = await req.json();
       console.log('New GitHub App Installation:', body.installation.id);
-
-      // Save the installation ID in the database (if needed)
     }
 
     return NextResponse.json({ message: 'Webhook received' }, { status: 200 });

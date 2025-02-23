@@ -4,8 +4,6 @@ import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
-const githubAppSlug = "portfolio-creator";
-
 function InstallAppContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -15,7 +13,7 @@ function InstallAppContent() {
 
   useEffect(() => {
     if (access_token && login) {
-      window.location.href = `https://github.com/apps/${githubAppSlug}/installations/new`;
+      window.location.href = `https://github.com/apps/portfolio-creator/installations/new`;
     } else {
       router.push("/");
     }
