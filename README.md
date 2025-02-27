@@ -5,4 +5,7 @@
 - [ ] To make the UI robust and flexible, set the size of the sections to be fixed and if there is any extra thing needs to be shown then for that an extra show more button can be added which will open a modal windows and show all the remaining items.
 - [ ] Save the installation id from webhook.ts for future usage.
 
-## BUG - in the eduction and experiance section there comes a view more button when the length of them is more than two but it doesn't hide the remainig thigs after the two lengths and just there always
+## BUG - in the education and experiance section there comes a view more button when the length of them is more than two but it doesn't hide the remainig thigs after the two lengths and just there always
+
+## UI Changes
+- [ ] add a loading spinner or something like that, on the places where callback is called and redirecting to this and that page is shown
