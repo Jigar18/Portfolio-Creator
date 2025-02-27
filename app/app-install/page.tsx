@@ -8,7 +8,6 @@ import axios from "axios";
 function InstallAppContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
   const access_token = searchParams.get("access_token");
 
   const [loading, setLoading] = useState(true);
@@ -18,34 +17,37 @@ function InstallAppContent() {
       if (!access_token) {
         router.push("/");
         return;
-      }
-      else {
+      } else {
         try {
-          const response = await axios.get("https://api.github.com/user/installtions", {
-            headers: { Authorization: `bearer ${access_token}` },
-          });
+          const response = await axios.get(
+            "https://api.github.com/user/installtions",
+            {
+              headers: { Authorization: `Bearer ${access_token}` },
+            }
+          );
 
           const installations = response.data.installtions;
 
           if (installations.length > 0) {
             router.push("/dashboard");
+          } else {
+            window.location.href =
+              "https://github.com/apps/portfolio-creator/installations/new";
           }
-          else {
-            window.location.href = "https://github.com/apps/portfolio-creator/installations/new";
-          }
-        }
-        catch (error) {
+        } catch (error) {
           console.error("Error checking installation:", error);
-        router.push("/");
-      } finally {
-        setLoading(false);
-      }
+          router.push("/");
+        } finally {
+          setLoading(false);
         }
       }
-      checkInstallation();
-    }, [access_token, router]);
+    }
+    checkInstallation();
+  }, [access_token, router]);
 
-  return <div>{loading ? "Checking installation status..." : "Redirecting..."}</div>;
+  return (
+    <div>{loading ? "Checking installation status..." : "Redirecting..."}</div>
+  );
 }
 
 export default function InstallApp() {
