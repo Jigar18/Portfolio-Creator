@@ -1,30 +1,51 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import axios from "axios";
 
 function InstallAppContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const access_token = searchParams.get("access_token");
-  const login = searchParams.get("login");
-  const installation_id = searchParams.get("installation_id");
+
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (installation_id) {
-      router.push("/dashboard");
-      return;
-    }
-    if (access_token && login) {
-      window.location.href = `https://github.com/apps/portfolio-creator/installations/new`;
-    } else {
-      router.push("/");
-    }
-  }, [access_token, login, router, installation_id]);
+    async function checkInstallation() {
+      if (!access_token) {
+        router.push("/");
+        return;
+      }
+      else {
+        try {
+          const response = await axios.get("https://api.github.com/user/installtions", {
+            headers: { Authorization: `bearer ${access_token}` },
+          });
 
-  return <div>Redirecting to install GitHub App...</div>;
+          const installations = response.data.installtions;
+
+          if (installations.length > 0) {
+            router.push("/dashboard");
+          }
+          else {
+            window.location.href = "https://github.com/apps/portfolio-creator/installations/new";
+          }
+        }
+        catch (error) {
+          console.error("Error checking installation:", error);
+        router.push("/");
+      } finally {
+        setLoading(false);
+      }
+        }
+      }
+      checkInstallation();
+    }, [access_token, router]);
+
+  return <div>{loading ? "Checking installation status..." : "Redirecting..."}</div>;
 }
 
 export default function InstallApp() {
