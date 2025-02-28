@@ -20,7 +20,7 @@ function InstallAppContent() {
       } else {
         try {
           const response = await axios.get(
-            "https://api.github.com/user/installtions",
+            "https://api.github.com/user/installations",
             {
               headers: { Authorization: `Bearer ${access_token}` },
             }
