@@ -26,7 +26,7 @@ function InstallAppContent() {
             }
           );
 
-          const installations = response.data.installtions;
+          const installations = response.data.installations;
 
           if (installations.length > 0) {
             router.push("/dashboard");
