@@ -8,8 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "server": "node app.js",
-    "postinstall": "prisma generate"
+    "server": "node app.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.11.0",

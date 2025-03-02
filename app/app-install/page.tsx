@@ -20,13 +20,13 @@ function InstallAppContent() {
       } else {
         try {
           const response = await axios.get(
-            "https://api.github.com/user/installtions",
+            "https://api.github.com/user/installations",
             {
               headers: { Authorization: `Bearer ${access_token}` },
             }
           );
 
-          const installations = response.data.installtions;
+          const installations = response.data.installations;
 
           if (installations.length > 0) {
             router.push("/dashboard");
