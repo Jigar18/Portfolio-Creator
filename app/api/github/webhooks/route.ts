@@ -15,24 +15,15 @@ export async function POST(req: NextRequest) {
     const login = body.sender.login;
 
     try {
-      const existingUser = await prisma.user.findUnique({
+      await prisma.user.upsert({
         where: { githubId: githubId.toString() },
-      });
-
-      if (existingUser) {
-        await prisma.user.update({
-          where: { githubId: githubId.toString() },
-          data: { installationId: installationId.toString() },
-        });
-      } else {
-        await prisma.user.create({
-          data: {
-            githubId: githubId.toString(),
-            username: login,
-            installationId: installationId.toString(),
-          },
-        });
-      }
+        update: { installationId: installationId.toString() },
+        create: {
+          githubId: githubId.toString(),
+          username: login,
+          installationId: installationId.toString(),
+        },
+      })
 
       return new NextResponse("OK", { status: 200 });
     } catch (error) {
