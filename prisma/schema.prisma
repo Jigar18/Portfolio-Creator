@@ -11,14 +11,14 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model User {
-  id              String  @id @default(uuid())
-  githubId        String  @unique
-  installationId  String  @unique
-  accessToken     String
-  refreshToken    String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String    @id @default(uuid())
+  githubId       String    @unique
+  username       String    @unique
+  installationId String?   @unique
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }

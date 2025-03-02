@@ -5,7 +5,6 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
   const installation_id = searchParams.get("installation_id");
-
   if (!code) {
     return NextResponse.json({ error: "GitHub OAuth code is missing" }, { status: 400 });
   }
