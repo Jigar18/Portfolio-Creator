@@ -1,21 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient({
-  log: ["query"],
-});
+// let prisma: PrismaClient;
+
+// if (process.env.NODE_ENV === "production") {
+//   prisma = new PrismaClient();
+// } else {
+//   if (!(global as any).prisma) {
+//     (global as any).prisma = new PrismaClient();
+//   }
+//   prisma = (global as any).prisma;
+// }
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined;
+}
+
+export const db = globalThis.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV === "production") globalThis.prisma = db;
 
 export async function POST(req: NextRequest) {
   const event = req.headers.get("x-github-event");
 
   if (event === "installation") {
-    const body = await req.json();
-    const installationId = body.installation.id;
-    const githubId = body.sender.id;
-    const login = body.sender.login;
-
     try {
-      await prisma.user.upsert({
+      const body = await req.json();
+      const installationId = body.installation.id;
+      const githubId = body.sender.id;
+      const login = body.sender.login;
+
+      // Log the data we're trying to save
+      console.log("Processing installation webhook:", {
+        installationId,
+        githubId,
+        login,
+      });
+
+      await db.user.upsert({
         where: { githubId: githubId.toString() },
         update: { installationId: installationId.toString() },
         create: {
@@ -23,19 +45,31 @@ export async function POST(req: NextRequest) {
           username: login,
           installationId: installationId.toString(),
         },
-      })
+      });
 
-      return new NextResponse("OK", { status: 200 });
+      return new NextResponse("Installation processed successfully", {
+        status: 200,
+      });
     } catch (error) {
-      console.error("Error saving installation ID:", error);
-      return new Response(
-        JSON.stringify({ error: "Database update failed", details: error }),
+      console.error("Error processing webhook:", error);
+
+      // Return more detailed error information
+      return NextResponse.json(
+        {
+          error: "Database update failed",
+          details: {
+            message: (error as Error).message,
+            name: (error as Error).name,
+            stack:
+              process.env.NODE_ENV === "development"
+                ? (error as Error).stack
+                : undefined,
+          },
+        },
         { status: 500 }
       );
     }
   }
 
-  return new Response(JSON.stringify({ message: "Webhook received" }), {
-    status: 200,
-  });
+  return NextResponse.json({ message: "Webhook received" }, { status: 200 });
 }
