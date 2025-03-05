@@ -1,27 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { db, getDbClientInfo } from "@/lib/db";
 
-// let prisma: PrismaClient;
-
-// if (process.env.NODE_ENV === "production") {
-//   prisma = new PrismaClient();
-// } else {
-//   if (!(global as any).prisma) {
-//     (global as any).prisma = new PrismaClient();
-//   }
-//   prisma = (global as any).prisma;
-// }
-declare global {
-  // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined;
-}
-
-const db = globalThis.prisma || new PrismaClient();
-
-if (process.env.NODE_ENV === "production") globalThis.prisma = db;
+// Include a version marker to ensure we know which code version is running
+const WEBHOOK_HANDLER_VERSION = "1.0.2";
 
 export async function POST(req: NextRequest) {
   const event = req.headers.get("x-github-event");
+
+  console.log(`[Webhook ${WEBHOOK_HANDLER_VERSION}] Processing ${event} event`);
 
   if (event === "installation") {
     try {
@@ -31,13 +17,18 @@ export async function POST(req: NextRequest) {
       const login = body.sender.login;
 
       // Log the data we're trying to save
-      console.log("Processing installation webhook:", {
-        installationId,
-        githubId,
-        login,
-      });
+      console.log(
+        `[Webhook ${WEBHOOK_HANDLER_VERSION}] Processing installation:`,
+        {
+          installationId,
+          githubId,
+          login,
+          clientInfo: getDbClientInfo(),
+        }
+      );
 
-      await db.user.upsert({
+      // Using db from the centralized module
+      const result = await db.user.upsert({
         where: { githubId: githubId.toString() },
         update: { installationId: installationId.toString() },
         create: {
@@ -47,23 +38,26 @@ export async function POST(req: NextRequest) {
         },
       });
 
+      console.log(`[Webhook ${WEBHOOK_HANDLER_VERSION}] User saved:`, {
+        id: result.id,
+        githubId: result.githubId,
+        username: result.username,
+      });
+
       return new NextResponse("Installation processed successfully", {
         status: 200,
       });
     } catch (error) {
-      console.error("Error processing webhook:", error);
+      console.error(`[Webhook ${WEBHOOK_HANDLER_VERSION}] Error:`, error);
 
-      // Return more detailed error information
       return NextResponse.json(
         {
           error: "Database update failed",
+          version: WEBHOOK_HANDLER_VERSION,
+          clientInfo: getDbClientInfo(),
           details: {
             message: (error as Error).message,
             name: (error as Error).name,
-            stack:
-              process.env.NODE_ENV === "development"
-                ? (error as Error).stack
-                : undefined,
           },
         },
         { status: 500 }
@@ -71,5 +65,12 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ message: "Webhook received" }, { status: 200 });
+  return NextResponse.json(
+    {
+      message: "Webhook received",
+      version: WEBHOOK_HANDLER_VERSION,
+      clientInfo: getDbClientInfo(),
+    },
+    { status: 200 }
+  );
 }
