@@ -103,3 +103,13 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Add these styles to override browser autofill styling */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #f8fafc inset !important; /* bg-slate-50 equivalent */
+  -webkit-text-fill-color: #000 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}

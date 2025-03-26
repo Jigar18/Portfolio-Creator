@@ -1,7 +1,6 @@
 import { writeFile } from "fs/promises";
 import { NextResponse } from "next/server";
 
-
 export async function POST(request: Request) {
     const data = await request.formData();
     const pdf = data.get("pdf");

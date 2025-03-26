@@ -18,5 +18,3 @@ export default function Login() {
     </div>
   );
 }
-
-// "https://github.com/login/oauth/authorize?client_id=Iv23lij44wD1rK7syWob&redirect_uri=https://portfolio-creator-silk.vercel.app/api/github/callback&scope=read:user,repo"

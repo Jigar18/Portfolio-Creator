@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db, getDbClientInfo } from "@/lib/db";
 
-// Include a version marker to ensure we know which code version is running
 const WEBHOOK_HANDLER_VERSION = "1.0.2";
 
 export async function POST(req: NextRequest) {
@@ -16,19 +15,7 @@ export async function POST(req: NextRequest) {
       const githubId = body.sender.id;
       const login = body.sender.login;
 
-      // Log the data we're trying to save
-      console.log(
-        `[Webhook ${WEBHOOK_HANDLER_VERSION}] Processing installation:`,
-        {
-          installationId,
-          githubId,
-          login,
-          clientInfo: getDbClientInfo(),
-        }
-      );
-
-      // Using db from the centralized module
-      const result = await db.user.upsert({
+      await db.user.upsert({
         where: { githubId: githubId.toString() },
         update: { installationId: installationId.toString() },
         create: {
@@ -36,12 +23,6 @@ export async function POST(req: NextRequest) {
           username: login,
           installationId: installationId.toString(),
         },
-      });
-
-      console.log(`[Webhook ${WEBHOOK_HANDLER_VERSION}] User saved:`, {
-        id: result.id,
-        githubId: result.githubId,
-        username: result.username,
       });
 
       return new NextResponse("Installation processed successfully", {

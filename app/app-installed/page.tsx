@@ -12,7 +12,7 @@ function AppInstalled() {
     if (installation_id) {
       console.log("GitHub App installed with ID:", installation_id);
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/details");
       }, 3000);
     } else {
       router.push("/");

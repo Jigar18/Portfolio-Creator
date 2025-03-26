@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 
-// Add a deployment version identifier to help with debugging
 const DEPLOYMENT_VERSION = "1.0.1";
 
 declare global {
@@ -14,10 +13,8 @@ export const db =
     log: ["query", "error", "warn"],
   });
 
-// Store client in global to prevent multiple instances in development
 if (process.env.NODE_ENV !== "production") globalThis.prisma = db;
 
-// Add a debug method to check the client version
 export function getDbClientInfo() {
   return {
     version: DEPLOYMENT_VERSION,
@@ -26,7 +23,6 @@ export function getDbClientInfo() {
   };
 }
 
-// Ensure connections are properly closed on process termination
 if (process.env.NODE_ENV === "production") {
   process.on("beforeExit", () => {
     db.$disconnect();
