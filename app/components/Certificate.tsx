@@ -16,39 +16,40 @@ interface CertificateProps {
 }
 
 export default function Certificate({ cards }: CertificateProps) {
-    const [active, setActive] = useState<Card | boolean | null>(
-        null
-      );
-      const ref = useRef<HTMLDivElement>(null);
-      const id = useId();
-    
-      useEffect(() => {
-        function onKeyDown(event: KeyboardEvent) {
-          if (event.key === "Escape") {
-            setActive(false);
-          }
-        }
-    
-        if (active && typeof active === "object") {
-          document.body.style.overflow = "hidden";
-        } else {
-          document.body.style.overflow = "auto";
-        }
-    
-        window.addEventListener("keydown", onKeyDown);
-        return () => window.removeEventListener("keydown", onKeyDown);
-      }, [active]);
-    
-      useOutsideClick(ref, () => setActive(null));
-    return (
-        <>
-        <AnimatePresence>
+  const [active, setActive] = useState<Card | boolean | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const id = useId();
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setActive(false);
+      }
+    }
+
+    if (active && typeof active === "object") {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [active]);
+
+  useOutsideClick(ref, () => setActive(null));
+  return (
+    <>
+      <AnimatePresence>
         {active && typeof active === "object" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm h-full w-full z-10"
+            {...{
+              className:
+                "fixed inset-0 bg-black/40 backdrop-blur-sm h-full w-full z-10",
+            }}
           />
         )}
       </AnimatePresence>
@@ -58,11 +59,17 @@ export default function Certificate({ cards }: CertificateProps) {
             <motion.div
               layoutId={`card-${active.title}-${id}`}
               ref={ref}
-              className="w-[70vw] h-[80vh] flex flex-col bg-white dark:bg-neutral-900 rounded-3xl overflow-hidden"
+              {...{
+                className:
+                  "w-[70vw] h-[80vh] flex flex-col bg-white dark:bg-neutral-900 rounded-3xl overflow-hidden",
+              }}
             >
-              <motion.div 
+              <motion.div
                 layoutId={`image-${active.title}-${id}`}
-                className="h-[80%] relative flex items-center justify-center p-4"
+                {...{
+                  className:
+                    "h-[80%] relative flex items-center justify-center p-4",
+                }}
               >
                 <embed
                   src={`/uploads/${active.pdf}#toolbar=0`}
@@ -75,7 +82,10 @@ export default function Certificate({ cards }: CertificateProps) {
               <div className="flex-1 overflow-auto p-8">
                 <motion.h3
                   layoutId={`title-${active.title}-${id}`}
-                  className="text-2xl font-bold text-neutral-700 dark:text-neutral-200 mb-4"
+                  {...{
+                    className:
+                      "text-2xl font-bold text-neutral-700 dark:text-neutral-200 mb-4",
+                  }}
                 >
                   {active.title}
                 </motion.h3>
@@ -84,11 +94,12 @@ export default function Certificate({ cards }: CertificateProps) {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="text-neutral-600 dark:text-neutral-400 text-base overflow-auto"
+                  {...{
+                    className:
+                      "text-neutral-600 dark:text-neutral-400 text-base overflow-auto",
+                  }}
                 >
-                  <p>
-                    {active.description}
-                  </p>
+                  <p>{active.description}</p>
                 </motion.div>
               </div>
             </motion.div>
@@ -100,8 +111,10 @@ export default function Certificate({ cards }: CertificateProps) {
           <motion.div
             layoutId={`card-${card.title}-${id}`}
             key={`card-${card.title}-${id}`}
-            onClick={() => setActive(card)}
-            className="flex flex-col md:flex-row justify-between items-center hover:bg-neutral-400 dark:hover:bg-neutral-800 rounded-xl cursor-pointer m-auto"
+            onTap={() => setActive(card)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            {...{className: "flex flex-col md:flex-row justify-between items-center hover:bg-neutral-400 dark:hover:bg-neutral-800 rounded-xl cursor-pointer m-auto"}}
           >
             <div className="flex gap-4 flex-col md:flex-row ">
               <motion.div layoutId={`image-${card.title}-${id}`}>
@@ -116,7 +129,7 @@ export default function Certificate({ cards }: CertificateProps) {
               <div className="flex items-center">
                 <motion.h3
                   layoutId={`title-${card.title}-${id}`}
-                  className="font-medium text-neutral-800 dark:text-neutral-200 text-center md:text-left"
+                  {...{className: "font-medium text-neutral-800 dark:text-neutral-200 text-center md:text-left"}}
                 >
                   {card.title}
                 </motion.h3>
@@ -125,10 +138,9 @@ export default function Certificate({ cards }: CertificateProps) {
           </motion.div>
         ))}
       </ul>
-      </>
-    )
+    </>
+  );
 }
-
 
 export const CloseIcon = () => {
   return (

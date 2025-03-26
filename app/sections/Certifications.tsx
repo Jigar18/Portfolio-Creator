@@ -21,7 +21,6 @@ const initialCards: Card[] = [
     description: "pLEAS work",
     pdf: "Jigar Resume MIP.pdf",
   },
-  // ...other initial cards
 ];
 
 export default function Certifications() {
