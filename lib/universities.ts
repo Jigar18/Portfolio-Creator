@@ -2,7 +2,7 @@ import { University } from "@/types/api";
 
 export async function getUniversities(query: string): Promise<string[]> {
     try {
-        const response = await fetch(`http://universities.hipolabs.com/search?name=${query}`);
+        const response = await fetch(`api/universities?name=${query}`);
         const data = await response.json();
         if (data.error) {
             throw new Error(data.msg);
@@ -14,6 +14,7 @@ export async function getUniversities(query: string): Promise<string[]> {
         const matchingUniversities = data.map((university: University) => `${university.name}, ${university.country}`);
         
         results.push(...matchingUniversities);
+        console.log(results);
 
         return results.sort((a, b) => {
             const aStartsWith = a.toLowerCase().startsWith(query.toLowerCase());

@@ -8,5 +8,7 @@
 
 ## BUG - in the education and experiance section there comes a view more button when the length of them is more than two but it doesn't hide the remainig thigs after the two lengths and just there always
 
+## BUG - User is able to access the api route
+
 ## UI Changes
 - [ ] add a loading spinner or something like that, on the places where callback is called and redirecting to this and that page is shown
