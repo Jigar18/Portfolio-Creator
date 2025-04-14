@@ -3,6 +3,11 @@ export interface Country {
   cities: string[];
 }
 
+export interface University {
+  name: string;
+  country: string;
+}
+
 export interface CountriesResponse {
   error: boolean;
   msg: string;

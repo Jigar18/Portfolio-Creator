@@ -1,6 +1,6 @@
 "use client";
 
-import  React from "react";
+import React from "react";
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { searchCities } from "@/lib/cities";
+import { getUniversities } from "@/lib/universities";
 
 const inputClassName =
   "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 text-gray-900 autofill:bg-slate-50";
@@ -25,6 +26,9 @@ export default function Details() {
     endYear: "",
   });
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
+  const [universitySuggestions, setUniversitySuggestions] = useState<string[]>(
+    []
+  );
   const [isSearching, setIsSearching] = useState(false);
 
   const router = useRouter();
@@ -39,14 +43,27 @@ export default function Details() {
     }));
   };
 
-  const debouncedSearch = React.useMemo(() =>
-    async (query: string) => {
+  const debouncedSearch = React.useMemo(
+    () => async (query: string) => {
       if (query.length < 2) {
         setCitySuggestions([]);
         return;
       }
       const results = await searchCities(query);
       setCitySuggestions(results);
+      setIsSearching(false);
+    },
+    []
+  );
+
+  const debouncedSearchUniversity = React.useMemo(
+    () => async (query: string) => {
+      if (query.length < 2) {
+        setCitySuggestions([]);
+        return;
+      }
+      const results = await getUniversities(query);
+      setUniversitySuggestions(results);
       setIsSearching(false);
     },
     []
@@ -62,6 +79,18 @@ export default function Details() {
   const handleCitySelect = (city: string) => {
     setFormData((prev) => ({ ...prev, location: city }));
     setCitySuggestions([]);
+  };
+
+  const handleUniversityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    handleInputChange(e);
+    setIsSearching(true);
+    debouncedSearchUniversity(value);
+  };
+
+  const handleUniversitySelect = (university: string) => {
+    setFormData((prev) => ({ ...prev, school: university }));
+    setUniversitySuggestions([]);
   };
 
   const nextStep = () => {
@@ -219,7 +248,7 @@ export default function Details() {
                     htmlFor="location"
                     className="text-gray-700 font-medium"
                   >
-                    Where are you based?
+                    Select your city?
                   </Label>
                   <div className="relative">
                     <Input
@@ -362,21 +391,48 @@ export default function Details() {
             {currentStep >= 4 && (
               <div className="transition-all duration-500 ease-in-out transform translate-y-0">
                 <div className="space-y-6">
-                  <div>
+                  <div className="relative">
                     <Label
                       htmlFor="school"
                       className="text-gray-700 font-medium"
                     >
                       School/College/University
                     </Label>
-                    <Input
-                      id="school"
-                      name="school"
-                      value={formData.school}
-                      onChange={handleInputChange}
-                      className={inputClassName}
-                      placeholder="e.g. Stanford University"
-                    />
+                    <div className="relative">
+                      <Input
+                        id="school"
+                        name="school"
+                        value={formData.school}
+                        onChange={handleUniversityChange}
+                        className={`${inputClassName} ${
+                          // universitySuggestions.length > 0 ?
+                             "rounded-b-none border-b-0"
+                            // : ""
+                        }`}
+                        placeholder="e.g. Stanford University"
+                        autoComplete="off"
+                      />
+                      {isSearching && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
+                        </div>
+                      )}
+                    </div>
+                    {universitySuggestions.length > 0 && (
+                      <div className="absolute left-0 right-0 bg-white border border-gray-300 rounded-b-md shadow-lg max-h-[180px] overflow-y-auto z-10">
+                        <ul className="py-1 divide-y divide-gray-100">
+                          {universitySuggestions.map((university, index) => (
+                            <li
+                              key={index}
+                              className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-gray-700 text-sm transition-colors"
+                              onClick={() => handleUniversitySelect(university)}
+                            >
+                              {university}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -412,7 +468,11 @@ export default function Details() {
                       />
                     </div>
                   </div>
-                  <div className="mt-6 flex justify-between">
+                  <div
+                    className={`mt-6 flex justify-between ${
+                      universitySuggestions.length > 0 ? "pt-48" : ""
+                    }`}
+                  >
                     <Button
                       onClick={prevStep}
                       variant="outline"
