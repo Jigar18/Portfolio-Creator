@@ -8,7 +8,10 @@ export async function GET(req: NextRequest) {
   const code = searchParams.get("code");
   const installation_id = searchParams.get("installation_id");
   if (!code) {
-    return NextResponse.json({ error: "GitHub OAuth code is missing" }, { status: 400 });
+    return NextResponse.json(
+      { error: "GitHub OAuth code is missing" },
+      { status: 400 }
+    );
   }
 
   try {
@@ -24,34 +27,46 @@ export async function GET(req: NextRequest) {
 
     const accessToken = tokenResponse.data.access_token;
     if (!accessToken) {
-      return NextResponse.json({ error: "Failed to obtain access token" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Failed to obtain access token" },
+        { status: 400 }
+      );
     }
 
     if (installation_id) {
-      return NextResponse.redirect(new URL(`/app-installed?installation_id=${installation_id}`, req.url));
+      return NextResponse.redirect(
+        new URL(`/app-installed?installation_id=${installation_id}`, req.url)
+      );
     }
 
     const userResponse = await axios.get("https://api.github.com/user", {
       headers: { Authorization: `token ${accessToken}` },
     });
-    
+
     const user = userResponse.data;
-    
+
     const token = jwt.sign(
       { githubId: user.id, username: user.login },
       process.env.JWT_SECRET!,
       { expiresIn: "30d" }
     );
-    
-    (await cookies()).set('auth_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+
+    (await cookies()).set("auth_token", token, {
+      secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 24 * 30,
     });
 
-    return NextResponse.redirect(new URL(`/app-install?access_token=${accessToken}&login=${user.login}`, req.url));
+    return NextResponse.redirect(
+      new URL(
+        `/app-install?access_token=${accessToken}&login=${user.login}`,
+        req.url
+      )
+    );
   } catch (error) {
     console.error("GitHub Auth Error:", error);
-    return NextResponse.json({ error: "Authentication failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Authentication failed" },
+      { status: 500 }
+    );
   }
 }
