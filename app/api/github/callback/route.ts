@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
-import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
 export async function GET(req: NextRequest) {
@@ -51,17 +50,18 @@ export async function GET(req: NextRequest) {
       { expiresIn: "30d" }
     );
 
-    (await cookies()).set("auth_token", token, {
+    const response = NextResponse.redirect(
+      new URL(`/app-install?access_token=${accessToken}&login=${user.login}`, req.url)
+    );
+    
+    response.cookies.set("auth_token", token, {
+      httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 24 * 30,
+      path: "/"
     });
-
-    return NextResponse.redirect(
-      new URL(
-        `/app-install?access_token=${accessToken}&login=${user.login}`,
-        req.url
-      )
-    );
+    
+    return response;
   } catch (error) {
     console.error("GitHub Auth Error:", error);
     return NextResponse.json(
