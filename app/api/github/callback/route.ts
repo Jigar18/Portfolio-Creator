@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { cookies } from "next/headers";
+import jwt from "jsonwebtoken";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -29,12 +31,23 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL(`/app-installed?installation_id=${installation_id}`, req.url));
     }
 
-    // Step 3: Fetch GitHub user info (OAuth flow)
     const userResponse = await axios.get("https://api.github.com/user", {
       headers: { Authorization: `token ${accessToken}` },
     });
-
+    
     const user = userResponse.data;
+    
+    const token = jwt.sign(
+      { githubId: user.id, username: user.login },
+      process.env.JWT_SECRET!,
+      { expiresIn: "30d" }
+    );
+    
+    (await cookies()).set('auth_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24 * 30,
+    });
 
     return NextResponse.redirect(new URL(`/app-install?access_token=${accessToken}&login=${user.login}`, req.url));
   } catch (error) {

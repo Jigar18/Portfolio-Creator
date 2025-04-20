@@ -26,7 +26,7 @@ export async function GET() {
 
     const accessToken = tokenResponse.data.token;
 
-    // Step 2: Fetch repositories
+    // Step 2: Fetch repositoriesF
     const reposResponse = await axios.get(
       `https://api.github.com/installation/repositories`,
       {

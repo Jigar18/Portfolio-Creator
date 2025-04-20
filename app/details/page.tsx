@@ -11,14 +11,27 @@ import { useRouter } from "next/navigation";
 import { searchCities } from "@/lib/cities";
 import { getUniversities } from "@/lib/universities";
 
+const globalStyles = `
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #1e293b inset !important;
+    -webkit-text-fill-color: #e2e8f0 !important;
+    transition: background-color 5000s ease-in-out 0s;
+    caret-color: #e2e8f0;
+  }
+`;
+
 const inputClassName =
-  "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 text-gray-900 autofill:bg-slate-50";
+  "w-full px-3 py-2 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200";
 
 export default function Details() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    email: "",
     location: "",
     jobTitle: "",
     school: "",
@@ -33,7 +46,7 @@ export default function Details() {
 
   const router = useRouter();
 
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -59,7 +72,7 @@ export default function Details() {
   const debouncedSearchUniversity = React.useMemo(
     () => async (query: string) => {
       if (query.length < 2) {
-        setCitySuggestions([]);
+        setUniversitySuggestions([]);
         return;
       }
       const results = await getUniversities(query);
@@ -102,135 +115,53 @@ export default function Details() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12 px-4 sm:px-6 flex items-center justify-center">
-      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="w-full bg-gray-100 h-2">
-          <div
-            className="bg-gray-600 h-2 transition-all duration-500 ease-out"
-            style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-          />
-        </div>
+    <>
+      <style jsx global>
+        {globalStyles}
+      </style>
 
-        <div className="p-8">
-          <div className="mb-10 text-center">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              {"Let's fill the details for your portfolio"}
-            </h1>
-            <p className="text-gray-500">
-              Step {currentStep} of {totalSteps}
-            </p>
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 py-12 px-4 sm:px-6 flex items-center justify-center">
+        <div className="max-w-2xl mx-auto bg-slate-900 rounded-xl shadow-xl overflow-hidden border border-slate-800">
+          <div className="w-full bg-slate-800 h-2">
+            <div
+              className="bg-blue-600 h-2 transition-all duration-500 ease-out"
+              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+            />
           </div>
 
-          <div className="space-y-8 max-w-xl mx-auto">
-            {/* Step 1: Name */}
-            <div
-              className={`transition-all duration-500 ease-in-out ${
-                currentStep > 1
-                  ? "-translate-y-2 opacity-80 scale-98 bg-gray-50 rounded-lg p-4"
-                  : ""
-              }`}
-            >
-              {currentStep > 1 && (
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center">
-                    <CheckCircle2 className="h-5 w-5 text-gray-500 mr-2" />
-                    <span className="text-sm font-medium text-gray-500">
-                      Personal Information
-                    </span>
-                  </div>
-                  {currentStep === 2 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={prevStep}
-                      className="text-gray-500 hover:text-gray-700 p-0 h-auto"
-                    >
-                      <span className="flex items-center">
-                        <ArrowLeft className="h-4 w-4 mr-1" />
-                        Edit
-                      </span>
-                    </Button>
-                  )}
-                </div>
-              )}
-
-              <div
-                className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${
-                  currentStep > 1 ? "opacity-70" : ""
-                }`}
-              >
-                <div>
-                  <Label
-                    htmlFor="firstName"
-                    className="text-gray-700 font-medium"
-                  >
-                    First Name
-                  </Label>
-                  <Input
-                    id="firstName"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    placeholder="Enter your first name"
-                    className={inputClassName}
-                    disabled={currentStep > 1}
-                  />
-                </div>
-                <div>
-                  <Label
-                    htmlFor="lastName"
-                    className="text-gray-700 font-medium"
-                  >
-                    Last Name
-                  </Label>
-                  <Input
-                    id="lastName"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    className={inputClassName}
-                    placeholder="Enter your last name"
-                    disabled={currentStep > 1}
-                  />
-                </div>
-              </div>
-
-              {currentStep === 1 && (
-                <div className="mt-6 flex justify-end">
-                  <Button
-                    onClick={nextStep}
-                    className="bg-gray-600 hover:bg-gray-700 text-white px-6"
-                    disabled={!formData.firstName || !formData.lastName}
-                  >
-                    Continue
-                  </Button>
-                </div>
-              )}
+          <div className="p-8">
+            <div className="mb-10 text-center">
+              <h1 className="text-3xl font-bold text-slate-100 mb-2">
+                {"Let's fill the details for your portfolio"}
+              </h1>
+              <p className="text-slate-400">
+                Step {currentStep} of {totalSteps}
+              </p>
             </div>
 
-            {/* Step 2: Location */}
-            {currentStep >= 2 && (
+            <div className="space-y-8 max-w-xl mx-auto">
+              {/* Step 1: Name */}
               <div
-                className={`transition-all duration-500 ease-in-out transform ${
-                  currentStep > 2
-                    ? "-translate-y-2 opacity-80 scale-98 bg-gray-50 rounded-lg p-4"
-                    : "translate-y-0"
+                className={`transition-all duration-500 ease-in-out ${
+                  currentStep > 1
+                    ? "-translate-y-2 opacity-80 scale-98 bg-slate-800/50 rounded-lg p-4"
+                    : ""
                 }`}
               >
-                {currentStep > 2 && (
+                {currentStep > 1 && (
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
-                      <CheckCircle2 className="h-5 w-5 text-gray-500 mr-2" />
-                      <span className="text-sm font-medium text-gray-500">
-                        Location
+                      <CheckCircle2 className="h-5 w-5 text-blue-400 mr-2" />
+                      <span className="text-sm font-medium text-slate-300">
+                        Personal Information
                       </span>
                     </div>
-                    {currentStep === 3 && (
+                    {currentStep === 2 && (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={prevStep}
-                        className="text-gray-500 hover:text-gray-700 p-0 h-auto"
+                        className="text-slate-300 hover:text-slate-100 p-0 h-auto"
                       >
                         <span className="flex items-center">
                           <ArrowLeft className="h-4 w-4 mr-1" />
@@ -242,262 +173,433 @@ export default function Details() {
                 )}
 
                 <div
-                  className={`${currentStep > 2 ? "opacity-70" : ""} relative`}
+                  className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${
+                    currentStep > 1 ? "opacity-70" : ""
+                  }`}
                 >
-                  <Label
-                    htmlFor="location"
-                    className="text-gray-700 font-medium"
-                  >
-                    Select your city?
-                  </Label>
-                  <div className="relative">
+                  <div>
+                    <Label
+                      htmlFor="firstName"
+                      className="text-slate-300 font-medium"
+                    >
+                      First Name
+                    </Label>
                     <Input
-                      id="location"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleLocationChange}
-                      className={`${inputClassName} ${
-                        citySuggestions.length > 0
-                          ? "rounded-b-none border-b-0"
-                          : ""
-                      }`}
-                      placeholder="Enter your city"
+                      id="firstName"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      placeholder="Enter your first name"
+                      className={inputClassName}
+                      disabled={currentStep > 1}
+                    />
+                  </div>
+                  <div>
+                    <Label
+                      htmlFor="lastName"
+                      className="text-slate-300 font-medium"
+                    >
+                      Last Name
+                    </Label>
+                    <Input
+                      id="lastName"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      className={inputClassName}
+                      placeholder="Enter your last name"
+                      disabled={currentStep > 1}
+                    />
+                  </div>
+                </div>
+
+                {currentStep === 1 && (
+                  <div className="mt-6 flex justify-end">
+                    <Button
+                      onClick={nextStep}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                      disabled={!formData.firstName || !formData.lastName}
+                    >
+                      Continue
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Step 2: Email */}
+              {currentStep >= 2 && (
+                <div
+                  className={`transition-all duration-500 ease-in-out transform ${
+                    currentStep > 2
+                      ? "-translate-y-2 opacity-80 scale-98 bg-slate-800/50 rounded-lg p-4"
+                      : "translate-y-0"
+                  }`}
+                >
+                  {currentStep > 2 && (
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center">
+                        <CheckCircle2 className="h-5 w-5 text-blue-400 mr-2" />
+                        <span className="text-sm font-medium text-slate-300">
+                          Email
+                        </span>
+                      </div>
+                      {currentStep === 3 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={prevStep}
+                          className="text-slate-300 hover:text-slate-100 p-0 h-auto"
+                        >
+                          <span className="flex items-center">
+                            <ArrowLeft className="h-4 w-4 mr-1" />
+                            Edit
+                          </span>
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                  <div className={`${currentStep > 2 ? "opacity-70" : ""}`}>
+                    <Label
+                      htmlFor="email"
+                      className="text-slate-300 font-medium"
+                    >
+                      Email Address
+                    </Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className={inputClassName}
+                      placeholder="Enter your email"
                       disabled={currentStep > 2}
                       autoComplete="off"
                     />
-                    {isSearching && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
-                      </div>
-                    )}
                   </div>
-                  {citySuggestions.length > 0 && currentStep === 2 && (
-                    <div className="absolute left-0 right-0 bg-white border border-gray-300 rounded-b-md shadow-lg max-h-[180px] overflow-y-auto">
-                      <ul className="py-1 divide-y divide-gray-100">
-                        {citySuggestions.map((city, index) => (
-                          <li
-                            key={index}
-                            className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-gray-700 text-sm transition-colors"
-                            onClick={() => handleCitySelect(city)}
-                          >
-                            {city}
-                          </li>
-                        ))}
-                      </ul>
+                  {currentStep === 2 && (
+                    <div className="mt-6 flex justify-between">
+                      <Button
+                        onClick={prevStep}
+                        variant="outline"
+                        className="text-slate-300 border-slate-600 hover:bg-slate-800 hover:text-slate-100"
+                      >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back
+                      </Button>
+                      <Button
+                        onClick={nextStep}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                        disabled={!formData.email}
+                      >
+                        Continue
+                      </Button>
                     </div>
                   )}
                 </div>
+              )}
 
-                {currentStep === 2 && (
-                  <div
-                    className={`mt-6 flex justify-between ${
-                      citySuggestions.length > 0 ? "pt-48" : ""
-                    }`}
-                  >
-                    <Button
-                      onClick={prevStep}
-                      variant="outline"
-                      className="text-gray-600 border-gray-300"
-                    >
-                      <ArrowLeft className="h-4 w-4 mr-2" />
-                      Back
-                    </Button>
-                    <Button
-                      onClick={nextStep}
-                      className="bg-gray-600 hover:bg-gray-700 text-white px-6"
-                      disabled={!formData.location}
-                    >
-                      Continue
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Step 3: Job Title */}
-            {currentStep >= 3 && (
-              <div
-                className={`transition-all duration-500 ease-in-out transform ${
-                  currentStep > 3
-                    ? "-translate-y-2 opacity-80 scale-98 bg-gray-50 rounded-lg p-4"
-                    : "translate-y-0"
-                }`}
-              >
-                {currentStep > 3 && (
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center">
-                      <CheckCircle2 className="h-5 w-5 text-gray-500 mr-2" />
-                      <span className="text-sm font-medium text-gray-500">
-                        Professional Experience
-                      </span>
-                    </div>
-                    {currentStep === 4 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={prevStep}
-                        className="text-gray-500 hover:text-gray-700 p-0 h-auto"
-                      >
-                        <span className="flex items-center">
-                          <ArrowLeft className="h-4 w-4 mr-1" />
-                          Edit
+              {/* Step 3: Location */}
+              {currentStep >= 3 && (
+                <div
+                  className={`transition-all duration-500 ease-in-out transform ${
+                    currentStep > 3
+                      ? "-translate-y-2 opacity-80 scale-98 bg-slate-800/50 rounded-lg p-4"
+                      : "translate-y-0"
+                  }`}
+                >
+                  {currentStep > 3 && (
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center">
+                        <CheckCircle2 className="h-5 w-5 text-blue-400 mr-2" />
+                        <span className="text-sm font-medium text-slate-300">
+                          Location
                         </span>
-                      </Button>
-                    )}
-                  </div>
-                )}
+                      </div>
+                      {currentStep === 4 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={prevStep}
+                          className="text-slate-300 hover:text-slate-100 p-0 h-auto"
+                        >
+                          <span className="flex items-center">
+                            <ArrowLeft className="h-4 w-4 mr-1" />
+                            Edit
+                          </span>
+                        </Button>
+                      )}
+                    </div>
+                  )}
 
-                <div className={`${currentStep > 3 ? "opacity-70" : ""}`}>
-                  <Label
-                    htmlFor="jobTitle"
-                    className="text-gray-700 font-medium"
+                  <div
+                    className={`${
+                      currentStep > 3 ? "opacity-70" : ""
+                    } relative`}
                   >
-                    Most Recent Job Title
-                  </Label>
-                  <Input
-                    id="jobTitle"
-                    name="jobTitle"
-                    value={formData.jobTitle}
-                    onChange={handleInputChange}
-                    className={inputClassName}
-                    placeholder="e.g. Software Engineer"
-                    disabled={currentStep > 3}
-                  />
-                </div>
-
-                {currentStep === 3 && (
-                  <div className="mt-6 flex justify-between">
-                    <Button
-                      onClick={prevStep}
-                      variant="outline"
-                      className="text-gray-600 border-gray-300"
-                    >
-                      <ArrowLeft className="h-4 w-4 mr-2" />
-                      Back
-                    </Button>
-                    <Button
-                      onClick={nextStep}
-                      className="bg-gray-600 hover:bg-gray-700 text-white px-6"
-                      disabled={!formData.jobTitle}
-                    >
-                      Continue
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Step 4: Education */}
-            {currentStep >= 4 && (
-              <div className="transition-all duration-500 ease-in-out transform translate-y-0">
-                <div className="space-y-6">
-                  <div className="relative">
                     <Label
-                      htmlFor="school"
-                      className="text-gray-700 font-medium"
+                      htmlFor="location"
+                      className="text-slate-300 font-medium"
                     >
-                      School/College/University
+                      Select your city?
                     </Label>
                     <div className="relative">
                       <Input
-                        id="school"
-                        name="school"
-                        value={formData.school}
-                        onChange={handleUniversityChange}
+                        id="location"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleLocationChange}
                         className={`${inputClassName} ${
-                          // universitySuggestions.length > 0 ?
-                             "rounded-b-none border-b-0"
-                            // : ""
+                          citySuggestions.length > 0
+                            ? "rounded-b-none border-b-0"
+                            : ""
                         }`}
-                        placeholder="e.g. Stanford University"
+                        placeholder="Enter your city"
+                        disabled={currentStep > 3}
                         autoComplete="off"
                       />
                       {isSearching && (
                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-400"></div>
                         </div>
                       )}
                     </div>
-                    {universitySuggestions.length > 0 && (
-                      <div className="absolute left-0 right-0 bg-white border border-gray-300 rounded-b-md shadow-lg max-h-[180px] overflow-y-auto z-10">
-                        <ul className="py-1 divide-y divide-gray-100">
-                          {universitySuggestions.map((university, index) => (
+                    {citySuggestions.length > 0 && currentStep === 3 && (
+                      <div className="absolute left-0 right-0 bg-slate-800 border border-slate-700 rounded-b-md shadow-lg max-h-[180px] overflow-y-auto z-10">
+                        <ul className="py-1 divide-y divide-slate-700">
+                          {citySuggestions.map((city, index) => (
                             <li
                               key={index}
-                              className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-gray-700 text-sm transition-colors"
-                              onClick={() => handleUniversitySelect(university)}
+                              className="px-4 py-2.5 hover:bg-slate-700 cursor-pointer text-slate-200 text-sm transition-colors"
+                              onClick={() => handleCitySelect(city)}
                             >
-                              {university}
+                              {city}
                             </li>
                           ))}
                         </ul>
                       </div>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <Label
-                        htmlFor="startYear"
-                        className="text-gray-700 font-medium"
+
+                  {currentStep === 3 && (
+                    <div
+                      className={`mt-6 flex justify-between ${
+                        citySuggestions.length > 0 ? "pt-48" : ""
+                      }`}
+                    >
+                      <Button
+                        onClick={prevStep}
+                        variant="outline"
+                        className="text-slate-300 border-slate-600 hover:bg-slate-800 hover:text-slate-100"
                       >
-                        Start Year
-                      </Label>
-                      <Input
-                        id="startYear"
-                        name="startYear"
-                        value={formData.startYear}
-                        onChange={handleInputChange}
-                        className={inputClassName}
-                        placeholder="e.g. 2018"
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="endYear"
-                        className="text-gray-700 font-medium"
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back
+                      </Button>
+                      <Button
+                        onClick={nextStep}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                        disabled={!formData.location}
                       >
-                        End Year
-                      </Label>
-                      <Input
-                        id="endYear"
-                        name="endYear"
-                        onChange={handleInputChange}
-                        value={formData.endYear}
-                        className={inputClassName}
-                        placeholder="e.g. 2022 (or Present)"
-                      />
+                        Continue
+                      </Button>
                     </div>
+                  )}
+                </div>
+              )}
+
+              {/* Step 4: Job Title */}
+              {currentStep >= 4 && (
+                <div
+                  className={`transition-all duration-500 ease-in-out transform ${
+                    currentStep > 4
+                      ? "-translate-y-2 opacity-80 scale-98 bg-slate-800/50 rounded-lg p-4"
+                      : "translate-y-0"
+                  }`}
+                >
+                  {currentStep > 4 && (
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center">
+                        <CheckCircle2 className="h-5 w-5 text-blue-400 mr-2" />
+                        <span className="text-sm font-medium text-slate-300">
+                          Professional Experience
+                        </span>
+                      </div>
+                      {currentStep === 5 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={prevStep}
+                          className="text-slate-300 hover:text-slate-100 p-0 h-auto"
+                        >
+                          <span className="flex items-center">
+                            <ArrowLeft className="h-4 w-4 mr-1" />
+                            Edit
+                          </span>
+                        </Button>
+                      )}
+                    </div>
+                  )}
+
+                  <div className={`${currentStep > 4 ? "opacity-70" : ""}`}>
+                    <Label
+                      htmlFor="jobTitle"
+                      className="text-slate-300 font-medium"
+                    >
+                      Most Recent Job Title
+                    </Label>
+                    <Input
+                      id="jobTitle"
+                      name="jobTitle"
+                      value={formData.jobTitle}
+                      onChange={handleInputChange}
+                      className={inputClassName}
+                      placeholder="e.g. Software Engineer"
+                      disabled={currentStep > 4}
+                    />
                   </div>
-                  <div
-                    className={`mt-6 flex justify-between ${
-                      universitySuggestions.length > 0 ? "pt-48" : ""
-                    }`}
-                  >
-                    <Button
-                      onClick={prevStep}
-                      variant="outline"
-                      className="text-gray-600 border-gray-300"
+
+                  {currentStep === 4 && (
+                    <div className="mt-6 flex justify-between">
+                      <Button
+                        onClick={prevStep}
+                        variant="outline"
+                        className="text-slate-300 border-slate-600 hover:bg-slate-800 hover:text-slate-100"
+                      >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back
+                      </Button>
+                      <Button
+                        onClick={nextStep}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                        disabled={!formData.jobTitle}
+                      >
+                        Continue
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Step 5: Education */}
+              {currentStep >= 5 && (
+                <div className="transition-all duration-500 ease-in-out transform translate-y-0">
+                  <div className="space-y-6">
+                    <div className="relative">
+                      <Label
+                        htmlFor="school"
+                        className="text-slate-300 font-medium"
+                      >
+                        School or College/University
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="school"
+                          name="school"
+                          value={formData.school}
+                          onChange={handleUniversityChange}
+                          className={`${inputClassName} ${
+                            universitySuggestions.length > 0
+                              ? "rounded-b-none border-b-0"
+                              : ""
+                          }`}
+                          placeholder="e.g. Stanford University"
+                          autoComplete="off"
+                        />
+                        {isSearching && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-400"></div>
+                          </div>
+                        )}
+                      </div>
+                      {universitySuggestions.length > 0 && (
+                        <div className="absolute left-0 right-0 bg-slate-800 border border-slate-700 rounded-b-md shadow-lg max-h-[180px] overflow-y-auto z-10">
+                          <ul className="py-1 divide-y divide-slate-700">
+                            {universitySuggestions.map((university, index) => (
+                              <li
+                                key={index}
+                                className="px-4 py-2.5 hover:bg-slate-700 cursor-pointer text-slate-200 text-sm transition-colors"
+                                onClick={() =>
+                                  handleUniversitySelect(university)
+                                }
+                              >
+                                {university}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <Label
+                          htmlFor="startYear"
+                          className="text-slate-300 font-medium"
+                        >
+                          Start Year
+                        </Label>
+                        <Input
+                          id="startYear"
+                          name="startYear"
+                          value={formData.startYear}
+                          onChange={handleInputChange}
+                          className={inputClassName}
+                          placeholder="e.g. 2018"
+                        />
+                      </div>
+                      <div>
+                        <Label
+                          htmlFor="endYear"
+                          className="text-slate-300 font-medium"
+                        >
+                          End Year
+                        </Label>
+                        <Input
+                          id="endYear"
+                          name="endYear"
+                          onChange={handleInputChange}
+                          value={formData.endYear}
+                          className={inputClassName}
+                          placeholder="e.g. 2022"
+                        />
+                      </div>
+                    </div>
+                    <div
+                      className={`mt-6 flex justify-between ${
+                        universitySuggestions.length > 0 ? "pt-48" : ""
+                      }`}
                     >
-                      <ArrowLeft className="h-4 w-4 mr-2" />
-                      Back
-                    </Button>
-                    <Button
-                      className="bg-gray-600 hover:bg-gray-700 text-white px-6"
-                      disabled={!formData.school || !formData.startYear}
-                      onClick={() => {
-                        console.log(formData);
-                        router.push("/user/jigar");
-                      }}
-                    >
-                      Complete Profile
-                    </Button>
+                      <Button
+                        onClick={prevStep}
+                        variant="outline"
+                        className="text-slate-300 border-slate-600 hover:bg-slate-800 hover:text-slate-100"
+                      >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back
+                      </Button>
+                      <Button
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                        disabled={!formData.school || !formData.startYear}
+                        onClick={() => {
+                          fetch("/api/detailsToDB", {
+                            method: "POST",
+                            headers: {
+                              "Content-type": "application/json",
+                            },
+                            body: JSON.stringify(formData),
+                          });
+                          router.push("/user/jigar");
+                        }}
+                      >
+                        Complete Profile
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

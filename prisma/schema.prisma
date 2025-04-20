@@ -22,4 +22,18 @@ model User {
   installationId String?   @unique
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  // details        Details?
+}
+
+model Details {
+  // user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id String @unique @default(uuid())
+  // userId String @id @default(uuid())
+  firstName String
+  lastName  String
+  location String
+  jobTitle String
+  college String
+  startYear Int
+  endYear Int
 }

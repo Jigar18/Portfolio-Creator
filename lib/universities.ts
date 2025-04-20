@@ -14,7 +14,7 @@ export async function getUniversities(query: string): Promise<string[]> {
         const matchingUniversities = data.map((university: University) => `${university.name}, ${university.country}`);
         
         results.push(...matchingUniversities);
-        console.log(results);
+        // console.log(results);
 
         return results.sort((a, b) => {
             const aStartsWith = a.toLowerCase().startsWith(query.toLowerCase());

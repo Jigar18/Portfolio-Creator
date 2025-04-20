@@ -29,7 +29,7 @@ function InstallAppContent() {
           const installations = response.data.installations;
 
           if (installations.length > 0) {
-            router.push("/dashboard");
+            router.push("/details");
           } else {
             window.location.href =
               "https://github.com/apps/portfolio-creator/installations/new";
