@@ -56,6 +56,9 @@ importers:
       framer-motion:
         specifier: ^10.18.0
         version: 10.18.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      jose:
+        specifier: ^6.0.10
+        version: 6.0.10
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
@@ -2031,6 +2034,9 @@ packages:
   jiti@1.21.7:
     resolution: {integrity: sha512-/imKNG4EbWNrVjoNC/1H5/9GFy+tqjGBHCaSsN+P2RnPqjsLmv6UD3Ej+Kj8nBWaRAwyk7kK5ZUc+OEatnTR3A==}
     hasBin: true
+
+  jose@6.0.10:
+    resolution: {integrity: sha512-skIAxZqcMkOrSwjJvplIPYrlXGpxTPnro2/QWTDCxAdWQrSTV5/KqspMWmi5WAx5+ULswASJiZ0a+1B/Lxt9cw==}
 
   js-cookie@3.0.5:
     resolution: {integrity: sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==}
@@ -5048,6 +5054,8 @@ snapshots:
       supports-color: 8.1.1
 
   jiti@1.21.7: {}
+
+  jose@6.0.10: {}
 
   js-cookie@3.0.5: {}
 

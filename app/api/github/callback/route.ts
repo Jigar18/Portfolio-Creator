@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
-import jwt from "jsonwebtoken";
+import { SignJWT } from "jose";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
   const installation_id = searchParams.get("installation_id");
+  
   if (!code) {
     return NextResponse.json(
       { error: "GitHub OAuth code is missing" },
@@ -44,11 +45,12 @@ export async function GET(req: NextRequest) {
 
     const user = userResponse.data;
 
-    const token = jwt.sign(
-      { githubId: user.id, username: user.login },
-      process.env.JWT_SECRET!,
-      { expiresIn: "30d" }
-    );
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const token = await new SignJWT({ githubId: user.id, username: user.login })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('30d')
+      .sign(secret);
 
     const response = NextResponse.redirect(
       new URL(`/app-install?access_token=${accessToken}&login=${user.login}`, req.url)

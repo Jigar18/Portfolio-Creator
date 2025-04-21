@@ -28,6 +28,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^16.4.7",
     "framer-motion": "^10.18.0",
+    "jose": "^6.0.10",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "lucide-react": "^0.471.0",
