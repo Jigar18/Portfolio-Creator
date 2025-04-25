@@ -6,8 +6,6 @@ const WEBHOOK_HANDLER_VERSION = "1.0.2";
 export async function POST(req: NextRequest) {
   const event = req.headers.get("x-github-event");
 
-  console.log(`[Webhook ${WEBHOOK_HANDLER_VERSION}] Processing ${event} event`);
-
   if (event === "installation") {
     try {
       const body = await req.json();

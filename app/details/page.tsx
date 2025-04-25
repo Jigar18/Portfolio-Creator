@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -43,10 +42,29 @@ export default function Details() {
     []
   );
   const [isSearching, setIsSearching] = useState(false);
+  const [isLoadingEmail, setIsLoadingEmail] = useState(true);
 
   const router = useRouter();
 
   const totalSteps = 5;
+
+  useEffect(() => {
+    const fetchEmail = async () => {
+      try {
+        const response = await fetch("/api/emailFetch");
+        const data = await response.json();
+        if (data.email) {
+          setFormData((prev) => ({ ...prev, email: data.email }));
+        }
+      } catch (error) {
+        console.error("Failed to fetch email:", error);
+      } finally {
+        setIsLoadingEmail(false);
+      }
+    };
+
+    fetchEmail();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -273,9 +291,14 @@ export default function Details() {
                       onChange={handleInputChange}
                       className={inputClassName}
                       placeholder="Enter your email"
-                      disabled={currentStep > 2}
+                      disabled={currentStep > 2 || isLoadingEmail}
                       autoComplete="off"
                     />
+                    {isLoadingEmail && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-400"></div>
+                      </div>
+                    )}
                   </div>
                   {currentStep === 2 && (
                     <div className="mt-6 flex justify-between">

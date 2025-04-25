@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 
 export async function GET() {
-  const installationId = process.env.GITHUB_APP_INSTALLATION_ID;
+  const installationId = process.env.GITHUB_APP_INSTALLATION_ID;  // Ftch from the user
 
   if (!installationId) {
     return NextResponse.json(
@@ -20,6 +20,7 @@ export async function GET() {
         headers: {
           Authorization: `Bearer ${process.env.GITHUB_APP_JWT}`,
           Accept: "application/vnd.github.v3+json",
+          'Content-Type': 'application/json',
         },
       }
     );

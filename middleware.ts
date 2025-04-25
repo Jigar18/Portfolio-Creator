@@ -10,13 +10,10 @@ export async function middleware(req: NextRequest) {
   }
 
   try {
-    // Convert JWT_SECRET to proper format for jose
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
     
-    // Verify the token
     await jwtVerify(token, secret);
     
-    // If verification succeeds, allow the request
     return NextResponse.next();
   } catch (err) {
     console.error("Token verification failed:", err);
