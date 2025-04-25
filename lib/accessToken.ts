@@ -5,7 +5,7 @@ import { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
 export async function getAccessToken(req: NextRequest) {
-  const token = req.cookies.get("auth-token")?.value;
+  const token = req.cookies.get("auth_token")?.value;
 
   if (!token) {
     throw new Error("Authentication token is missing");

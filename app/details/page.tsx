@@ -52,6 +52,18 @@ export default function Details() {
     const fetchEmail = async () => {
       try {
         const response = await fetch("/api/emailFetch");
+
+        if (!response.ok) {
+          // Handle authentication errors
+          if (response.status === 401) {
+            console.log("Authentication error: User needs to be logged in");
+            setIsLoadingEmail(false);
+            return;
+          }
+
+          throw new Error(`Failed to fetch email: ${response.status}`);
+        }
+
         const data = await response.json();
         if (data.email) {
           setFormData((prev) => ({ ...prev, email: data.email }));
@@ -290,7 +302,9 @@ export default function Details() {
                       value={formData.email}
                       onChange={handleInputChange}
                       className={inputClassName}
-                      placeholder="Enter your email"
+                      placeholder={
+                        isLoadingEmail ? "Loading..." : "Enter your email"
+                      }
                       disabled={currentStep > 2 || isLoadingEmail}
                       autoComplete="off"
                     />
@@ -298,6 +312,12 @@ export default function Details() {
                       <div className="absolute right-3 top-1/2 -translate-y-1/2">
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-400"></div>
                       </div>
+                    )}
+                    {!isLoadingEmail && !formData.email && (
+                      <p className="text-xs text-slate-400 mt-1">
+                        Note: You need to be logged in with GitHub to auto-fill
+                        your email
+                      </p>
                     )}
                   </div>
                   {currentStep === 2 && (
