@@ -28,7 +28,7 @@ export async function getAccessToken(req: NextRequest) {
     exp: Math.floor(Date.now() / 1000) + 10 * 60,
   };
 
-  const privateKey = process.env.GITHUB_APP_PRIVATE_KEY!.replace(/\\n/g, "\n");
+  const privateKey = process.env.GITHUB_APP_PRIVATE_KEY!;
 
   const jwtToken = jwt.sign(payloadCreate, privateKey, { algorithm: "RS256" });
 
