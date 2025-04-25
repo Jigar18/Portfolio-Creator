@@ -18,7 +18,7 @@ export async function getAccessToken(req: NextRequest) {
   const githubId = payload.githubId as string;
 
   const userInfo = await db.user.findUnique({
-    where: { githubId: githubId },
+    where: { githubId: String(githubId) },
     select: { installationId: true },
   });
 
