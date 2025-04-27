@@ -11,39 +11,54 @@ export async function getAccessToken(req: NextRequest) {
     throw new Error("Authentication token is missing");
   }
 
-  const { payload } = await jwtVerify(
-    token,
-    new TextEncoder().encode(process.env.JWT_SECRET)
-  );
-  const githubId = payload.githubId as string;
+  try {
+    const { payload } = await jwtVerify(
+      token,
+      new TextEncoder().encode(process.env.JWT_SECRET)
+    );
+    const githubId = payload.githubId as string;
 
-  const userInfo = await db.user.findUnique({
-    where: { githubId: String(githubId) },
-    select: { installationId: true },
-  });
+    const userInfo = await db.user.findUnique({
+      where: { githubId: String(githubId) },
+      select: { installationId: true },
+    });
 
-  const payloadCreate = {
-    iss: process.env.GITHUB_APP_ID,
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 10 * 60,
-  };
-
-  const privateKey = process.env.GITHUB_APP_PRIVATE_KEY!;
-
-  const jwtToken = jwt.sign(payloadCreate, privateKey, { algorithm: "RS256" });
-
-  const tokenResponse = await axios.post(
-    `https://api.github.com/app/installations/${userInfo?.installationId}/access_tokens`,
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${jwtToken}`,
-        Accept: "application/vnd.github.v3+json",
-        "Content-Type": "application/json",
-      },
+    if (!userInfo || !userInfo.installationId) {
+      throw new Error("User installation ID not found");
     }
-  );
 
-  const accessToken = tokenResponse.data.token;
-  return accessToken;
+    const payloadCreate = {
+      iss: process.env.GITHUB_APP_ID,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 10 * 60,
+    };
+
+    const privateKey = process.env.GITHUB_APP_PRIVATE_KEY!;
+
+    if (!privateKey) {
+      throw new Error("GitHub app private key is missing");
+    }
+
+    const jwtToken = jwt.sign(payloadCreate, privateKey, {
+      algorithm: "RS256",
+    });
+
+    const tokenResponse = await axios.post(
+      `https://api.github.com/app/installations/${userInfo.installationId}/access_tokens`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+          Accept: "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const accessToken = tokenResponse.data.token;
+    return accessToken;
+  } catch (error) {
+    console.error("Error getting access token:", error);
+    throw new Error("Failed to get GitHub access token");
+  }
 }

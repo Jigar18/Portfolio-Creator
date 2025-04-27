@@ -61,12 +61,18 @@ export default function Details() {
             return;
           }
 
-          throw new Error(`Failed to fetch email: ${response.status}`);
+          // Handle other errors
+          const errorData = await response.json();
+          console.error(`Failed to fetch email: ${response.status}`, errorData);
+          setIsLoadingEmail(false);
+          return;
         }
 
         const data = await response.json();
         if (data.email) {
           setFormData((prev) => ({ ...prev, email: data.email }));
+        } else {
+          console.log("No email found in response");
         }
       } catch (error) {
         console.error("Failed to fetch email:", error);
