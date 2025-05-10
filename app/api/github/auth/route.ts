@@ -4,6 +4,10 @@ export async function GET(req: NextRequest) {
   try {
     const redirectUri = `${req.nextUrl.origin}/api/github/callback`;
 
+    // Check whether client wants JSON response or redirect
+    const responseType =
+      req.nextUrl.searchParams.get("response_type") || "redirect";
+
     // Generate random state for security
     const state = Math.random().toString(36).substring(2, 15);
 
@@ -20,6 +24,16 @@ export async function GET(req: NextRequest) {
     // Set a return_to parameter to know where to redirect after authentication
     const returnTo = req.nextUrl.searchParams.get("return_to") || "/dashboard";
 
+    // If JSON response is requested, return the URL for client-side redirect
+    if (responseType === "json") {
+      return NextResponse.json({
+        authUrl: oauthUrl.toString(),
+        state: state,
+        returnTo: returnTo,
+      });
+    }
+
+    // Otherwise, perform server-side redirect
     const response = NextResponse.redirect(oauthUrl);
 
     // Store the return_to path in a cookie

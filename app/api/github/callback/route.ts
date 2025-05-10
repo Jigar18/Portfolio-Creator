@@ -63,8 +63,9 @@ export async function GET(req: NextRequest) {
     const returnTo = req.cookies.get("oauth_return_to")?.value;
 
     if (returnTo && returnTo.includes("emailFetch")) {
-      // If this was an email permission request, redirect back to the email fetch endpoint
-      redirectUrl = new URL(`/api/emailFetch?code=${code}`, req.url);
+      // If this was an email permission request, redirect to a success page
+      // instead of directly to the API endpoint to avoid CORS issues
+      redirectUrl = new URL(`/email-auth-success`, req.url);
     } else if (installation_id) {
       // Regular app installation flow
       redirectUrl = new URL(

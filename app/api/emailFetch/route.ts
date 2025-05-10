@@ -19,14 +19,23 @@ export async function GET(req: NextRequest) {
         }
       );
     } catch (emailError) {
-      // If we got a 403 (forbidden), we need to redirect to get proper permissions
+      // If we got a 403 (forbidden), we need to send back auth URL
       if (
         axios.isAxiosError(emailError) &&
         emailError.response?.status === 403
       ) {
-        // Redirect to the OAuth flow to get email permissions
-        return NextResponse.redirect(
-          new URL(`/api/github/auth?return_to=/api/emailFetch`, req.url)
+        // Instead of redirecting, return a JSON response with auth URL
+        const authUrl = new URL(
+          `/api/github/auth?return_to=/api/emailFetch`,
+          req.url
+        ).toString();
+        return NextResponse.json(
+          {
+            error: "Email permission required",
+            authUrl: authUrl,
+            needsAuth: true,
+          },
+          { status: 401 }
         );
       }
       // If it's another error, re-throw

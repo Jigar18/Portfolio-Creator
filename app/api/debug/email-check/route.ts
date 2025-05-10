@@ -12,18 +12,19 @@ export async function GET(req: NextRequest) {
     // This will follow redirects automatically
 
     if (!emailResponse.ok) {
-      if (emailResponse.status === 302 || emailResponse.status === 307) {
-        // This is a redirect, tell the client
-        const location = emailResponse.headers.get("location");
+      // Parse the response as JSON
+      const errorData = await emailResponse.json();
+
+      // Check if it's an auth error requiring GitHub permissions
+      if (errorData.needsAuth && errorData.authUrl) {
         return NextResponse.json({
-          status: "redirect",
-          location: location,
-          message: "Email fetch redirected for OAuth permissions",
+          status: "auth_required",
+          authUrl: errorData.authUrl,
+          message: errorData.error || "GitHub authorization required",
         });
       }
 
       // Other errors
-      const errorData = await emailResponse.json();
       return NextResponse.json({
         status: "error",
         error: errorData.error || "Unknown error",
