@@ -103,7 +103,7 @@ export async function getAccessToken(req: NextRequest) {
         return payload.oauthToken as string;
       }
     } catch (jwtError) {
-      console.warn("JWT token doesn't contain OAuth token or is invalid");
+      console.warn("JWT token doesn't contain OAuth token or is invalid", jwtError);
     }
 
     // Check for code parameter

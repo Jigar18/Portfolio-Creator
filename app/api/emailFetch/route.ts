@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
           },
         }
       );
-    } catch (emailError: any) {
+    } catch (emailError) {
       // If we got a 403 (forbidden), we need to redirect to get proper permissions
       if (
         axios.isAxiosError(emailError) &&

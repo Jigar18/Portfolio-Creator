@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { SignJWT } from "jose";
-import { db } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
   const installation_id = searchParams.get("installation_id");
-  const state = searchParams.get("state");
 
   if (!code) {
     return NextResponse.json(
