@@ -6,15 +6,32 @@ export async function GET(req: NextRequest) {
   try {
     const accessToken = await getAccessToken(req);
 
-    const userEmailsResponse = await axios.get(
-      "https://api.github.com/user/emails",
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          Accept: "application/vnd.github.v3+json",
-        },
+    // Try to fetch user emails
+    let userEmailsResponse;
+    try {
+      userEmailsResponse = await axios.get(
+        "https://api.github.com/user/emails",
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            Accept: "application/vnd.github.v3+json",
+          },
+        }
+      );
+    } catch (emailError: any) {
+      // If we got a 403 (forbidden), we need to redirect to get proper permissions
+      if (
+        axios.isAxiosError(emailError) &&
+        emailError.response?.status === 403
+      ) {
+        // Redirect to the OAuth flow to get email permissions
+        return NextResponse.redirect(
+          new URL(`/api/github/auth?return_to=/api/emailFetch`, req.url)
+        );
       }
-    );
+      // If it's another error, re-throw
+      throw emailError;
+    }
 
     interface GithubEmail {
       email: string;
@@ -57,7 +74,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ email: primaryEmail });
   } catch (err: unknown) {
-    console.error("Email fetch error:", err);
+    console.error("  error:", err);
 
     if (axios.isAxiosError(err)) {
       // GitHub API error

@@ -4,7 +4,8 @@ import axios from "axios";
 import { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-export async function getAccessToken(req: NextRequest) {
+// Function to get installation token for repositories and other GitHub App scopes
+export async function getInstallationAccessToken(req: NextRequest) {
   const token = req.cookies.get("auth_token")?.value;
 
   if (!token) {
@@ -67,7 +68,7 @@ export async function getAccessToken(req: NextRequest) {
 
     return accessToken;
   } catch (error) {
-    console.error("Error getting access token:", error);
+    console.error("Error getting installation access token:", error);
     if (axios.isAxiosError(error) && error.response) {
       console.error("GitHub API response:", {
         status: error.response.status,
@@ -77,6 +78,60 @@ export async function getAccessToken(req: NextRequest) {
         `GitHub API error: ${error.response.status} - ${error.response.statusText}`
       );
     }
-    throw new Error("Failed to get GitHub access token");
+    throw new Error("Failed to get GitHub installation access token");
+  }
+}
+
+// Function to create a new authentication token for user-specific operations
+export async function getAccessToken(req: NextRequest) {
+  try {
+    const token = req.cookies.get("auth_token")?.value;
+
+    if (!token) {
+      throw new Error("Authentication token is missing");
+    }
+
+    // Check if we have the token in the JWT first
+    try {
+      const { payload } = await jwtVerify(
+        token,
+        new TextEncoder().encode(process.env.JWT_SECRET)
+      );
+
+      // If we have an OAuth token in the JWT payload, use it
+      if (payload.oauthToken) {
+        return payload.oauthToken as string;
+      }
+    } catch (jwtError) {
+      console.warn("JWT token doesn't contain OAuth token or is invalid");
+    }
+
+    // Check for code parameter
+    const code = req.url.split("code=")[1]?.split("&")[0];
+
+    if (code) {
+      // Exchange the code for an access token with user:email scope
+      const tokenResponse = await axios.post(
+        "https://github.com/login/oauth/access_token",
+        {
+          client_id: process.env.NEXT_PUBLIC_GITHUB_APP_CLIENT_ID,
+          client_secret: process.env.GITHUB_APP_CLIENT_SECRET,
+          code,
+          scope: "user:email",
+        },
+        { headers: { Accept: "application/json" } }
+      );
+
+      const accessToken = tokenResponse.data.access_token;
+      if (accessToken) {
+        return accessToken;
+      }
+    }
+
+    // Fall back to installation token if no OAuth token is available
+    return getInstallationAccessToken(req);
+  } catch (error) {
+    console.error("Error getting user access token:", error);
+    return getInstallationAccessToken(req);
   }
 }

@@ -12,7 +12,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  directUrl = env("DIRECT_URL") // This is optional for local development
 }
 
 model User {
@@ -20,6 +20,7 @@ model User {
   githubId       String    @unique
   username       String    @unique
   installationId String?   @unique
+  accessToken    String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   // details        Details?
