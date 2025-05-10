@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
       "https://api.github.com/user/emails",
       {
         headers: {
-          Authorization: `token ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           Accept: "application/vnd.github.v3+json",
         },
       }
@@ -23,11 +23,32 @@ export async function GET(req: NextRequest) {
       visibility: string | null;
     }
 
+    console.log(
+      "GitHub email response data:",
+      JSON.stringify(userEmailsResponse.data)
+    );
+
+    if (!Array.isArray(userEmailsResponse.data)) {
+      return NextResponse.json(
+        { error: "Unexpected response format from GitHub API" },
+        { status: 500 }
+      );
+    }
+
     const primaryEmail = userEmailsResponse.data.find(
       (emailObj: GithubEmail) => emailObj.primary
     )?.email;
 
     if (!primaryEmail) {
+      // Try to get any verified email if primary is not found
+      const verifiedEmail = userEmailsResponse.data.find(
+        (emailObj: GithubEmail) => emailObj.verified
+      )?.email;
+
+      if (verifiedEmail) {
+        return NextResponse.json({ email: verifiedEmail });
+      }
+
       return NextResponse.json(
         { error: "No primary email found" },
         { status: 404 }

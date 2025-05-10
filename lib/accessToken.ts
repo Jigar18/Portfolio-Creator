@@ -18,6 +18,10 @@ export async function getAccessToken(req: NextRequest) {
     );
     const githubId = payload.githubId as string;
 
+    if (!githubId) {
+      throw new Error("GitHub ID not found in token payload");
+    }
+
     const userInfo = await db.user.findUnique({
       where: { githubId: String(githubId) },
       select: { installationId: true },
@@ -56,9 +60,23 @@ export async function getAccessToken(req: NextRequest) {
     );
 
     const accessToken = tokenResponse.data.token;
+
+    if (!accessToken) {
+      throw new Error("No access token returned from GitHub API");
+    }
+
     return accessToken;
   } catch (error) {
     console.error("Error getting access token:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error("GitHub API response:", {
+        status: error.response.status,
+        data: error.response.data,
+      });
+      throw new Error(
+        `GitHub API error: ${error.response.status} - ${error.response.statusText}`
+      );
+    }
     throw new Error("Failed to get GitHub access token");
   }
 }
