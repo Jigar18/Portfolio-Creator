@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 interface Details {
   firstName: string;
   lastName: string;
+  email: string;
   location: string;
   jobTitle: string;
   school: string;
@@ -18,6 +19,7 @@ export async function POST(req: NextRequest) {
       data: {
         firstName: formData.firstName,
         lastName: formData.lastName,
+        email: formData.email,
         location: formData.location,
         jobTitle: formData.jobTitle,
         college: formData.school,
