@@ -5,6 +5,7 @@ import { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
 // Function to get installation token for repositories and other GitHub App scopes
+// this function access token scope is to get the details that app has of account like repos, pr's etc.,
 export async function getInstallationAccessToken(req: NextRequest) {
   const token = req.cookies.get("auth_token")?.value;
 
@@ -82,7 +83,8 @@ export async function getInstallationAccessToken(req: NextRequest) {
   }
 }
 
-// Function to create a new authentication token for user-specific operations
+
+//this function access token is for the scope for fetching details like email or /user things etc.,
 export async function getAccessToken(req: NextRequest) {
   try {
     const token = req.cookies.get("auth_token")?.value;
@@ -91,14 +93,12 @@ export async function getAccessToken(req: NextRequest) {
       throw new Error("Authentication token is missing");
     }
 
-    // Check if we have the token in the JWT first
     try {
       const { payload } = await jwtVerify(
         token,
         new TextEncoder().encode(process.env.JWT_SECRET)
       );
 
-      // If we have an OAuth token in the JWT payload, use it
       if (payload.oauthToken) {
         return payload.oauthToken as string;
       }
@@ -110,7 +110,6 @@ export async function getAccessToken(req: NextRequest) {
     const code = req.url.split("code=")[1]?.split("&")[0];
 
     if (code) {
-      // Exchange the code for an access token with user:email scope
       const tokenResponse = await axios.post(
         "https://github.com/login/oauth/access_token",
         {
@@ -128,7 +127,6 @@ export async function getAccessToken(req: NextRequest) {
       }
     }
 
-    // Fall back to installation token if no OAuth token is available
     return getInstallationAccessToken(req);
   } catch (error) {
     console.error("Error getting user access token:", error);

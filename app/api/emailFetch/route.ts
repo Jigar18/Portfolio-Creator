@@ -6,7 +6,6 @@ export async function GET(req: NextRequest) {
   try {
     const accessToken = await getAccessToken(req);
 
-    // Try to fetch user emails
     let userEmailsResponse;
     try {
       userEmailsResponse = await axios.get(
@@ -24,7 +23,6 @@ export async function GET(req: NextRequest) {
         axios.isAxiosError(emailError) &&
         emailError.response?.status === 403
       ) {
-        // Instead of redirecting, return a JSON response with auth URL
         const authUrl = new URL(
           `/api/github/auth?return_to=/api/emailFetch`,
           req.url
@@ -38,7 +36,6 @@ export async function GET(req: NextRequest) {
           { status: 401 }
         );
       }
-      // If it's another error, re-throw
       throw emailError;
     }
 
@@ -48,11 +45,6 @@ export async function GET(req: NextRequest) {
       verified: boolean;
       visibility: string | null;
     }
-
-    console.log(
-      "GitHub email response data:",
-      JSON.stringify(userEmailsResponse.data)
-    );
 
     if (!Array.isArray(userEmailsResponse.data)) {
       return NextResponse.json(
@@ -66,7 +58,6 @@ export async function GET(req: NextRequest) {
     )?.email;
 
     if (!primaryEmail) {
-      // Try to get any verified email if primary is not found
       const verifiedEmail = userEmailsResponse.data.find(
         (emailObj: GithubEmail) => emailObj.verified
       )?.email;
@@ -97,7 +88,6 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Authentication error
     if (
       err instanceof Error &&
       err.message.includes("Authentication token is missing")

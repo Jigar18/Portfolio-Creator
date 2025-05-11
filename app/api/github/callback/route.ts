@@ -33,11 +33,11 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    if (installation_id) {
-      return NextResponse.redirect(
-        new URL(`/app-installed?installation_id=${installation_id}`, req.url)
-      );
-    }
+    // if (installation_id) {
+    //   return NextResponse.redirect(
+    //     new URL(`/app-installed?installation_id=${installation_id}`, req.url)
+    //   );
+    // }
 
     const userResponse = await axios.get("https://api.github.com/user", {
       headers: { Authorization: `token ${accessToken}` },
@@ -49,7 +49,6 @@ export async function GET(req: NextRequest) {
     const token = await new SignJWT({
       githubId: user.id,
       username: user.login,
-      // Store the OAuth token in the JWT payload (secure as it's httpOnly)
       oauthToken: accessToken,
     })
       .setProtectedHeader({ alg: "HS256" })
@@ -59,21 +58,14 @@ export async function GET(req: NextRequest) {
 
     let redirectUrl;
 
-    // Check if we're handling an email permission request
     const returnTo = req.cookies.get("oauth_return_to")?.value;
 
-    if (returnTo && returnTo.includes("emailFetch")) {
-      // If this was an email permission request, redirect to a success page
-      // instead of directly to the API endpoint to avoid CORS issues
-      redirectUrl = new URL(`/email-auth-success`, req.url);
-    } else if (installation_id) {
-      // Regular app installation flow
+    if (installation_id) {
       redirectUrl = new URL(
         `/app-installed?installation_id=${installation_id}`,
         req.url
       );
     } else {
-      // Standard OAuth flow
       redirectUrl = new URL(
         `/app-install?access_token=${accessToken}&login=${user.login}`,
         req.url

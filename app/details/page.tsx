@@ -54,14 +54,12 @@ export default function Details() {
         const response = await fetch("/api/emailFetch");
 
         if (!response.ok) {
-          // Handle authentication errors
           if (response.status === 401) {
             console.log("Authentication error: User needs to be logged in");
             setIsLoadingEmail(false);
             return;
           }
 
-          // Handle other errors
           const errorData = await response.json();
           console.error(`Failed to fetch email: ${response.status}`, errorData);
           setIsLoadingEmail(false);
