@@ -23,16 +23,28 @@ model User {
   accessToken    String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  skills         Skill[]
+  details        Details?  @relation(fields: [detailsId], references: [id])
+  detailsId      String?  @unique
 }
 
 model Details {
-  id String @unique @default(uuid())
+  id        String  @id @default(uuid())
   firstName String
   lastName  String
-  email String
-  location String
-  jobTitle String
-  college String
+  email     String
+  location  String
+  jobTitle  String
+  college   String
   startYear Int
-  endYear Int
+  endYear   Int
+  user      User?
+}
+
+
+model Skill {
+  id        String   @id @default(uuid())
+  name      String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
 }

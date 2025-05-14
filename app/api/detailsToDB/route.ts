@@ -1,21 +1,12 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-
-interface Details {
-  firstName: string;
-  lastName: string;
-  email: string;
-  location: string;
-  jobTitle: string;
-  school: string;
-  startYear: string;
-  endYear: string;
-}
+import { Details } from "@/types/api";
+import { jwtVerify } from "jose";
 
 export async function POST(req: NextRequest) {
   try {
     const formData: Details = await req.json();
-    await db.details.create({
+    const details = await db.details.create({
       data: {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -25,6 +16,29 @@ export async function POST(req: NextRequest) {
         college: formData.school,
         startYear: Number(formData.startYear),
         endYear: Number(formData.endYear),
+      },
+    });
+
+    const token = req.cookies.get("id&Uname")?.value;
+
+    if (!token) {
+      return NextResponse.json(
+        { success: false, error: "Authentication token is missing" },
+        { status: 401 }
+      );
+    }
+
+    const { payload } = await jwtVerify(
+      token,
+      new TextEncoder().encode(process.env.JWT_SECRET)
+    );
+    const userId = payload.userId as string;
+
+    
+    await db.user.update({
+      where: { id: userId },
+      data: {
+        detailsId: details.id,
       },
     });
     return NextResponse.json({ success: true });
