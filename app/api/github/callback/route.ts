@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { SignJWT } from "jose";
+import { db } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -31,13 +32,7 @@ export async function GET(req: NextRequest) {
         { error: "Failed to obtain access token" },
         { status: 400 }
       );
-    }
-
-    // if (installation_id) {
-    //   return NextResponse.redirect(
-    //     new URL(`/app-installed?installation_id=${installation_id}`, req.url)
-    //   );
-    // }
+    } 
 
     const userResponse = await axios.get("https://api.github.com/user", {
       headers: { Authorization: `token ${accessToken}` },
@@ -45,7 +40,27 @@ export async function GET(req: NextRequest) {
 
     const user = userResponse.data;
 
+    const userDB = await db.user.upsert({
+      where: { githubId: user.id.toString() },
+      update: { accessToken },
+      create: {
+        githubId: user.id.toString(),
+        username: user.login,
+        accessToken,
+      },
+    });
+
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const tokenDB = await new SignJWT({
+        userId: userDB.id.toString(),
+        username: userDB.username,
+      })
+        .setProtectedHeader({ alg: "HS256" })
+        .setIssuedAt()
+        .setExpirationTime("30d")
+        .sign(secret);
+
+
     const token = await new SignJWT({
       githubId: user.id,
       username: user.login,
@@ -73,6 +88,13 @@ export async function GET(req: NextRequest) {
     }
 
     const response = NextResponse.redirect(redirectUrl);
+
+    response.cookies.set("id&Uname", tokenDB, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 30,
+        path: "/",
+      });
 
     response.cookies.set("auth_token", token, {
       httpOnly: true,
