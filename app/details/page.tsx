@@ -634,7 +634,7 @@ export default function Details() {
                             },
                             body: JSON.stringify(formData),
                           });
-                          router.push("/user/jigar");
+                          router.push("/skills");
                         }}
                       >
                         Complete Profile

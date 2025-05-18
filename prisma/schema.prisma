@@ -24,27 +24,27 @@ model User {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   skills         Skill[]
-  details        Details?  @relation(fields: [detailsId], references: [id])
-  detailsId      String?  @unique
+  details        Details?
 }
 
 model Details {
-  id        String  @id @default(uuid())
-  firstName String
-  lastName  String
-  email     String
-  location  String
-  jobTitle  String
-  college   String
-  startYear Int
-  endYear   Int
-  user      User?
+  id             String  @id @default(uuid())
+  firstName      String
+  lastName       String
+  email          String
+  location       String
+  jobTitle       String
+  college        String
+  startYear      Int
+  endYear        Int
+  user           User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String @unique
 }
 
 
 model Skill {
   id        String   @id @default(uuid())
-  name      String
-  user      User     @relation(fields: [userId], references: [id])
+  skills      String[]
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
 }

@@ -245,7 +245,7 @@ export default function SkillsPage() {
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-md transition-colors"
                   disabled={selectedSkills.length === 0}
                   onClick={() => {
-                    fetch("/api/detailsToDB", {
+                    fetch("/api/skillsToDB", {
                       method: "POST",
                       headers: {
                         "Content-type": "application/json",

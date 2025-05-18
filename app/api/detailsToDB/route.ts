@@ -6,19 +6,6 @@ import { jwtVerify } from "jose";
 export async function POST(req: NextRequest) {
   try {
     const formData: Details = await req.json();
-    const details = await db.details.create({
-      data: {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        location: formData.location,
-        jobTitle: formData.jobTitle,
-        college: formData.school,
-        startYear: Number(formData.startYear),
-        endYear: Number(formData.endYear),
-      },
-    });
-
     const token = req.cookies.get("id&Uname")?.value;
 
     if (!token) {
@@ -34,13 +21,20 @@ export async function POST(req: NextRequest) {
     );
     const userId = payload.userId as string;
 
-    
-    await db.user.update({
-      where: { id: userId },
+    const details = await db.details.create({
       data: {
-        detailsId: details.id,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        location: formData.location,
+        jobTitle: formData.jobTitle,
+        college: formData.school,
+        startYear: Number(formData.startYear),
+        endYear: Number(formData.endYear),
+        userId: userId
       },
     });
+
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("Error adding Details", err);
