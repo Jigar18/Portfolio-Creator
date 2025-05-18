@@ -1,5 +1,4 @@
 import { db } from "@/lib/db";
-import { Skill } from "@/types/api";
 import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -27,7 +26,7 @@ export async function POST(req: NextRequest) {
         userId: userId
       },
     });
-    
+
   } catch (err) {
     console.error("Error adding Details", err);
     return NextResponse.json(

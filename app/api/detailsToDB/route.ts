@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     );
     const userId = payload.userId as string;
 
-    const details = await db.details.create({
+    await db.details.create({
       data: {
         firstName: formData.firstName,
         lastName: formData.lastName,
