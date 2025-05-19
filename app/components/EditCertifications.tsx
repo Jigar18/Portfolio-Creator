@@ -58,7 +58,7 @@ export default function EditCertifications({
         pdf: data.fileInput[0].name,
       };
 
-      fetch("/api/uploadPDF", { method: "POST", body: formData });
+      fetch("/api/uploadFile", { method: "POST", body: formData });
 
       // Add the new card using the callback
       onAddCard(newCard);

@@ -85,6 +85,7 @@ export async function getInstallationAccessToken(req: NextRequest) {
 
 
 //this function access token is for the scope for fetching details like email or /user things etc.,
+// Storing this in the database
 export async function getAccessToken(req: NextRequest) {
   try {
     const token = req.cookies.get("auth_token")?.value;

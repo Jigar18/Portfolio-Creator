@@ -27,6 +27,10 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    return NextResponse.json({
+      success: "true",
+    })
+
   } catch (err) {
     console.error("Error adding Details", err);
     return NextResponse.json(

@@ -18,11 +18,10 @@ export async function POST(req: NextRequest) {
           data: { installationId: installationId.toString() },
         });
       } catch (error) {
-          return NextResponse.json(
-            `User not found for this GitHub ID ${error}`,
-            { status: 404 }
-          );
-        }
+        return NextResponse.json(`User not found for this GitHub ID ${error}`, {
+          status: 404,
+        });
+      }
       const response = new NextResponse("Installation processed successfully", {
         status: 200,
       });
