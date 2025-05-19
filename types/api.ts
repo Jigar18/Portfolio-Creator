@@ -29,3 +29,9 @@ export interface Skill {
   name: string;
   userId: string;
 }
+
+export interface UploadResponse {
+  success: boolean;
+  imageUrl?: string;
+  error?: string;
+}

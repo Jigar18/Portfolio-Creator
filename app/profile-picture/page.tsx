@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { User, Upload, Check, Loader2 } from "lucide-react";
 import ReactCrop, { type Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+import { UploadResponse } from "@/types/api";
 
 const globalStyles = `
   input:-webkit-autofill,
@@ -42,8 +43,8 @@ const globalStyles = `
     padding: 1rem;
     }
     `;
-    // border: 1px solid rgba(51, 65, 85, 0.5);
-    // background: rgba(15, 23, 42, 0.9);
+// border: 1px solid rgba(51, 65, 85, 0.5);
+// background: rgba(15, 23, 42, 0.9);
 
 export default function ProfilePicturePage() {
   const [image, setImage] = useState<string | null>(null);
@@ -189,7 +190,6 @@ export default function ProfilePicturePage() {
       outputSize
     );
 
-    // Convert to base64
     const base64Image = canvas.toDataURL("image/jpeg");
 
     if (base64Image) {
@@ -221,12 +221,26 @@ export default function ProfilePicturePage() {
       const formData = new FormData();
       formData.append("image", blob, "profile-picture.jpg");
 
-      const uploadResponse = await fetch("/api/uploadFile", {
+      const uploadResponse = await fetch("/api/uploadProfilePicture", {
         method: "POST",
         body: formData,
       });
 
-      if (uploadResponse.ok) {
+      if (!uploadResponse.ok) {
+        const errorData: UploadResponse = await uploadResponse.json();
+        throw new Error(errorData.error || "Upload failed");
+      }
+
+      const result: UploadResponse = await uploadResponse.json();
+      const imageUrl = result.imageUrl;
+
+      if (imageUrl) {
+        setUploadSuccess(true);
+      } else {
+        console.error("Upload failed: No image URL returned");
+      }
+
+      if (uploadResponse) {
         setUploadSuccess(true);
       } else {
         console.error("Upload failed");
