@@ -9,6 +9,7 @@ import { User, Upload, Check, Loader2 } from "lucide-react";
 import ReactCrop, { type Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { UploadResponse } from "@/types/api";
+import Image from "next/image";
 
 const globalStyles = `
   input:-webkit-autofill,
@@ -107,47 +108,6 @@ export default function ProfilePicturePage() {
 
     return false;
   }, []);
-
-  const getCroppedImg = useCallback(() => {
-    if (!imgRef.current || !completedCrop) return null;
-
-    const canvas = document.createElement("canvas");
-    const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
-    const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
-
-    const outputSize = 400;
-    canvas.width = outputSize;
-    canvas.height = outputSize;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return null;
-
-    // Draw circular crop
-    ctx.beginPath();
-    ctx.arc(outputSize / 2, outputSize / 2, outputSize / 2, 0, Math.PI * 2);
-    ctx.clip();
-
-    // Draw the image
-    const cropX = completedCrop.x * scaleX;
-    const cropY = completedCrop.y * scaleY;
-    const cropWidth = completedCrop.width * scaleX;
-    const cropHeight = completedCrop.height * scaleY;
-
-    ctx.drawImage(
-      imgRef.current,
-      cropX,
-      cropY,
-      cropWidth,
-      cropHeight,
-      0,
-      0,
-      outputSize,
-      outputSize
-    );
-
-    const base64Image = canvas.toDataURL("image/jpeg");
-    return base64Image;
-  }, [completedCrop]);
 
   const handleCropComplete = (crop: Crop) => {
     setCompletedCrop(crop);
@@ -337,7 +297,7 @@ export default function ProfilePicturePage() {
                           circularCrop
                           aspect={1}
                         >
-                          <img
+                          <Image
                             src={image || "/placeholder.svg"}
                             alt="Upload preview"
                             onLoad={(e) => onImageLoad(e.currentTarget)}
@@ -364,7 +324,7 @@ export default function ProfilePicturePage() {
                     ) : (
                       <div className="flex flex-col items-center">
                         <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-full overflow-hidden border-2 border-blue-500">
-                          <img
+                          <Image
                             src={croppedImage || "/placeholder.svg"}
                             alt="Cropped preview"
                             className="w-full h-full object-cover"

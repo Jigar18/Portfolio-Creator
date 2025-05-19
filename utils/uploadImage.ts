@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
-const PROJECT_URL = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL!;  
-const SUPABASE_API_KEY = process.env.NEXT_PUBLIC_SUPABASE_API_KEY!;
+const PROJECT_URL = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL!;
+const SUPABASE_API_KEY = process.env.SUPABASE_API_KEY!;
 
 if (!PROJECT_URL || !SUPABASE_API_KEY) {
     throw new Error("supabase url or api key is missing for uploading user profile picture.");
