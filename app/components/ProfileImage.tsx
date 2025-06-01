@@ -1,40 +1,66 @@
-"use client";
+"use client"
 
-import Image from "next/image";
-import { useState } from "react";
+import { motion } from "framer-motion"
+import Image from "next/image"
+import { useState } from "react"
+import { Camera } from "lucide-react"
+import ProfileImageModal from "./ProfileImageModal"
 
 export default function ProfileImage() {
-  const [isHovered, setIsHovered] = useState(false);
+  const [isHovering, setIsHovering] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [profileImage, setProfileImage] = useState("/placeholder.svg?height=200&width=200")
+
+  const handleImageChange = (newImageUrl: string) => {
+    setProfileImage(newImageUrl)
+    setIsModalOpen(false)
+  }
 
   return (
-    // <div className="h-32 w-32 bg-gray-500 flex justify-center items-center rounded-full overflow-hidden">
-    <div className="relative">
-      <div
-        // className="relative rounded-full bg-amber-700 aspect-square w-full h-full max-w-full overflow-hidden"
-        className="relative flex shrink-0 overflow-hidden rounded-full size-28"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+    <>
+      <motion.div
+        {...{className:"relative"}}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        whileHover={{ scale: 1.05 }}
+        onHoverStart={() => setIsHovering(true)}
+        onHoverEnd={() => setIsHovering(false)}
       >
-        <Image
-          src="/Profile-Image.jpg"
-          alt="Profile Image"
-          fill
-          // className={`transition-all duration-300 object-cover ${
-          //   isHovered ? "blur-sm" : ""
-          // }`}
-          className={`aspect-square h-full w-full transition-opacity duration-300 ease-in-out group-hover:opacity-0 ${
-            isHovered ? "blur-sm" : ""}`}
-        />
-        {isHovered && (
+        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-4 border-slate-700 relative z-10">
           <Image
-            src="/profile-edit-icon.svg"
-            alt="Profile Image Icon"
-            width={300}
-            height={300}
-            className="aspect-square h-20 w-20 absolute inset-0 transition-opacity duration-300 ease-in-out opacity-100 cursor-pointer m-auto"
+            src={profileImage || "/placeholder.svg"}
+            alt="Profile"
+            width={200}
+            height={200}
+            className="object-cover w-full h-full"
           />
-        )}
-      </div>
-    </div>
-  );
+        </div>
+        <div className="absolute inset-0 rounded-full blur-xl "></div>
+
+        {/* Edit button that appears on hover */}
+        <motion.button
+          {...{className:"absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full z-20 shadow-lg border-2 border-slate-700 cursor-pointer",
+          onClick:(e: React.MouseEvent<HTMLDivElement>) => {
+            e.stopPropagation()
+            setIsModalOpen(true)
+          }}}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: isHovering ? 1 : 0, scale: isHovering ? 1 : 0.8 }}
+          transition={{ duration: 0.2 }}
+          aria-label="Edit profile picture"
+        >
+          <Camera size={16} />
+        </motion.button>
+      </motion.div>
+
+      {/* Profile Image Modal */}
+      <ProfileImageModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onImageChange={handleImageChange}
+        currentImage={profileImage}
+      />
+    </>
+  )
 }

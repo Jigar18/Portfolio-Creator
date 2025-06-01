@@ -252,7 +252,7 @@ export default function SkillsPage() {
                       },
                       body: JSON.stringify(selectedSkills),
                     });
-                    router.push("/user/jigar");
+                    router.push("/profile-picture");
                   }}
                 >
                   Continue

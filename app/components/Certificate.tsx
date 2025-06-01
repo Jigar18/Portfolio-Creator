@@ -1,176 +1,141 @@
-"use client";
+"use client"
 
-import Image from "next/image";
-import React, { useEffect, useId, useRef, useState } from "react";
-import { useOutsideClick } from "../hooks/use-outside-click";
-import { AnimatePresence, motion } from "framer-motion";
+import type React from "react"
+
+import { useState, useRef, useId, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import Image from "next/image"
+import { X } from "lucide-react"
+
+// Implement the useOutsideClick hook directly in this file
+function useOutsideClick(ref: React.RefObject<HTMLElement>, handler: () => void) {
+  useEffect(() => {
+    const listener = (event: MouseEvent | TouchEvent) => {
+      const el = ref?.current
+      if (!el || el.contains(event.target as Node)) {
+        return
+      }
+      handler()
+    }
+
+    document.addEventListener("mousedown", listener)
+    document.addEventListener("touchstart", listener)
+
+    return () => {
+      document.removeEventListener("mousedown", listener)
+      document.removeEventListener("touchstart", listener)
+    }
+  }, [ref, handler])
+}
 
 interface Card {
-  title: string;
-  pdf: string;
-  description: string;
+  title: string
+  pdf: string
+  description: string
 }
 
 interface CertificateProps {
-  cards: Card[];
+  cards?: Card[]
 }
 
-export default function Certificate({ cards }: CertificateProps) {
-  const [active, setActive] = useState<Card | boolean | null>(null);
-  const ref = useRef<HTMLDivElement>(null);
-  const id = useId();
+export default function Certificate({ cards = [] }: CertificateProps) {
+  const [active, setActive] = useState<Card | null>(null)
+  const ref = useRef<HTMLDivElement>(null)
+  const id = useId()
 
-  useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setActive(false);
-      }
-    }
+  useOutsideClick(ref as React.RefObject<HTMLElement>, () => setActive(null))
 
-    if (active && typeof active === "object") {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [active]);
-
-  useOutsideClick(ref, () => setActive(null));
   return (
     <>
       <AnimatePresence>
-        {active && typeof active === "object" && (
+        {active && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            {...{
-              className:
-                "fixed inset-0 bg-black/40 backdrop-blur-sm h-full w-full z-10",
-            }}
-          />
+            {...{className:"fixed inset-0 bg-black/90 z-[100] flex items-center justify-center backdrop-blur-sm",
+            onClick:() => setActive(null)}}
+            style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0 }}
+          >
+            <motion.div
+              ref={ref}
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                {...{className:"absolute top-10 w-[90%] max-w-4xl h-[90vh] bg-white dark:bg-slate-900 rounded-lg overflow-hidden shadow-2xl flex flex-col border-2 border-white dark:border-slate-700",
+                onClick:(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}}
+            >
+              <div className="flex-1 overflow-y-auto p-8">
+                <div className="max-w-4xl mx-auto">
+                  {/* Header */}
+                  <div className="mb-8">
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">{active.title}</h2>
+                  </div>
+
+                  {/* PDF Viewer */}
+                  <div className="mb-8 bg-slate-200 dark:bg-slate-800 rounded-lg overflow-hidden h-[60vh]">
+                    <embed
+                      src={`/uploads/${active.pdf}#toolbar=0`}
+                      height="100%"
+                      width="100%"
+                      className="object-contain"
+                    />
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <p className="text-slate-600 dark:text-slate-300">{active.description}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Close button */}
+              <button
+                onClick={() => setActive(null)}
+                className="absolute top-4 right-4 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700/50"
+              >
+                <X size={24} />
+              </button>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
-      <AnimatePresence>
-        {active && typeof active === "object" ? (
-          <div className="fixed inset-0 grid place-items-center z-[100] p-8">
-            <motion.div
-              layoutId={`card-${active.title}-${id}`}
-              ref={ref}
-              {...{
-                className:
-                  "w-[70vw] h-[80vh] flex flex-col bg-white dark:bg-neutral-900 rounded-3xl overflow-hidden",
-              }}
+
+      <ul className="space-y-3">
+        {cards && cards.length > 0 ? (
+          cards.map((card) => (
+            <motion.li
+              key={`card-${card.title}-${id}`}
+              {...{className:"flex items-center gap-3 p-3 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg cursor-pointer border border-slate-600 transition-colors",
+              onClick:() => setActive(card)}}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <motion.div
-                layoutId={`image-${active.title}-${id}`}
-                {...{
-                  className:
-                    "h-[80%] relative flex items-center justify-center p-4",
-                }}
-              >
-                <embed
-                  src={`/uploads/${active.pdf}#toolbar=0`}
-                  height="100%"
-                  width="100%"
-                  className="object-contain"
-                />
-              </motion.div>
-
-              <div className="flex-1 overflow-auto p-8">
-                <motion.h3
-                  layoutId={`title-${active.title}-${id}`}
-                  {...{
-                    className:
-                      "text-2xl font-bold text-neutral-700 dark:text-neutral-200 mb-4",
-                  }}
-                >
-                  {active.title}
-                </motion.h3>
-                <motion.div
-                  layout
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  {...{
-                    className:
-                      "text-neutral-600 dark:text-neutral-400 text-base overflow-auto",
-                  }}
-                >
-                  <p>{active.description}</p>
-                </motion.div>
-              </div>
-            </motion.div>
-          </div>
-        ) : null}
-      </AnimatePresence>
-      <ul className="max-w-2xl mx-auto w-full gap-4">
-        {cards.map((card) => (
-          <motion.div
-            layoutId={`card-${card.title}-${id}`}
-            key={`card-${card.title}-${id}`}
-            onTap={() => setActive(card)}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            {...{className: "flex flex-col md:flex-row justify-between items-center hover:bg-neutral-400 dark:hover:bg-neutral-800 rounded-xl cursor-pointer m-auto"}}
-          >
-            <div className="flex gap-4 flex-col md:flex-row ">
-              <motion.div layoutId={`image-${card.title}-${id}`}>
+              <div className="flex-shrink-0">
                 <Image
-                  width={100}
-                  height={100}
-                  src={"/icons8-certificate-64.png"}
+                  width={40}
+                  height={40}
+                  src="/icons8-certificate-64.png"
                   alt={card.title}
-                  className="h-40 w-40 md:h-14 md:w-14 rounded-lg object-cover object-top"
+                  className="rounded object-cover"
                 />
-              </motion.div>
-              <div className="flex items-center">
-                <motion.h3
-                  layoutId={`title-${card.title}-${id}`}
-                  {...{className: "font-medium text-neutral-800 dark:text-neutral-200 text-center md:text-left"}}
-                >
-                  {card.title}
-                </motion.h3>
               </div>
-            </div>
-          </motion.div>
-        ))}
-      </ul>
-    </>
-  );
-}
 
-export const CloseIcon = () => {
-  return (
-    <motion.svg
-      initial={{
-        opacity: 0,
-      }}
-      animate={{
-        opacity: 1,
-      }}
-      exit={{
-        opacity: 0,
-        transition: {
-          duration: 0.05,
-        },
-      }}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4 text-black"
-    >
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M18 6l-12 12" />
-      <path d="M6 6l12 12" />
-    </motion.svg>
-  );
-};
+              <h3 className="font-medium text-slate-200">{card.title}</h3>
+            </motion.li>
+          ))
+        ) : (
+          <li className="p-4 text-center text-slate-400">No certificates available</li>
+        )}
+      </ul>
+      {typeof window !== "undefined" &&
+        (() => {
+          const modalRoot = document.body
+          if (modalRoot && active) {
+            // The modal will be rendered here
+          }
+        })()}
+    </>
+  )
+}
