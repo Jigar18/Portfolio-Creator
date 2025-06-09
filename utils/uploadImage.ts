@@ -6,7 +6,7 @@ const SUPABASE_API_KEY = process.env.SUPABASE_API_KEY!;
 if (!PROJECT_URL || !SUPABASE_API_KEY) {
     throw new Error("supabase url or api key is missing for uploading user profile picture.");
 }
-export const supabase = createClient(PROJECT_URL, SUPABASE_API_KEY);
+const supabase = createClient(PROJECT_URL, SUPABASE_API_KEY);
 
 export async function uploadFile(fileBuffer: Buffer, fileName: string, userId: String) {
   const filePath = `user-image/${userId}-${Date.now()}-${fileName}`;

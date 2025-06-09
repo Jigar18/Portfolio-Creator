@@ -15,10 +15,10 @@ const nextConfig = {
   // Force a full rebuild in production to avoid stale code
   experimental: {
     // ...existing experimental options...
-
-    // Ensure serverComponentsExternalPackages includes prisma
-    serverComponentsExternalPackages: ["@prisma/client"],
   },
+
+  // Updated from experimental.serverComponentsExternalPackages
+  serverExternalPackages: ["@prisma/client"],
 
   // Add a version identifier to ensure deployments are fresh
   env: {

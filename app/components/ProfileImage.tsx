@@ -5,14 +5,12 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Camera } from "lucide-react";
 import ProfileImageModal from "./ProfileImageModal";
-import { supabase } from "@/utils/uploadImage";
-import { jwtVerify } from "jose";
 
 export default function ProfileImage() {
   const [isHovering, setIsHovering] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(
-    "."
+    "https://xspywcumjzcpwltlhxyi.supabase.co/storage/v1/object/public/profile-picture/user-image/undefined-1748901528446-profile-picture.jpg"
   );
 
   const handleImageChange = (newImageUrl: string) => {
@@ -36,26 +34,26 @@ export default function ProfileImage() {
       }
 
       try {
-        const { payload } = await jwtVerify(
-          token,
-          new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET!)
-        );
-        const userId = payload.userId as string;
-        const { data, error } = await supabase
-          .from("Details")
-          .select("imageUrl")
-          .eq("userId", userId);
+        // Call your API route instead of accessing Supabase directly
+        const response = await fetch("/api/getProfileImage", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Cookie: `id&Uname=${token}`,
+          },
+        });
 
-        if (error) {
-          console.error("Error fetching profile image final page:", error);
+        if (!response.ok) {
+          console.error("Error fetching profile image:", response.statusText);
           return;
         }
 
-        if (data && data[0]?.imageUrl) {
-          setProfileImage(data[0].imageUrl);
+        const result = await response.json();
+        if (result.imageUrl) {
+          setProfileImage(result.imageUrl);
         }
       } catch (error) {
-        console.error("JWT verification failed:", error);
+        console.error("Error fetching profile image:", error);
       }
     };
 

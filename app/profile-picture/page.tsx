@@ -304,6 +304,8 @@ export default function ProfilePicturePage() {
                           <Image
                             src={image || "/placeholder.svg"}
                             alt="Upload preview"
+                            width={400}
+                            height={400}
                             onLoad={(e) => onImageLoad(e.currentTarget)}
                             className="max-w-full"
                           />
@@ -331,6 +333,8 @@ export default function ProfilePicturePage() {
                           <Image
                             src={croppedImage || "/placeholder.svg"}
                             alt="Cropped preview"
+                            width={320}
+                            height={320}
                             className="w-full h-full object-cover"
                           />
                         </div>
