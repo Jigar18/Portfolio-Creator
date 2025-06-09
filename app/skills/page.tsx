@@ -244,16 +244,18 @@ export default function SkillsPage() {
                 <Button
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-md transition-colors"
                   disabled={selectedSkills.length === 0}
-                  onClick={() => {
-                    fetch("/api/skillsToDB", {
-                      method: "POST",
-                      headers: {
-                        "Content-type": "application/json",
-                      },
-                      body: JSON.stringify(selectedSkills),
-                    });
-                    router.push("/profile-picture");
-                  }}
+                  onClick={async () => {
+                      router.push("/profile-picture");
+
+                      await fetch("/api/skillsToDB", {
+                        method: "POST",
+                        headers: {
+                          "Content-type": "application/json",
+                        },
+                        body: JSON.stringify(selectedSkills),
+                      });
+                    }
+                  }
                 >
                   Continue
                 </Button>

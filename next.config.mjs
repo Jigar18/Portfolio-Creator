@@ -2,6 +2,16 @@
 const nextConfig = {
   // ...existing configuration...
 
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "xspywcumjzcpwltlhxyi.supabase.co",
+        pathname: "/**",
+      },
+    ],
+  },
+
   // Force a full rebuild in production to avoid stale code
   experimental: {
     // ...existing experimental options...

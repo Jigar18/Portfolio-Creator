@@ -10,6 +10,7 @@ import ReactCrop, { type Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { UploadResponse } from "@/types/api";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const globalStyles = `
   input:-webkit-autofill,
@@ -62,6 +63,8 @@ export default function ProfilePicturePage() {
     y: 0,
   });
   const [completedCrop, setCompletedCrop] = useState<Crop | null>(null);
+
+  const router = useRouter();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -196,6 +199,7 @@ export default function ProfilePicturePage() {
 
       if (imageUrl) {
         setUploadSuccess(true);
+        router.push("user/jigar");
       } else {
         console.error("Upload failed: No image URL returned");
       }

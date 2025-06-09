@@ -18,7 +18,6 @@ export async function GET(req: NextRequest) {
         }
       );
     } catch (emailError) {
-      // If we got a 403 (forbidden), we need to send back auth URL
       if (
         axios.isAxiosError(emailError) &&
         emailError.response?.status === 403

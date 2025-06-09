@@ -626,15 +626,16 @@ export default function Details() {
                       <Button
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6"
                         disabled={!formData.school || !formData.startYear}
-                        onClick={() => {
-                          fetch("/api/detailsToDB", {
+                        onClick={async () => {
+                          router.push("/skills");
+
+                          await fetch("/api/detailsToDB", {
                             method: "POST",
                             headers: {
                               "Content-type": "application/json",
                             },
                             body: JSON.stringify(formData),
                           });
-                          router.push("/skills");
                         }}
                       >
                         Complete Profile
