@@ -1,12 +1,13 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { X, Edit3, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
+interface UserSkills {
+  skills: string[];
+}
 
 export default function Skills() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -15,351 +16,320 @@ export default function Skills() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [tempSkills, setTempSkills] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [skills, setSkills] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [skills, setSkills] = useState([
-    "JavaScript",
-    "TypeScript",
-    "React",
-    "Next.js",
-    "Node.js",
-    "Tailwind CSS",
-    "GraphQL",
-    "MongoDB",
-    "PostgreSQL",
-    "Git",
-    "Docker",
-    "AWS",
-    "Redux",
-    "Express",
-    "Python",
-    "Java",
-    "C++",
-    "HTML/CSS",
-    "REST API",
-    "CI/CD",
-  ]);
-
-  useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
+  const fetchUserSkills = useCallback(async () => {
+    try {
+      const response = await fetch("/api/getUserSkills");
+      if (response.ok) {
+        const data: UserSkills = await response.json();
+        setSkills(data.skills || []);
+      }
+    } catch (error) {
+      console.error("Error fetching user skills:", error);
+      // Fallback to default skills
+      setSkills([
+        "JavaScript",
+        "TypeScript",
+        "React",
+        "Next.js",
+        "Node.js",
+        "Python",
+        "PostgreSQL",
+        "Git",
+      ]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    const fetchSkills = async () => {
-      if (skillInput.length >= 2) {
-        setIsSearching(true);
-        const timer = setTimeout(async () => {
-          try {
-            const result = await fetch(`/api/skills?skill=${skillInput}`);
-            const data = await result.json();
-            setSuggestions(data);
-          } catch (error) {
-            console.error("Error fetching skills:", error);
-            setSuggestions([]);
-          } finally {
-            setIsSearching(false);
-          }
-        }, 300);
+    setMounted(true);
+    fetchUserSkills();
+  }, [fetchUserSkills]);
 
-        return () => clearTimeout(timer);
+  const fetchSkills = useCallback(async () => {
+    if (skillInput.trim() === "") {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      const result = await fetch(`/api/skills?skill=${skillInput}`);
+      const data = await result.json();
+      setSuggestions(data.skills || []);
+    } catch (error) {
+      console.error("Error fetching skills:", error);
+      setSuggestions([]);
+    } finally {
+      setIsSearching(false);
+    }
+  }, [skillInput]);
+
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      if (skillInput.trim()) {
+        fetchSkills();
       } else {
         setSuggestions([]);
       }
-    };
+    }, 300);
 
-    if (isEditModalOpen) {
-      fetchSkills();
-    }
-  }, [skillInput, isEditModalOpen]);
+    return () => clearTimeout(debounceTimer);
+  }, [skillInput, fetchSkills]);
 
-  const handleOpenModal = () => {
+  const handleEditClick = () => {
     setTempSkills([...skills]);
-    setSkillInput("");
-    setSuggestions([]);
     setIsEditModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setTempSkills([]);
-    setSkillInput("");
-    setSuggestions([]);
-    setIsEditModalOpen(false);
-  };
-
-  const handleSaveChanges = () => {
-    setSkills([...tempSkills]);
-    handleCloseModal();
-  };
-
-  const handleSkillSelect = (skill: string) => {
+  const addSkill = (skill: string) => {
     if (!tempSkills.includes(skill)) {
       setTempSkills([...tempSkills, skill]);
       setSkillInput("");
       setSuggestions([]);
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
+      setShowSuggestions(false);
     }
   };
 
-  const handleRemoveSkill = (skillToRemove: string) => {
+  const removeSkill = (skillToRemove: string) => {
     setTempSkills(tempSkills.filter((skill) => skill !== skillToRemove));
   };
 
-  const handleAddCustomSkill = () => {
-    if (skillInput.trim() && !tempSkills.includes(skillInput.trim())) {
-      setTempSkills([...tempSkills, skillInput.trim()]);
-      setSkillInput("");
-      setSuggestions([]);
+  const handleSaveSkills = async () => {
+    try {
+      setSaving(true);
+      const response = await fetch("/api/skillsToDB", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ skills: tempSkills }),
+      });
+
+      if (response.ok) {
+        setSkills([...tempSkills]);
+        setIsEditModalOpen(false);
+      }
+    } catch (error) {
+      console.error("Error saving skills:", error);
+    } finally {
+      setSaving(false);
     }
   };
+
+  const skillVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 0.8 },
+  };
+
+  if (loading) {
+    return (
+      <motion.div
+        {...{className:"rounded-lg border border-slate-700 bg-slate-800/50 backdrop-blur-sm p-6"}}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-slate-200">Skills</h3>
+        </div>
+        <div className="animate-pulse space-y-2">
+          <div className="flex flex-wrap gap-2">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="h-6 bg-slate-700 rounded-full w-16"></div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <>
       <motion.div
-        {...{
-          className:
-            "bg-slate-800/50 rounded-xl border border-slate-700 p-6 shadow-md backdrop-blur-sm relative group",
-        }}
-        whileHover={{ y: -5 }}
-        transition={{ duration: 0.3 }}
+        {...{className:"rounded-lg border border-slate-700 bg-slate-800/50 backdrop-blur-sm p-6 group hover:border-slate-600 transition-all duration-300"}}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
       >
-        {/* Edit Button */}
-        <button
-          className="absolute top-4 right-4 p-2 rounded-lg bg-slate-700/80 hover:bg-slate-600 text-slate-300 hover:text-white border border-slate-600 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-105"
-          onClick={handleOpenModal}
-          type="button"
-        >
-          <Edit3 className="h-4 w-4" />
-        </button>
-
-        <h2 className="text-xl font-bold text-slate-100 mb-4 border-b border-slate-700 pb-2 flex items-center gap-3">
-          <span className="inline-flex p-2 rounded-lg bg-slate-700/30 text-slate-300 shadow-lg shadow-slate-500/10 border border-slate-600/50">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect width="18" height="18" x="3" y="3" rx="2" />
-              <path d="m7 12 2 2 4-4" />
-            </svg>
-          </span>
-          Skills
-        </h2>
-
-        <div className="flex flex-wrap gap-2">
-          {skills.map((skill, index) => (
-            <motion.span
-              key={skill}
-              {...{
-                className:
-                  "bg-slate-700 text-slate-200 px-3 py-1 rounded-full text-sm",
-              }}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
-              whileHover={{
-                scale: 1.05,
-                backgroundColor: "rgba(37, 99, 235, 0.2)",
-                borderColor: "rgba(37, 99, 235, 0.5)",
-              }}
-            >
-              {skill}
-            </motion.span>
-          ))}
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-slate-200">Skills</h3>
+          <button
+            onClick={handleEditClick}
+            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-slate-200"
+          >
+            <Edit3 className="h-4 w-4" />
+          </button>
         </div>
+
+        <AnimatePresence>
+          <motion.div {...{className:"flex flex-wrap gap-2"}}>
+            {skills.map((skill) => (
+              <motion.span
+                key={skill}
+                variants={skillVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                {...{className:"px-3 py-1 bg-blue-600/20 text-blue-300 rounded-full text-sm font-medium border border-blue-600/30 hover:bg-blue-600/30 transition-colors"}}
+              >
+                {skill}
+              </motion.span>
+            ))}
+          </motion.div>
+        </AnimatePresence>
+
+        {skills.length === 0 && (
+          <p className="text-slate-400 text-sm">No skills added yet.</p>
+        )}
       </motion.div>
 
-      {/* Edit Modal */}
       {mounted &&
         isEditModalOpen &&
         createPortal(
-          <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-            onClick={handleCloseModal}
-          >
-            <div
-              className="relative w-full max-w-2xl bg-slate-900 rounded-xl overflow-hidden shadow-2xl border border-slate-700 animate-in zoom-in-95 duration-200"
-              onClick={(e: React.MouseEvent) => e.stopPropagation()}
-            >
-              {/* Close button */}
-              <Button
-                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700"
-                onClick={handleCloseModal}
-                aria-label="Close modal"
-                size="icon"
-              >
-                <X className="h-5 w-5" />
-              </Button>
-
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
               <div className="p-6">
-                <h2 className="text-xl font-bold text-slate-100 mb-6 flex items-center gap-2">
-                  <span className="bg-slate-700/50 p-1.5 rounded text-slate-300">
-                    <Edit3 className="h-5 w-5" />
-                  </span>
-                  Edit Skills
-                </h2>
-
-                {/* Skills input */}
-                <div className="relative mb-6">
-                  <Label
-                    htmlFor="skills"
-                    className="text-slate-300 font-medium text-base mb-3 block"
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-slate-200 flex items-center gap-2">
+                    <span className="p-2 bg-blue-600/20 rounded-lg">
+                      <Edit3 className="h-5 w-5" />
+                    </span>
+                    Edit Skills
+                  </h2>
+                  <button
+                    className="p-2 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700"
+                    onClick={() => setIsEditModalOpen(false)}
                   >
-                    Add your skills
-                  </Label>
-                  <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                      <Search className="h-4 w-4" />
-                    </div>
-                    <Input
-                      ref={inputRef}
-                      id="skills"
-                      value={skillInput}
-                      onChange={(e) => setSkillInput(e.target.value)}
-                      className="w-full px-4 py-3 pl-10 pr-10 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 bg-slate-800 text-slate-200"
-                      placeholder="Type to search skills (e.g. React, TypeScript)"
-                      autoComplete="off"
-                    />
-                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
-                      {isSearching ? (
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-slate-400"></div>
-                      ) : (
-                        skillInput && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 p-0 text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 rounded-full transition-colors"
-                            onClick={() => setSkillInput("")}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        )
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Suggestions dropdown */}
-                  <AnimatePresence>
-                    {suggestions.length > 0 && (
-                      <motion.div
-                        {...{
-                          initial: { opacity: 0, y: -5 },
-                          animate: { opacity: 1, y: 0 },
-                          exit: { opacity: 0, y: -5 },
-                          transition: { duration: 0.2 },
-                          className:
-                            "absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-lg shadow-xl max-h-48 overflow-y-auto z-50",
-                        }}
-                      >
-                        {suggestions.map((skill) => (
-                          <button
-                            key={skill}
-                            className="w-full px-4 py-3 text-left text-slate-200 hover:bg-slate-700 transition-colors border-b border-slate-700 last:border-b-0"
-                            onClick={() => handleSkillSelect(skill)}
-                          >
-                            {skill}
-                          </button>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Add custom skill button */}
-                  {skillInput && !suggestions.length && !isSearching && (
-                    <motion.div
-                      {...{
-                        initial: { opacity: 0, y: -5 },
-                        animate: { opacity: 1, y: 0 },
-                        exit: { opacity: 0, y: -5 },
-                        className: "mt-3",
-                      }}
-                    >
-                      <Button
-                        variant="outline"
-                        onClick={handleAddCustomSkill}
-                        className="w-full border-slate-600 text-slate-300 hover:bg-slate-700"
-                      >
-                        {`Add "${skillInput}" as custom skill`}
-                      </Button>
-                    </motion.div>
-                  )}
+                    <X className="h-5 w-5" />
+                  </button>
                 </div>
 
-                {/* Selected skills */}
                 <div className="mb-6">
-                  <Label className="text-slate-300 font-medium text-base mb-3 block">
-                    Your skills ({tempSkills.length})
-                  </Label>
-                  <div className="flex flex-wrap gap-2.5 mt-3 min-h-[50px] p-3 bg-slate-800 rounded-lg border border-slate-700">
-                    {tempSkills.length === 0 && (
-                      <div className="text-slate-500 italic">
-                        No skills added yet. Search and add skills above.
-                      </div>
-                    )}
-                    <AnimatePresence>
-                      {tempSkills.map((skill) => (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          transition={{ duration: 0.2 }}
-                          key={skill}
-                          {...{className:"relative group"}}
-                        >
-                          
-                          <span className="inline-flex items-center gap-1 bg-slate-600 text-white px-3 py-1 rounded-full text-sm">
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Add Skills
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Search className="h-4 w-4 text-slate-400" />
+                    </div>
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={skillInput}
+                      onChange={(e) => {
+                        setSkillInput(e.target.value);
+                        setShowSuggestions(true);
+                      }}
+                      onFocus={() => setShowSuggestions(true)}
+                      placeholder="Search for skills..."
+                      className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-600 rounded-md text-slate-200 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+
+                    {showSuggestions &&
+                      (suggestions.length > 0 || isSearching) && (
+                        <div className="absolute z-10 mt-1 w-full bg-slate-800 border border-slate-600 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                          {isSearching && (
+                            <div className="px-4 py-2 text-slate-400 text-sm flex items-center gap-2">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                              Searching...
+                            </div>
+                          )}
+                          {suggestions.map((suggestion) => (
+                            <button
+                              key={suggestion}
+                              onClick={() => addSkill(suggestion)}
+                              className="w-full text-left px-4 py-2 text-slate-200 hover:bg-slate-700 transition-colors text-sm"
+                              disabled={tempSkills.includes(suggestion)}
+                            >
+                              {suggestion}
+                              {tempSkills.includes(suggestion) && (
+                                <span className="ml-2 text-xs text-slate-400">
+                                  (already added)
+                                </span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-slate-300 mb-3">
+                    Current Skills ({tempSkills.length})
+                  </label>
+                  <AnimatePresence>
+                    <div className="flex flex-wrap gap-2 min-h-[3rem] p-3 bg-slate-700/30 rounded-lg border border-slate-700">
+                      {tempSkills.length === 0 ? (
+                        <p className="text-slate-400 text-sm py-2">
+                          No skills selected yet.
+                        </p>
+                      ) : (
+                        tempSkills.map((skill) => (
+                          <motion.span
+                            key={skill}
+                            variants={skillVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            {...{className:"inline-flex items-center gap-1 px-3 py-1 bg-blue-600/20 text-blue-300 rounded-full text-sm font-medium border border-blue-600/30"}}
+                          >
                             {skill}
                             <button
-                              onClick={() => handleRemoveSkill(skill)}
-                              className="ml-1 p-0.5 rounded-full hover:bg-red-500 transition-colors"
-                              aria-label={`Remove ${skill}`}
-                              >
+                              onClick={() => removeSkill(skill)}
+                              className="ml-1 hover:text-red-400 transition-colors"
+                            >
                               <X className="h-3 w-3" />
                             </button>
-                          </span>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </div>
+                          </motion.span>
+                        ))
+                      )}
+                    </div>
+                  </AnimatePresence>
                 </div>
 
-                {/* Action buttons */}
-                <div className="flex justify-between">
-                  <Button
-                    variant="outline"
-                    onClick={handleCloseModal}
-                    className="bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300"
+                <div className="flex justify-end gap-3 pt-6 border-t border-slate-700">
+                  <button
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md text-sm font-medium transition-colors"
                   >
                     Cancel
-                  </Button>
-                  <Button
-                    onClick={handleSaveChanges}
-                    className="bg-slate-600 hover:bg-slate-700 text-white flex items-center gap-2"
+                  </button>
+                  <button
+                    onClick={handleSaveSkills}
+                    disabled={saving}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-800 text-white rounded-md text-sm font-medium transition-colors"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      className="h-4 w-4"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0120.25 6v12A2.25 2.25 0 0118 20.25H6A2.25 2.25 0 013.75 18V6A2.25 2.25 0 016 3.75h1.5m9 0h-9"
-                      />
-                    </svg>
-                    Save Changes
-                  </Button>
+                    {saving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0120.25 6v12A2.25 2.25 0 0118 20.25H6A2.25 2.25 0 013.75 18V6A2.25 2.25 0 016 3.75h1.5m9 0h-9"
+                          />
+                        </svg>
+                        Save Changes
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             </div>

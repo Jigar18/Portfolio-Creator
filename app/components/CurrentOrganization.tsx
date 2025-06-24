@@ -1,11 +1,62 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+
+interface UserDetails {
+  college?: string;
+}
 
 export default function CurrentOrganization() {
+  const [college, setCollege] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchUserDetails() {
+      try {
+        const response = await fetch("/api/getUserDetails");
+        if (response.ok) {
+          const data: UserDetails = await response.json();
+          setCollege(data.college || "");
+        }
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchUserDetails();
+  }, []);
+
+  const formatCollegeName = (name: string) => {
+    return name.toUpperCase();
+  };
+
+  if (loading) {
+    return (
+      <motion.div
+        {...{
+          className:
+            "bg-blue-600/20 border border-blue-500/30 rounded-lg px-4 py-2 flex items-center gap-2",
+        }}
+        whileHover={{ scale: 1.05 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
+          <div className="w-4 h-4 bg-blue-400/30 rounded animate-pulse" />
+        </div>
+        <div className="h-5 w-32 bg-blue-300/30 rounded animate-pulse" />
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
-      {...{className:"bg-blue-600/20 border border-blue-500/30 rounded-lg px-4 py-2 flex items-center gap-2"}}
+      {...{
+        className:
+          "bg-blue-600/20 border border-blue-500/30 rounded-lg px-4 py-2 flex items-center gap-2",
+      }}
       whileHover={{ scale: 1.05 }}
       transition={{ duration: 0.3 }}
     >
@@ -28,7 +79,9 @@ export default function CurrentOrganization() {
           <path d="M10 16h4"></path>
         </svg>
       </div>
-      <h2 className="font-medium text-blue-300">SHARDA UNIVERSITY</h2>
+      <h2 className="font-medium text-blue-300">
+        {college ? formatCollegeName(college) : "UNIVERSITY"}
+      </h2>
     </motion.div>
-  )
+  );
 }

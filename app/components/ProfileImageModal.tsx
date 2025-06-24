@@ -1,94 +1,139 @@
-"use client"
+"use client";
 
-import type { ChangeEvent, DragEvent } from "react"
+import type { ChangeEvent, DragEvent } from "react";
 
-import { useState, useRef, useEffect } from "react"
-import { X, Upload, Camera } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import Image from "next/image"
-import { createPortal } from "react-dom"
+import { useState, useRef, useEffect } from "react";
+import { X, Upload, Camera, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import { createPortal } from "react-dom";
 
 interface ProfileImageModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onImageChange: (imageUrl: string) => void
-  currentImage: string
+  isOpen: boolean;
+  onClose: () => void;
+  onImageChange: (imageUrl: string) => void;
+  currentImage: string;
 }
 
-export default function ProfileImageModal({ isOpen, onClose, onImageChange, currentImage }: ProfileImageModalProps) {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [isDragging, setIsDragging] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+export default function ProfileImageModal({
+  isOpen,
+  onClose,
+  onImageChange,
+  currentImage,
+}: ProfileImageModalProps) {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader()
+      setSelectedFile(file);
+      const reader = new FileReader();
       reader.onload = () => {
-        const result = reader.result as string
-        setPreviewUrl(result)
-        setSelectedImage(null)
-      }
-      reader.readAsDataURL(file)
+        const result = reader.result as string;
+        setPreviewUrl(result);
+        setSelectedImage(null);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const handleDragOver = (e: DragEvent) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }
+    e.preventDefault();
+    setIsDragging(true);
+  };
 
   const handleDragLeave = (e: DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
-  }
+    e.preventDefault();
+    setIsDragging(false);
+  };
 
   const handleDrop = (e: DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
+    e.preventDefault();
+    setIsDragging(false);
 
-    const file = e.dataTransfer.files?.[0]
+    const file = e.dataTransfer.files?.[0];
     if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader()
+      setSelectedFile(file);
+      const reader = new FileReader();
       reader.onload = () => {
-        const result = reader.result as string
-        setPreviewUrl(result)
-        setSelectedImage(null)
-      }
-      reader.readAsDataURL(file)
+        const result = reader.result as string;
+        setPreviewUrl(result);
+        setSelectedImage(null);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
-  const handleSave = () => {
-    if (selectedImage) {
-      onImageChange(selectedImage)
-    } else if (previewUrl) {
-      onImageChange(previewUrl)
+  const handleSave = async () => {
+    if (!selectedFile) {
+      onClose();
+      return;
     }
-    onClose()
-  }
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("image", selectedFile, "profile-picture.jpg");
+
+      const uploadResponse = await fetch("/api/uploadProfilePicture", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(errorData.error || "Upload failed");
+      }
+
+      const result = await uploadResponse.json();
+      const imageUrl = result.imageUrl;
+
+      if (imageUrl) {
+        onImageChange(imageUrl);
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        setSelectedImage(null);
+        onClose();
+      } else {
+        console.error("Upload failed: No image URL returned");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = "hidden";
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      setSelectedImage(null);
+      setIsUploading(false);
     } else {
-      document.body.style.overflow = "auto"
+      document.body.style.overflow = "auto";
     }
 
     return () => {
-      document.body.style.overflow = "auto"
-    }
-  }, [isOpen])
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
 
-
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    setMounted(true)
-    return () => setMounted(false)
-  }, [])
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
-  if (!mounted || !isOpen) return null
+  if (!mounted || !isOpen) return null;
 
   return createPortal(
     <div
@@ -133,7 +178,9 @@ export default function ProfileImageModal({ isOpen, onClose, onImageChange, curr
           {/* Upload section */}
           <div
             className={`border-2 border-dashed rounded-lg p-6 mb-6 text-center transition-colors ${
-              isDragging ? "border-blue-500 bg-blue-500/10" : "border-slate-700 bg-slate-800/50 hover:border-slate-600"
+              isDragging
+                ? "border-blue-500 bg-blue-500/10"
+                : "border-slate-700 bg-slate-800/50 hover:border-slate-600"
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -147,12 +194,17 @@ export default function ProfileImageModal({ isOpen, onClose, onImageChange, curr
               className="hidden"
               id="profile-image-upload"
             />
-            <label htmlFor="profile-image-upload" className="flex flex-col items-center gap-2 cursor-pointer">
+            <label
+              htmlFor="profile-image-upload"
+              className="flex flex-col items-center gap-2 cursor-pointer"
+            >
               <div className="p-3 rounded-full bg-slate-700">
                 <Upload className="h-6 w-6 text-blue-400" />
               </div>
               <p className="text-slate-300 font-medium">Upload a photo</p>
-              <p className="text-slate-500 text-sm">Drag and drop or click to browse</p>
+              <p className="text-slate-500 text-sm">
+                Drag and drop or click to browse
+              </p>
             </label>
           </div>
 
@@ -161,23 +213,33 @@ export default function ProfileImageModal({ isOpen, onClose, onImageChange, curr
             <Button
               variant="outline"
               onClick={onClose}
+              disabled={isUploading}
               className="bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSave}
-              disabled={!selectedImage && !previewUrl}
+              disabled={!selectedFile || isUploading}
               className={`bg-blue-600 hover:bg-blue-700 text-white ${
-                !selectedImage && !previewUrl ? "opacity-50 cursor-not-allowed" : ""
+                !selectedFile || isUploading
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
               }`}
             >
-              Save Changes
+              {isUploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                "Save Changes"
+              )}
             </Button>
           </div>
         </div>
       </div>
     </div>,
-    document.body,
-  )
+    document.body
+  );
 }

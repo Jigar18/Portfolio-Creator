@@ -21,10 +21,12 @@ model User {
   username       String    @unique
   installationId String?   @unique
   accessToken    String?
-  createdAt      DateTime  @default(now())
+  createdAt      DateTime  @default(now())  
   updatedAt      DateTime  @updatedAt
   skills         Skill[]
+  experiences    Experience[]
   details        Details?
+  socialLinks    SocialLink[]
 }
 
 model Details {
@@ -37,6 +39,7 @@ model Details {
   college        String
   startYear      Int
   endYear        Int
+  about          String?
   user           User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId         String @unique
   imageUrl       String?
@@ -48,4 +51,39 @@ model Skill {
   skills      String[]
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
+}
+
+model Experience {
+  id          String   @id @default(uuid())
+  company     String
+  position    String
+  startMonth  String
+  startYear   String
+  endMonth    String?
+  endYear     String?
+  isCurrentRole Boolean @default(false)
+  contributions String[]
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SocialLink {
+  id        String   @id @default(uuid())
+  email     String?
+  twitter   String?
+  linkedin  String?
+  instagram String?
+  github    String?
+  medium    String?
+  blog      String?
+  leetcode  String?
+  youtube   String?
+  portfolio String?
+  hackerrank String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

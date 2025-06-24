@@ -8,22 +8,63 @@ import { Button } from "@/components/ui/button";
 
 export default function About() {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref as React.RefObject<HTMLElement>, { once: true, margin: "-100px" });
+  const isInView = useInView(ref as React.RefObject<HTMLElement>, {
+    once: true,
+    margin: "-100px",
+  });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [aboutText, setAboutText] = useState(
-    "I am a software engineer with a passion for building web applications. I specialize in front-end development and have experience working with React, Next.js, and Tailwind CSS. I am currently learning TypeScript and GraphQL to improve my skills."
-  );
+  const [aboutText, setAboutText] = useState("");
   const [tempAboutText, setTempAboutText] = useState(aboutText);
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    fetchUserDetails();
     return () => setMounted(false);
   }, []);
 
-  const handleSaveChanges = () => {
-    setAboutText(tempAboutText);
-    setIsEditModalOpen(false);
+  const fetchUserDetails = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/getUserDetails");
+      const data = await response.json();
+
+      if (data.success && data.details.about) {
+        setAboutText(data.details.about);
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      setSaving(true);
+      const response = await fetch("/api/updateUserDetails", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ about: tempAboutText }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setAboutText(tempAboutText);
+        setIsEditModalOpen(false);
+      } else {
+        console.error("Failed to update about text:", data.error);
+      }
+    } catch (error) {
+      console.error("Error updating about text:", error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCloseModal = () => {
@@ -40,14 +81,14 @@ export default function About() {
     <>
       <div ref={ref} className="w-full">
         <motion.div
-          {...({
+          {...{
             className:
               "bg-slate-800/50 rounded-xl border border-slate-700 p-6 shadow-md backdrop-blur-sm overflow-hidden relative group",
             initial: { y: 50, opacity: 0 },
             animate: isInView ? { y: 0, opacity: 1 } : { y: 50, opacity: 0 },
             transition: { duration: 0.8, ease: "easeOut" },
             whileHover: { y: -5 },
-          } )}
+          }}
         >
           {/* Edit Button */}
           <button
@@ -79,9 +120,20 @@ export default function About() {
             About Me
           </h2>
 
-          <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
-            {aboutText}
-          </p>
+          {loading ? (
+            <div className="text-slate-300 leading-relaxed whitespace-pre-wrap">
+              <div className="space-y-2">
+                <div className="h-4 bg-slate-700 rounded animate-pulse"></div>
+                <div className="h-4 bg-slate-700 rounded animate-pulse w-3/4"></div>
+                <div className="h-4 bg-slate-700 rounded animate-pulse w-1/2"></div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-slate-300 leading-relaxed whitespace-pre-wrap">
+              {aboutText ||
+                "Click the edit button to add information about yourself..."}
+            </div>
+          )}
         </motion.div>
       </div>
 
@@ -152,10 +204,11 @@ export default function About() {
                   </Button>
                   <Button
                     onClick={handleSaveChanges}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2"
+                    disabled={saving}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Save className="h-4 w-4" />
-                    Save Changes
+                    {saving ? "Saving..." : "Save Changes"}
                   </Button>
                 </div>
               </div>

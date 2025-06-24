@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import {
   CheckCircle2,
@@ -17,6 +17,7 @@ import {
   Save,
   Calendar,
   Building,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,11 +33,27 @@ interface ExperienceItem {
     icon: React.ReactNode;
     text: string;
   }>;
+  id?: string; // Add database ID for updates
+}
+
+interface DatabaseExperience {
+  id: string;
+  company: string;
+  position: string;
+  startMonth: string;
+  startYear: string;
+  endMonth?: string;
+  endYear?: string;
+  isCurrentRole: boolean;
+  contributions: string[];
 }
 
 export default function Experience() {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref as React.RefObject<HTMLElement>, { once: true, margin: "-100px" });
+  const isInView = useInView(ref as React.RefObject<HTMLElement>, {
+    once: true,
+    margin: "-100px",
+  });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -50,70 +67,75 @@ export default function Experience() {
   const [tempEndYear, setTempEndYear] = useState("");
   const [tempIsCurrentRole, setTempIsCurrentRole] = useState(false);
   const [tempContributions, setTempContributions] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const fetchExperiences = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/getUserExperience");
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.experiences) {
+          // Transform database data to component format
+          const transformedExperiences = data.experiences.map(
+            (exp: DatabaseExperience, index: number) => ({
+              level: index + 1,
+              company: exp.company,
+              position: exp.position,
+              year: exp.isCurrentRole
+                ? `${exp.startMonth} ${exp.startYear} - Present`
+                : `${exp.startMonth} ${exp.startYear} - ${exp.endMonth} ${exp.endYear}`,
+              description: exp.contributions.map(
+                (contribution: string, idx: number) => ({
+                  icon: getIconForIndex(idx),
+                  text: contribution,
+                })
+              ),
+              id: exp.id, // Store database ID for updates
+            })
+          );
+          setExperience(transformedExperiences);
+        } else {
+          // If no experiences found, set empty array
+          setExperience([]);
+        }
+      } else {
+        console.error("Failed to fetch experiences");
+        setExperience([]);
+      }
+    } catch (error) {
+      console.error("Error fetching experiences:", error);
+      setExperience([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     setMounted(true);
+    fetchExperiences();
     return () => setMounted(false);
-  }, []);
+  }, [fetchExperiences]);
 
-  const [experience, setExperience] = useState<ExperienceItem[]>([
-    {
-      level: 1,
-      company: "Reliance Industries and Future Group",
-      position: "Software Engineer",
-      year: "2026 - Present",
-      description: [
-        {
-          icon: <Briefcase className="h-5 w-5 text-blue-400" />,
-          text: "Led development of core authentication system serving 1M+ users",
-        },
-        {
-          icon: <BarChart2 className="h-5 w-5 text-blue-400" />,
-          text: "Optimized database queries reducing response time by 40%",
-        },
-        {
-          icon: <Users className="h-5 w-5 text-blue-400" />,
-          text: "Mentored 5 junior developers and conducted code reviews",
-        },
-        {
-          icon: <Code className="h-5 w-5 text-blue-400" />,
-          text: "Implemented CI/CD pipeline reducing deployment time by 60%",
-        },
-        {
-          icon: <Award className="h-5 w-5 text-blue-400" />,
-          text: "Received Employee of the Month award for exceptional performance",
-        },
-        {
-          icon: <Clock className="h-5 w-5 text-blue-400" />,
-          text: "Improved system uptime to 99.9% through infrastructure optimizations",
-        },
-      ],
-    },
-    {
-      level: 2,
-      company: "Microsoft",
-      position: "Software Engineer Intern",
-      year: "2025 - 2026",
-      description: [
-        {
-          icon: <Code className="h-5 w-5 text-blue-400" />,
-          text: "Developed new features for Azure Cloud Platform",
-        },
-        {
-          icon: <CheckCircle2 className="h-5 w-5 text-blue-400" />,
-          text: "Built automated testing framework with 90% coverage",
-        },
-        {
-          icon: <Users className="h-5 w-5 text-blue-400" />,
-          text: "Collaborated with cross-functional teams on microservices architecture",
-        },
-        {
-          icon: <Zap className="h-5 w-5 text-blue-400" />,
-          text: "Reduced system latency by 25% through code optimization",
-        },
-      ],
-    },
-  ]);
+  const getIconForIndex = (index: number) => {
+    const icons = [
+      <Briefcase
+        className="h-5 w-5 text-blue-400"
+        key={`briefcase-${index}`}
+      />,
+      <Code className="h-5 w-5 text-blue-400" key={`code-${index}`} />,
+      <Users className="h-5 w-5 text-blue-400" key={`users-${index}`} />,
+      <BarChart2 className="h-5 w-5 text-blue-400" key={`chart-${index}`} />,
+      <Award className="h-5 w-5 text-blue-400" key={`award-${index}`} />,
+      <Clock className="h-5 w-5 text-blue-400" key={`clock-${index}`} />,
+      <Zap className="h-5 w-5 text-blue-400" key={`zap-${index}`} />,
+      <CheckCircle2 className="h-5 w-5 text-blue-400" key={`check-${index}`} />,
+    ];
+    return icons[index % icons.length];
+  };
+
+  const [experience, setExperience] = useState<ExperienceItem[]>([]);
 
   const months = [
     "January",
@@ -188,69 +210,115 @@ export default function Experience() {
     setIsEditModalOpen(false);
   };
 
-  const parseContributions = (text: string) => {
-    const lines = text.split("\n").filter((line) => line.trim());
-    const icons = [
-      <Briefcase className="h-5 w-5 text-blue-400" key={"0"}/>,
-      <Code className="h-5 w-5 text-blue-400" key={"1"}/>,
-      <Users className="h-5 w-5 text-blue-400" key={"2"}/>,
-      <BarChart2 className="h-5 w-5 text-blue-400" key={"3"}/>,
-      <Award className="h-5 w-5 text-blue-400" key={"4"}/>,
-      <Clock className="h-5 w-5 text-blue-400" key={"5"}/>,
-      <Zap className="h-5 w-5 text-blue-400" key={"6"} />,
-      <CheckCircle2 className="h-5 w-5 text-blue-400" key={"7"}/>,
-    ];
-
-    return lines.map((line, index) => ({
-      icon: icons[index % icons.length],
-      text: line.trim(),
-    }));
-  };
-
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
     if (!tempOrganization || !tempRole || !tempStartMonth || !tempStartYear) {
       return;
     }
 
-    const yearRange = tempIsCurrentRole
-      ? `${tempStartMonth} ${tempStartYear} - Present`
-      : `${tempStartMonth} ${tempStartYear} - ${tempEndMonth} ${tempEndYear}`;
+    try {
+      setSaving(true);
 
-    const newExperience: ExperienceItem = {
-      level:
-        editingIndex !== null
-          ? experience[editingIndex].level
-          : experience.length + 1,
-      company: tempOrganization,
-      position: tempRole,
-      year: yearRange,
-      description: parseContributions(tempContributions),
-    };
+      // Prepare the data for the API
+      const contributionsArray = tempContributions
+        .split("\n")
+        .filter((line) => line.trim())
+        .map((line) => line.trim());
 
-    if (editingIndex !== null) {
-      // Update existing experience
-      const updatedExperience = [...experience];
-      updatedExperience[editingIndex] = newExperience;
-      setExperience(updatedExperience);
-    } else {
-      // Add new experience (sort by most recent first)
-      setExperience([newExperience, ...experience]);
+      const experienceData = {
+        company: tempOrganization,
+        position: tempRole,
+        startMonth: tempStartMonth,
+        startYear: tempStartYear,
+        endMonth: tempIsCurrentRole ? null : tempEndMonth,
+        endYear: tempIsCurrentRole ? null : tempEndYear,
+        isCurrentRole: tempIsCurrentRole,
+        contributions: contributionsArray,
+      };
+
+      if (editingIndex !== null) {
+        // Update existing experience
+        const existingExp = experience[editingIndex];
+        const response = await fetch("/api/updateUserExperience", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: existingExp.id,
+            ...experienceData,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to update experience");
+        }
+      } else {
+        // Add new experience
+        const response = await fetch("/api/updateUserExperience", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(experienceData),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to add experience");
+        }
+      }
+
+      // Refresh the experiences from the database
+      await fetchExperiences();
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error saving experience:", error);
+      // You could add a toast notification here to show the error to the user
+    } finally {
+      setSaving(false);
     }
+  };
 
-    handleCloseModal();
+  const handleDeleteExperience = async (index: number) => {
+    const exp = experience[index];
+    if (!exp.id) return;
+
+    try {
+      setSaving(true);
+      const response = await fetch("/api/updateUserExperience", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: exp.id }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete experience");
+      }
+
+      // Refresh the experiences from the database
+      await fetchExperiences();
+    } catch (error) {
+      console.error("Error deleting experience:", error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <>
       <motion.div
         ref={ref}
-        {...{className:"w-full"}}
+        {...{ className: "w-full" }}
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 0.5 }}
       >
         <motion.div
-          {...{className:"bg-slate-800/50 rounded-xl border border-slate-700 p-6 shadow-md backdrop-blur-sm relative group"}}
+          {...{
+            className:
+              "bg-slate-800/50 rounded-xl border border-slate-700 p-6 shadow-md backdrop-blur-sm relative group",
+          }}
           whileHover={{ y: -5 }}
           transition={{ duration: 0.3 }}
           initial={{ y: 50, opacity: 0 }}
@@ -273,81 +341,106 @@ export default function Experience() {
           </h2>
 
           <div className="space-y-8">
-            {experience.map((level, index) => (
-              <motion.div
-                key={level.level}
-                {...{className:"relative"}}
-                initial={{ opacity: 0, x: -20 }}
-                animate={
-                  isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }
-                }
-                transition={{ duration: 0.5, delay: index * 0.2 + 0.3 }}
-              >
-                <div className="flex flex-col md:flex-row gap-6">
-                  {/* Timeline dot and line */}
-                  <div className="hidden md:flex flex-col items-center">
-                    <div className="w-4 h-4 rounded-full bg-blue-600 z-10"></div>
-                    {index < experience.length - 1 && (
-                      <div className="w-0.5 bg-slate-600 h-full absolute top-4 left-[7px] -z-10"></div>
-                    )}
-                  </div>
-
-                  {/* Experience card */}
-                  <div className="flex-1 flex flex-col md:flex-row gap-4 group">
-                    <div className="bg-slate-700/50 rounded-lg p-4 md:w-64 flex-shrink-0 relative">
-                      {/* Individual edit button for each experience */}
-                      <button
-                        className="absolute top-2 right-2 p-1 rounded bg-slate-600/80 hover:bg-slate-500 text-slate-300 hover:text-white opacity-0 group-hover:opacity-100 transition-all duration-200"
-                        onClick={() => handleOpenModal(index)}
-                        type="button"
-                      >
-                        <Edit3 className="h-3 w-3" />
-                      </button>
-
-                      <h3 className="text-xl font-bold text-slate-100">
-                        {level.company}
-                      </h3>
-                      <p className="text-blue-400 font-medium">
-                        {level.position}
-                      </p>
-                      <p className="text-slate-400 text-sm mt-1">
-                        {level.year}
-                      </p>
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <span className="ml-3 text-slate-400">
+                  Loading experiences...
+                </span>
+              </div>
+            ) : experience.length === 0 ? (
+              <div className="text-center py-12">
+                <Briefcase className="h-12 w-12 text-slate-500 mx-auto mb-4" />
+                <p className="text-slate-400 mb-4">No experiences added yet</p>
+                <Button
+                  onClick={() => handleOpenModal()}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Add Your First Experience
+                </Button>
+              </div>
+            ) : (
+              experience.map((level, index) => (
+                <motion.div
+                  key={level.level}
+                  {...{ className: "relative" }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={
+                    isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }
+                  }
+                  transition={{ duration: 0.5, delay: index * 0.2 + 0.3 }}
+                >
+                  <div className="flex flex-col md:flex-row gap-6">
+                    {/* Timeline dot and line */}
+                    <div className="hidden md:flex flex-col items-center">
+                      <div className="w-4 h-4 rounded-full bg-blue-600 z-10"></div>
+                      {index < experience.length - 1 && (
+                        <div className="w-0.5 bg-slate-600 h-full absolute top-4 left-[7px] -z-10"></div>
+                      )}
                     </div>
 
-                    <div className="bg-slate-700/30 rounded-lg p-4 flex-1">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {level.description.map((item, idx) => (
-                          <motion.div
-                            key={idx}
-                            {...{className:"flex items-center gap-3 bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 hover:border-blue-500/30 transition-colors"}}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={
-                              isInView
-                                ? { opacity: 1, y: 0 }
-                                : { opacity: 0, y: 10 }
-                            }
-                            transition={{
-                              duration: 0.3,
-                              delay: 0.1 + idx * 0.1 + index * 0.2,
-                            }}
-                            whileHover={{
-                              y: -2,
-                              backgroundColor: "rgba(30, 41, 59, 0.7)",
-                            }}
-                          >
-                            <div className="flex-shrink-0 bg-slate-700 p-1.5 rounded-md">
-                              {item.icon}
-                            </div>
-                            <span className="text-slate-300">{item.text}</span>
-                          </motion.div>
-                        ))}
+                    {/* Experience card */}
+                    <div className="flex-1 flex flex-col md:flex-row gap-4 group">
+                      <div className="bg-slate-700/50 rounded-lg p-4 md:w-64 flex-shrink-0 relative">
+                        {/* Individual edit button for each experience */}
+                        <button
+                          className="absolute top-2 right-2 p-1 rounded bg-slate-600/80 hover:bg-slate-500 text-slate-300 hover:text-white opacity-0 group-hover:opacity-100 transition-all duration-200"
+                          onClick={() => handleOpenModal(index)}
+                          type="button"
+                        >
+                          <Edit3 className="h-3 w-3" />
+                        </button>
+
+                        <h3 className="text-xl font-bold text-slate-100">
+                          {level.company}
+                        </h3>
+                        <p className="text-blue-400 font-medium">
+                          {level.position}
+                        </p>
+                        <p className="text-slate-400 text-sm mt-1">
+                          {level.year}
+                        </p>
+                      </div>
+
+                      <div className="bg-slate-700/30 rounded-lg p-4 flex-1">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {level.description.map((item, idx) => (
+                            <motion.div
+                              key={idx}
+                              {...{
+                                className:
+                                  "flex items-center gap-3 bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 hover:border-blue-500/30 transition-colors",
+                              }}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={
+                                isInView
+                                  ? { opacity: 1, y: 0 }
+                                  : { opacity: 0, y: 10 }
+                              }
+                              transition={{
+                                duration: 0.3,
+                                delay: 0.1 + idx * 0.1 + index * 0.2,
+                              }}
+                              whileHover={{
+                                y: -2,
+                                backgroundColor: "rgba(30, 41, 59, 0.7)",
+                              }}
+                            >
+                              <div className="flex-shrink-0 bg-slate-700 p-1.5 rounded-md">
+                                {item.icon}
+                              </div>
+                              <span className="text-slate-300">
+                                {item.text}
+                              </span>
+                            </motion.div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))
+            )}
           </div>
 
           {experience.length > 2 && (
@@ -569,17 +662,36 @@ export default function Experience() {
 
                 {/* Action buttons */}
                 <div className="flex justify-between mt-8">
-                  <Button
-                    variant="outline"
-                    onClick={handleCloseModal}
-                    className="bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300"
-                  >
-                    Cancel
-                  </Button>
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={handleCloseModal}
+                      className="bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300"
+                    >
+                      Cancel
+                    </Button>
+                    {editingIndex !== null && (
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          if (editingIndex !== null) {
+                            handleDeleteExperience(editingIndex);
+                            handleCloseModal();
+                          }
+                        }}
+                        className="bg-red-800 hover:bg-red-700 border-red-700 text-red-300 hover:text-red-200"
+                        disabled={saving}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </Button>
+                    )}
+                  </div>
                   <Button
                     onClick={handleSaveChanges}
                     className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
                     disabled={
+                      saving ||
                       !tempOrganization ||
                       !tempRole ||
                       !tempStartMonth ||
@@ -588,7 +700,11 @@ export default function Experience() {
                     }
                   >
                     <Save className="h-4 w-4" />
-                    {editingIndex !== null ? "Save Changes" : "Add Experience"}
+                    {saving
+                      ? "Saving..."
+                      : editingIndex !== null
+                      ? "Save Changes"
+                      : "Add Experience"}
                   </Button>
                 </div>
               </div>

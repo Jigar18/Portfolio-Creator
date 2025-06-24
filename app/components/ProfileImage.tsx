@@ -34,7 +34,6 @@ export default function ProfileImage() {
       }
 
       try {
-        // Call your API route instead of accessing Supabase directly
         const response = await fetch("/api/getProfileImage", {
           method: "GET",
           headers: {

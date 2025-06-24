@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { X, Edit3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,20 @@ interface SocialLink {
   url: string;
 }
 
+interface SocialLinkData {
+  email?: string;
+  twitter?: string;
+  linkedin?: string;
+  instagram?: string;
+  github?: string;
+  medium?: string;
+  blog?: string;
+  leetcode?: string;
+  youtube?: string;
+  portfolio?: string;
+  hackerrank?: string;
+}
+
 export default function Connect() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -20,97 +34,60 @@ export default function Connect() {
     [key: string]: string;
   }>({});
 
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([
-    {
-      name: "Email",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="1.5"
-          stroke="currentColor"
-          className="size-5"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
-          />
-        </svg>
-      ),
-      url: "mailto:contact@example.com",
-    },
-    {
-      name: "Twitter",
-      icon: (
-        <svg
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-          className="size-5"
-        >
-          <path
-            fill="currentColor"
-            d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"
-          />
-        </svg>
-      ),
-      url: "https://twitter.com/jigark0",
-    },
-    {
-      name: "LinkedIn",
-      icon: (
-        <svg
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-          className="size-5"
-        >
-          <path
-            fill="currentColor"
-            d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
-          />
-        </svg>
-      ),
-      url: "https://www.linkedin.com/in/jigark0/",
-    },
-    {
-      name: "Instagram",
-      icon: (
-        <svg
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-          className="size-5"
-        >
-          <path
-            fill="currentColor"
-            d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"
-          />
-        </svg>
-      ),
-      url: "https://instagram.com/jigark0",
-    },
-    {
-      name: "GitHub",
-      icon: (
-        <svg
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-          className="size-5"
-        >
-          <path
-            fill="currentColor"
-            d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
-          />
-        </svg>
-      ),
-      url: "https://github.com/Jigar18",
-    },
-  ]);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+
+  const fetchSocialLinks = useCallback(async () => {
+    try {
+      const response = await fetch("/api/getSocialLinks");
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          const socialLinksData: SocialLinkData = data.socialLinks;
+          const linksArray: SocialLink[] = [];
+
+          // Convert object format to array of links for display
+          Object.entries(socialLinksData).forEach(([platform, url]) => {
+            if (
+              url &&
+              platform !== "id" &&
+              platform !== "userId" &&
+              platform !== "createdAt" &&
+              platform !== "updatedAt"
+            ) {
+              linksArray.push({
+                name: platform.charAt(0).toUpperCase() + platform.slice(1),
+                icon: getIconForPlatform(platform),
+                url: url as string,
+              });
+            }
+          });
+
+          setSocialLinks(linksArray);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching social links:", error);
+      // Set default links if fetch fails
+      setSocialLinks([
+        {
+          name: "GitHub",
+          icon: getIconForPlatform("github"),
+          url: "https://github.com/jigar",
+        },
+        {
+          name: "LinkedIn",
+          icon: getIconForPlatform("linkedin"),
+          url: "https://linkedin.com/in/jigar",
+        },
+      ]);
+    }
+  }, []);
 
   useEffect(() => {
     setMounted(true);
+    fetchSocialLinks();
     return () => setMounted(false);
-  }, []);
+  }, [fetchSocialLinks]);
 
   const getIconForPlatform = (platform: string) => {
     const platformLower = platform.toLowerCase();
@@ -257,6 +234,19 @@ export default function Connect() {
             />
           </svg>
         );
+      case "hackerrank":
+        return (
+          <svg
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            className="size-5"
+          >
+            <path
+              fill="currentColor"
+              d="M12 0c1.285 0 9.75 4.886 10.392 6 .645 1.115.645 10.885 0 12S13.287 24 12 24s-9.75-4.885-10.395-6c-.641-1.115-.641-10.885 0-12C2.25 4.886 10.715 0 12 0zm2.295 6.799c-.141 0-.258.115-.258.258v3.875H9.963V6.799c0-.141-.115-.258-.258-.258H8.684c-.141 0-.258.115-.258.258v10.402c0 .141.115.258.258.258h1.021c.141 0 .258-.115.258-.258V12.82h4.074v4.381c0 .141.115.258.258.258h1.021c.141 0 .258-.115.258-.258V6.799c0-.141-.115-.258-.258-.258H14.295z"
+            />
+          </svg>
+        );
       default:
         return (
           <svg
@@ -287,14 +277,15 @@ export default function Connect() {
     const allPlatforms = [
       "Email",
       "Twitter",
-      "LinkedIn",
+      "Linkedin",
       "Instagram",
-      "GitHub",
+      "Github",
       "Medium",
       "Blog",
-      "LeetCode",
-      "YouTube",
+      "Leetcode",
+      "Youtube",
       "Portfolio",
+      "Hackerrank",
     ];
     allPlatforms.forEach((platform) => {
       if (!tempLinks[platform]) {
@@ -310,22 +301,30 @@ export default function Connect() {
     setIsEditModalOpen(false);
   };
 
-  const handleSaveChanges = () => {
-    // Update social links with new URLs, only include non-empty ones
-    const updatedLinks: SocialLink[] = [];
+  const handleSaveChanges = async () => {
+    try {
+      // Convert temp links to the format expected by the API
+      const socialLinksData: { [key: string]: string } = {};
 
-    Object.entries(tempSocialLinks).forEach(([platform, url]) => {
-      if (url.trim()) {
-        updatedLinks.push({
-          name: platform,
-          icon: getIconForPlatform(platform),
-          url: url.trim(),
-        });
+      Object.entries(tempSocialLinks).forEach(([platform, url]) => {
+        const platformKey = platform.toLowerCase();
+        socialLinksData[platformKey] = url.trim() || "";
+      });
+
+      const response = await fetch("/api/updateSocialLinks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ socialLinks: socialLinksData }),
+      });
+
+      if (response.ok) {
+        // Refetch the updated data
+        await fetchSocialLinks();
+        handleCloseModal();
       }
-    });
-
-    setSocialLinks(updatedLinks);
-    handleCloseModal();
+    } catch (error) {
+      console.error("Error saving social links:", error);
+    }
   };
 
   const handleUrlChange = (platform: string, url: string) => {
@@ -339,12 +338,12 @@ export default function Connect() {
     <>
       <div className="relative group">
         <motion.div
-          {...({
+          {...{
             className:
               "bg-slate-800/50 rounded-xl border border-slate-700 p-6 shadow-md backdrop-blur-sm overflow-hidden relative",
             whileHover: { y: -5 },
             transition: { duration: 0.3 },
-          })}
+          }}
         >
           {/* Edit Button */}
           <button
@@ -368,7 +367,7 @@ export default function Connect() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 className="lucide lucide-share-2"
-              > 
+              >
                 <circle cx="18" cy="5" r="3" />
                 <circle cx="6" cy="12" r="3" />
                 <circle cx="18" cy="19" r="3" />
@@ -440,7 +439,7 @@ export default function Connect() {
                           handleUrlChange(platform, e.target.value)
                         }
                         placeholder={`Enter ${platform} URL`}
-                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                       />
                     </div>
                   ))}
