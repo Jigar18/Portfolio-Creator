@@ -21,11 +21,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
+import ProfileImageModal from "../components/ProfileImageModal";
 
 function InfoCard() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [profileImage, setProfileImage] = useState(
+    "https://xspywcumjzcpwltlhxyi.supabase.co/storage/v1/object/public/profil2e-picture/user-image/undefined-1748901528446-profile-picture.jpg"
+  );
 
   // User details state
   const [userDetails, setUserDetails] = useState({
@@ -79,6 +84,11 @@ function InfoCard() {
     }
   };
 
+  const handleImageEditModal = (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      setIsModalOpen(true);
+  }
+
   const handleOpenModal = () => {
     setTempDetails({
       firstName: userDetails.firstName,
@@ -106,16 +116,9 @@ function InfoCard() {
     setIsEditModalOpen(false);
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setTempImageFile(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setTempImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleImageChange = (newImageUrl: string) => {
+    setProfileImage(newImageUrl);
+    setIsModalOpen(false);
   };
 
   const handleSaveChanges = async () => {
@@ -254,22 +257,18 @@ function InfoCard() {
                         />
                       </div>
                       <div>
-                        <input
+                        {/* <input
                           type="file"
                           accept="image/*"
                           onChange={handleImageChange}
                           className="hidden"
                           id="profile-image-input"
-                        />
+                        /> */}
                         <Button
                           type="button"
                           variant="outline"
-                          onClick={() =>
-                            document
-                              .getElementById("profile-image-input")
-                              ?.click()
-                          }
-                          className="bg-slate-800 hover:bg-slate-700 border-slate-600 text-slate-300"
+                          onClick={handleImageEditModal}
+                          className="bg-slate-800 hover:bg-slate-700 border-slate-600 text-slate-300 hover:text-slate-100"
                         >
                           <Camera className="h-4 w-4 mr-2" />
                           Change Picture
@@ -439,6 +438,12 @@ function InfoCard() {
                 </div>
               </div>
             </div>
+            <ProfileImageModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              onImageChange={handleImageChange}
+              currentImage={profileImage}
+            />,
           </div>,
           document.body
         )}
