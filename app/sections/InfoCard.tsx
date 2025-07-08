@@ -157,11 +157,21 @@ function InfoCard() {
       const data = await response.json();
 
       if (data.success) {
-        setUserDetails((prev) => ({
-          ...prev,
-          ...tempDetails,
-          imageUrl: newImageUrl,
-        }));
+        const response = await fetch("/api/getUserDetails");
+        const data = await response.json();
+
+        if (data.success && data.details) {
+          const details = {
+            firstName: data.details.firstName || "",
+            lastName: data.details.lastName || "",
+            email: data.details.email || "",
+            location: data.details.location || "",
+            jobTitle: data.details.jobTitle || "",
+            college: data.details.college || "",
+            imageUrl: data.details.imageUrl || "",
+          };
+          setUserDetails(details);
+        }
         handleCloseModal();
         // Trigger a page refresh to update all components
         window.location.reload();

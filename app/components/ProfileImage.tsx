@@ -10,7 +10,7 @@ export default function ProfileImage() {
   const [isHovering, setIsHovering] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(
-    "https://xspywcumjzcpwltlhxyi.supabase.co/storage/v1/object/public/profile-picture/user-image/undefined-1748901528446-profile-picture.jpg"
+    ""
   );
 
   const handleImageChange = (newImageUrl: string) => {
