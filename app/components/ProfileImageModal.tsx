@@ -84,6 +84,7 @@ export default function ProfileImageModal({
       const uploadResponse = await fetch("/api/uploadProfilePicture", {
         method: "POST",
         body: formData,
+        credentials: "include",
       });
 
       if (!uploadResponse.ok) {

@@ -1,33 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-
-interface UserDetails {
-  college?: string;
-}
+import { useUser } from "../context/UserContext";
 
 export default function CurrentOrganization() {
-  const [college, setCollege] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchUserDetails() {
-      try {
-        const response = await fetch("/api/getUserDetails");
-        if (response.ok) {
-          const data: UserDetails = await response.json();
-          setCollege(data.college || "");
-        }
-      } catch (error) {
-        console.error("Error fetching user details:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchUserDetails();
-  }, []);
+  const { userDetails, loading } = useUser();
 
   const formatCollegeName = (name: string) => {
     return name.toUpperCase();
@@ -80,7 +57,9 @@ export default function CurrentOrganization() {
         </svg>
       </div>
       <h2 className="font-medium text-blue-300">
-        {college ? formatCollegeName(college) : "UNIVERSITY"}
+        {userDetails?.college
+          ? formatCollegeName(userDetails.college)
+          : "UNIVERSITY"}
       </h2>
     </motion.div>
   );

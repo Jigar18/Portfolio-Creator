@@ -2,62 +2,20 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Camera } from "lucide-react";
 import ProfileImageModal from "./ProfileImageModal";
+import { useUser } from "../context/UserContext";
 
 export default function ProfileImage() {
   const [isHovering, setIsHovering] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [profileImage, setProfileImage] = useState(
-    ""
-  );
+  const { userDetails, updateUserDetails } = useUser();
 
   const handleImageChange = (newImageUrl: string) => {
-    setProfileImage(newImageUrl);
+    updateUserDetails({ imageUrl: newImageUrl });
     setIsModalOpen(false);
   };
-
-  useEffect(() => {
-    const getProfileImage = async () => {
-      const getCookie = (name: string) => {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop()?.split(";").shift();
-      };
-
-      const token = getCookie("id&Uname");
-
-      if (!token) {
-        console.error("Authentication token is missing");
-        return;
-      }
-
-      try {
-        const response = await fetch("/api/getProfileImage", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Cookie: `id&Uname=${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          console.error("Error fetching profile image:", response.statusText);
-          return;
-        }
-
-        const result = await response.json();
-        if (result.imageUrl) {
-          setProfileImage(result.imageUrl);
-        }
-      } catch (error) {
-        console.error("Error fetching profile image:", error);
-      }
-    };
-
-    getProfileImage();
-  }, []);
 
   return (
     <>
@@ -72,7 +30,7 @@ export default function ProfileImage() {
       >
         <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-4 border-slate-700 relative z-10">
           <Image
-            src={profileImage || "/placeholder.svg"}
+            src={userDetails?.imageUrl || "/placeholder.png"}
             alt="Profile"
             width={200}
             height={200}
@@ -105,7 +63,7 @@ export default function ProfileImage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onImageChange={handleImageChange}
-        currentImage={profileImage}
+        currentImage={userDetails?.imageUrl || ""}
       />
     </>
   );

@@ -302,7 +302,7 @@ export default function ProfilePicturePage() {
                           aspect={1}
                         >
                           <Image
-                            src={image || "/placeholder.svg"}
+                            src={image || "/placeholder.png"}
                             alt="Upload preview"
                             width={400}
                             height={400}

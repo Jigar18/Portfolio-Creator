@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
 export async function middleware(req: NextRequest) {
-  const token = req.cookies.get("auth_token")?.value;
+  const token = req.cookies.get("id&Uname")?.value;
 
   if (!token) {
     return NextResponse.redirect(new URL("/login", req.url));

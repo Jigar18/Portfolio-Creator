@@ -22,26 +22,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import ProfileImageModal from "../components/ProfileImageModal";
+import { useUser } from "../context/UserContext";
 
 function InfoCard() {
+  const { userDetails, updateUserDetails, refreshUserDetails } = useUser();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [profileImage, setProfileImage] = useState(
-    "https://xspywcumjzcpwltlhxyi.supabase.co/storage/v1/object/public/profil2e-picture/user-image/undefined-1748901528446-profile-picture.jpg"
-  );
-
-  // User details state
-  const [userDetails, setUserDetails] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    location: "",
-    jobTitle: "",
-    college: "",
-    imageUrl: "",
-  });
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   // Temporary form state
   const [tempDetails, setTempDetails] = useState({
@@ -56,49 +44,48 @@ function InfoCard() {
   const [tempImageFile, setTempImageFile] = useState<File | null>(null);
   const [tempImagePreview, setTempImagePreview] = useState<string>("");
 
+  // Optional: Refresh user details on mount to ensure fresh data
   useEffect(() => {
-    setMounted(true);
-    fetchUserDetails();
-    return () => setMounted(false);
-  }, []);
+    refreshUserDetails();
+  }, [refreshUserDetails]);
 
-  const fetchUserDetails = async () => {
-    try {
-      const response = await fetch("/api/getUserDetails");
-      const data = await response.json();
+  // Validate form fields
+  const validateForm = (): boolean => {
+    const errors: string[] = [];
 
-      if (data.success && data.details) {
-        const details = {
-          firstName: data.details.firstName || "",
-          lastName: data.details.lastName || "",
-          email: data.details.email || "",
-          location: data.details.location || "",
-          jobTitle: data.details.jobTitle || "",
-          college: data.details.college || "",
-          imageUrl: data.details.imageUrl || "",
-        };
-        setUserDetails(details);
-      }
-    } catch (error) {
-      console.error("Error fetching user details:", error);
+    if (!tempDetails.firstName.trim()) {
+      errors.push("First name is required");
     }
+
+    if (!tempDetails.lastName.trim()) {
+      errors.push("Last name is required");
+    }
+
+    if (tempDetails.email && !/\S+@\S+\.\S+/.test(tempDetails.email)) {
+      errors.push("Please enter a valid email address");
+    }
+
+    setValidationErrors(errors);
+    return errors.length === 0;
   };
 
   const handleImageEditModal = (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.stopPropagation();
-      setIsModalOpen(true);
-  }
+    e.stopPropagation();
+    setIsModalOpen(true);
+  };
 
   const handleOpenModal = () => {
-    setTempDetails({
-      firstName: userDetails.firstName,
-      lastName: userDetails.lastName,
-      email: userDetails.email,
-      location: userDetails.location,
-      jobTitle: userDetails.jobTitle,
-      college: userDetails.college,
-    });
-    setTempImagePreview(userDetails.imageUrl);
+    if (userDetails) {
+      setTempDetails({
+        firstName: userDetails.firstName,
+        lastName: userDetails.lastName,
+        email: userDetails.email,
+        location: userDetails.location,
+        jobTitle: userDetails.jobTitle,
+        college: userDetails.college,
+      });
+      setTempImagePreview(userDetails.imageUrl);
+    }
     setIsEditModalOpen(true);
   };
 
@@ -117,23 +104,30 @@ function InfoCard() {
   };
 
   const handleImageChange = (newImageUrl: string) => {
-    setProfileImage(newImageUrl);
+    // Update the preview for the current editing session
+    setTempImagePreview(newImageUrl);
     setIsModalOpen(false);
   };
 
   const handleSaveChanges = async () => {
+    // Validate form before saving
+    if (!validateForm()) {
+      return;
+    }
+
     try {
       setSaving(true);
 
       // Upload new profile image if selected
-      let newImageUrl = userDetails.imageUrl;
+      let newImageUrl = userDetails?.imageUrl || "";
       if (tempImageFile) {
         const formData = new FormData();
-        formData.append("profilePicture", tempImageFile);
+        formData.append("image", tempImageFile);
 
         const imageResponse = await fetch("/api/uploadProfilePicture", {
           method: "POST",
           body: formData,
+          credentials: "include",
         });
 
         if (imageResponse.ok) {
@@ -148,6 +142,7 @@ function InfoCard() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           ...tempDetails,
           imageUrl: newImageUrl,
@@ -157,24 +152,13 @@ function InfoCard() {
       const data = await response.json();
 
       if (data.success) {
-        const response = await fetch("/api/getUserDetails");
-        const data = await response.json();
+        // Update the global state with the new details
+        updateUserDetails({
+          ...tempDetails,
+          imageUrl: newImageUrl,
+        });
 
-        if (data.success && data.details) {
-          const details = {
-            firstName: data.details.firstName || "",
-            lastName: data.details.lastName || "",
-            email: data.details.email || "",
-            location: data.details.location || "",
-            jobTitle: data.details.jobTitle || "",
-            college: data.details.college || "",
-            imageUrl: data.details.imageUrl || "",
-          };
-          setUserDetails(details);
-        }
         handleCloseModal();
-        // Trigger a page refresh to update all components
-        window.location.reload();
       } else {
         console.error("Failed to update user details:", data.error);
       }
@@ -216,7 +200,7 @@ function InfoCard() {
       </motion.div>
 
       {/* Edit Modal */}
-      {mounted &&
+      {typeof window !== "undefined" &&
         isEditModalOpen &&
         createPortal(
           <div
@@ -246,6 +230,17 @@ function InfoCard() {
                 </h2>
 
                 <div className="space-y-6 max-h-96 overflow-y-auto">
+                  {/* Validation Errors */}
+                  {validationErrors.length > 0 && (
+                    <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-3">
+                      <ul className="text-red-300 text-sm space-y-1">
+                        {validationErrors.map((error, index) => (
+                          <li key={index}>• {error}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
                   {/* Profile Image Section */}
                   <div className="space-y-2">
                     <Label className="text-slate-300 font-medium flex items-center gap-2">
@@ -257,8 +252,8 @@ function InfoCard() {
                         <Image
                           src={
                             tempImagePreview ||
-                            userDetails.imageUrl ||
-                            "/placeholder.svg"
+                            userDetails?.imageUrl ||
+                            "/placeholder.png"
                           }
                           alt="Profile Preview"
                           width={64}
@@ -300,12 +295,16 @@ function InfoCard() {
                       <Input
                         id="firstName"
                         value={tempDetails.firstName}
-                        onChange={(e) =>
+                        onChange={(e) => {
                           setTempDetails((prev) => ({
                             ...prev,
                             firstName: e.target.value,
-                          }))
-                        }
+                          }));
+                          // Clear validation errors when user types
+                          if (validationErrors.length > 0) {
+                            setValidationErrors([]);
+                          }
+                        }}
                         className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
                         placeholder="Enter your first name"
                       />
@@ -320,12 +319,16 @@ function InfoCard() {
                       <Input
                         id="lastName"
                         value={tempDetails.lastName}
-                        onChange={(e) =>
+                        onChange={(e) => {
                           setTempDetails((prev) => ({
                             ...prev,
                             lastName: e.target.value,
-                          }))
-                        }
+                          }));
+                          // Clear validation errors when user types
+                          if (validationErrors.length > 0) {
+                            setValidationErrors([]);
+                          }
+                        }}
                         className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
                         placeholder="Enter your last name"
                       />
@@ -345,12 +348,16 @@ function InfoCard() {
                       id="email"
                       type="email"
                       value={tempDetails.email}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setTempDetails((prev) => ({
                           ...prev,
                           email: e.target.value,
-                        }))
-                      }
+                        }));
+                        // Clear validation errors when user types
+                        if (validationErrors.length > 0) {
+                          setValidationErrors([]);
+                        }
+                      }}
                       className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
                       placeholder="your.email@example.com"
                     />
@@ -438,7 +445,10 @@ function InfoCard() {
                   <Button
                     onClick={handleSaveChanges}
                     disabled={
-                      saving || !tempDetails.firstName || !tempDetails.lastName
+                      saving ||
+                      !tempDetails.firstName ||
+                      !tempDetails.lastName ||
+                      validationErrors.length > 0
                     }
                     className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
                   >
@@ -447,13 +457,15 @@ function InfoCard() {
                   </Button>
                 </div>
               </div>
-            </div>
+            </div>  
             <ProfileImageModal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               onImageChange={handleImageChange}
-              currentImage={profileImage}
-            />,
+              currentImage={
+                tempImagePreview || userDetails?.imageUrl || "/placeholder.png"
+              }
+            />
           </div>,
           document.body
         )}

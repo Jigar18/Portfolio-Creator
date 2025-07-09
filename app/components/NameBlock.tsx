@@ -1,68 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-
-interface UserDetails {
-  firstName: string;
-  lastName: string;
-  jobTitle: string;
-  location: string;
-}
+import { useUser } from "../context/UserContext";
 
 export default function NameBlock() {
-  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      const getCookie = (name: string) => {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop()?.split(";").shift();
-      };
-
-      const token = getCookie("id&Uname");
-
-      if (!token) {
-        console.error("Authentication token is missing");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch("/api/getUserDetails", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Cookie: `id&Uname=${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          console.error("Error fetching user details:", response.statusText);
-          setLoading(false);
-          return;
-        }
-
-        const result = await response.json();
-        if (result.success && result.details) {
-          setUserDetails({
-            firstName: result.details.firstName,
-            lastName: result.details.lastName,
-            jobTitle: result.details.jobTitle,
-            location: result.details.location,
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching user details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserDetails();
-  }, []);
+  const { userDetails, loading } = useUser();
 
   // Helper function to capitalize first letter of each word
   const capitalizeWords = (str: string) => {

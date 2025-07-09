@@ -28,7 +28,9 @@ export default function About() {
   const fetchUserDetails = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/getUserDetails");
+      const response = await fetch("/api/getUserDetails", {
+        credentials: "include",
+      });
       const data = await response.json();
 
       if (data.success && data.details.about) {
@@ -49,6 +51,7 @@ export default function About() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ about: tempAboutText }),
       });
 

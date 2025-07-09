@@ -23,38 +23,43 @@ export default function Education() {
   useEffect(() => {
     async function fetchUserDetails() {
       try {
-        const response = await fetch("/api/getUserDetails");
+        const response = await fetch("/api/getUserDetails", {
+          credentials: "include",
+        });
         if (response.ok) {
-          const data: UserDetails = await response.json();
+          const data = await response.json();
+          if (data.success && data.details) {
+            const userDetails = data.details;
 
-          const dynamicEducation: EducationItem[] = [];
+            const dynamicEducation: EducationItem[] = [];
 
-          // Add college education if available
-          if (data.college) {
-            const years =
-              data.startYear && data.endYear
-                ? `${data.startYear} - ${data.endYear}`
-                : data.startYear
-                ? `${data.startYear} - Present`
-                : "Present";
+            // Add college education if available
+            if (userDetails.college) {
+              const years =
+                userDetails.startYear && userDetails.endYear
+                  ? `${userDetails.startYear} - ${userDetails.endYear}`
+                  : userDetails.startYear
+                  ? `${userDetails.startYear} - Present`
+                  : "Present";
 
+              dynamicEducation.push({
+                school: userDetails.college,
+                degree: "Bachelor of Technology",
+                field: "Computer Science",
+                years: years,
+              });
+            }
+
+            // Add default high school entry
             dynamicEducation.push({
-              school: data.college,
-              degree: "Bachelor of Technology",
-              field: "Computer Science",
-              years: years,
+              school: "Delhi Public School",
+              degree: "High School",
+              field: "Science",
+              years: "2020 - 2022",
             });
+
+            setEducation(dynamicEducation);
           }
-
-          // Add default high school entry
-          dynamicEducation.push({
-            school: "Delhi Public School",
-            degree: "High School",
-            field: "Science",
-            years: "2020 - 2022",
-          });
-
-          setEducation(dynamicEducation);
         }
       } catch (error) {
         console.error("Error fetching user details:", error);
