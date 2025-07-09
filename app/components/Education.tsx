@@ -3,11 +3,11 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
-interface UserDetails {
-  college?: string;
-  startYear?: string;
-  endYear?: string;
-}
+// interface UserDetails {
+//   college?: string;
+//   startYear?: string;
+//   endYear?: string;
+// }
 
 interface EducationItem {
   school: string;
