@@ -5,6 +5,7 @@ import {
   useContext,
   useState,
   useEffect,
+  useCallback,
   ReactNode,
 } from "react";
 
@@ -44,7 +45,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserDetails = async () => {
+  const fetchUserDetails = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch("/api/getUserDetails", {
@@ -71,15 +72,15 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const updateUserDetails = (details: Partial<UserDetails>) => {
+  const updateUserDetails = useCallback((details: Partial<UserDetails>) => {
     setUserDetails((prev) => (prev ? { ...prev, ...details } : null));
-  };
+  }, []);
 
-  const refreshUserDetails = async () => {
+  const refreshUserDetails = useCallback(async () => {
     await fetchUserDetails();
-  };
+  }, [fetchUserDetails]);
 
   useEffect(() => {
     fetchUserDetails();

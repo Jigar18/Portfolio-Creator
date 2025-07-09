@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  
+
   // Updated from experimental.serverComponentsExternalPackages
   serverExternalPackages: ["@prisma/client"],
 };

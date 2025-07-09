@@ -5,6 +5,7 @@ import { useRef, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, Edit3, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useUser } from "../context/UserContext";
 
 export default function About() {
   const ref = useRef<HTMLDivElement>(null);
@@ -16,32 +17,19 @@ export default function About() {
   const [aboutText, setAboutText] = useState("");
   const [tempAboutText, setTempAboutText] = useState(aboutText);
   const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { userDetails, loading: userLoading, updateUserDetails } = useUser();
 
   useEffect(() => {
     setMounted(true);
-    fetchUserDetails();
     return () => setMounted(false);
   }, []);
 
-  const fetchUserDetails = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch("/api/getUserDetails", {
-        credentials: "include",
-      });
-      const data = await response.json();
-
-      if (data.success && data.details.about) {
-        setAboutText(data.details.about);
-      }
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (userDetails?.about) {
+      setAboutText(userDetails.about);
     }
-  };
+  }, [userDetails]);
 
   const handleSaveChanges = async () => {
     try {
@@ -59,6 +47,7 @@ export default function About() {
 
       if (data.success) {
         setAboutText(tempAboutText);
+        updateUserDetails({ about: tempAboutText });
         setIsEditModalOpen(false);
       } else {
         console.error("Failed to update about text:", data.error);
@@ -123,7 +112,7 @@ export default function About() {
             About Me
           </h2>
 
-          {loading ? (
+          {userLoading ? (
             <div className="text-slate-300 leading-relaxed whitespace-pre-wrap">
               <div className="space-y-2">
                 <div className="h-4 bg-slate-700 rounded animate-pulse"></div>

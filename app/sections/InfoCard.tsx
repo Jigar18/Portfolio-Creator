@@ -44,11 +44,6 @@ function InfoCard() {
   const [tempImageFile, setTempImageFile] = useState<File | null>(null);
   const [tempImagePreview, setTempImagePreview] = useState<string>("");
 
-  // Optional: Refresh user details on mount to ensure fresh data
-  useEffect(() => {
-    refreshUserDetails();
-  }, [refreshUserDetails]);
-
   // Validate form fields
   const validateForm = (): boolean => {
     const errors: string[] = [];
@@ -457,7 +452,7 @@ function InfoCard() {
                   </Button>
                 </div>
               </div>
-            </div>  
+            </div>
             <ProfileImageModal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
