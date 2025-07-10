@@ -40,10 +40,18 @@ export async function POST(req: NextRequest) {
       userId
     );
 
-    await db.details.update({
-        where: {userId: userId},
-        data: {imageUrl}
-    });
+    console.log(`User ID: ${userId}`);
+    console.log(`Generated Image URL: ${imageUrl}`);
+
+    try {
+      const updatedDetails = await db.details.update({
+        where: { userId: userId },
+        data: { imageUrl },
+      });
+      console.log("Database update successful:", updatedDetails);
+    } catch (dbError) {
+      console.error("Database update failed:", dbError);
+    }
 
     const response: UploadResponse = { success: true, imageUrl };
     return NextResponse.json(response);
