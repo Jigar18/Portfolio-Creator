@@ -21,7 +21,7 @@ export default function Education() {
 
       // Add college education if available
       if (userDetails?.college) {
-        const years = "2022 - 2026"; // You can add startYear/endYear to UserDetails interface if needed
+        const years = "2022 - 2026";
 
         dynamicEducation.push({
           school: userDetails.college,

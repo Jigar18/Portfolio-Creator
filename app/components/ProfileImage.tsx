@@ -10,10 +10,10 @@ import { useUser } from "../context/UserContext";
 export default function ProfileImage() {
   const [isHovering, setIsHovering] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { userDetails, updateUserDetails } = useUser();
+  const { userDetails, refreshUserDetails } = useUser();
 
-  const handleImageChange = (newImageUrl: string) => {
-    updateUserDetails({ imageUrl: newImageUrl });
+  const handleImageChange = async (newImageUrl: string) => {
+    await refreshUserDetails();
     setIsModalOpen(false);
   };
 

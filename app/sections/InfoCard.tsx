@@ -295,7 +295,6 @@ function InfoCard() {
                             ...prev,
                             firstName: e.target.value,
                           }));
-                          // Clear validation errors when user types
                           if (validationErrors.length > 0) {
                             setValidationErrors([]);
                           }
