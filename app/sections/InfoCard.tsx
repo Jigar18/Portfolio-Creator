@@ -140,7 +140,6 @@ function InfoCard() {
         credentials: "include",
         body: JSON.stringify({
           ...tempDetails,
-          imageUrl: newImageUrl,
         }),
       });
 
