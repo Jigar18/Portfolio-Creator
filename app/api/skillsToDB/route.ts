@@ -4,7 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const selectedSkills: string[] = await req.json();
+    const body = await req.json();
+    const selectedSkills: string[] = body.skills;
+
     const token = req.cookies.get("id&Uname")?.value;
 
     if (!token) {
@@ -20,19 +22,35 @@ export async function POST(req: NextRequest) {
     );
     const userId = payload.userId as string;
 
-    await db.skill.create({
-      data: {
-        skills: selectedSkills,
-        userId: userId
+    const existingSkill = await db.skill.findFirst({
+      where: {
+        userId: userId,
       },
     });
 
-    return NextResponse.json({
-      success: "true",
-    })
+    if (existingSkill) {
+      await db.skill.update({
+        where: {
+          id: existingSkill.id,
+        },
+        data: {
+          skills: selectedSkills,
+        },
+      });
+    } else {
+      await db.skill.create({
+        data: {
+          skills: selectedSkills,
+          userId: userId,
+        },
+      });
+    }
 
+    return NextResponse.json({
+      success: true,
+    });
   } catch (err) {
-    console.error("Error adding Details", err);
+    console.error("Error updating skills:", err);
     return NextResponse.json(
       { success: false, error: String(err) },
       { status: 500 }
