@@ -31,17 +31,6 @@ export default function Skills() {
       }
     } catch (error) {
       console.error("Error fetching user skills:", error);
-      // Fallback to default skills
-      setSkills([
-        "JavaScript",
-        "TypeScript",
-        "React",
-        "Next.js",
-        "Node.js",
-        "Python",
-        "PostgreSQL",
-        "Git",
-      ]);
     } finally {
       setLoading(false);
     }
@@ -52,36 +41,30 @@ export default function Skills() {
     fetchUserSkills();
   }, [fetchUserSkills]);
 
-  const fetchSkills = useCallback(async () => {
-    if (skillInput.trim() === "") {
+  useEffect(() => {
+    if (skillInput.length < 2) {
       setSuggestions([]);
+      setShowSuggestions(false);
       return;
     }
 
-    try {
-      setIsSearching(true);
-      const result = await fetch(`/api/skills?skill=${skillInput}`);
-      const data = await result.json();
-      setSuggestions(data.skills || []);
-    } catch (error) {
-      console.error("Error fetching skills:", error);
-      setSuggestions([]);
-    } finally {
-      setIsSearching(false);
-    }
-  }, [skillInput]);
-
-  useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      if (skillInput.trim()) {
-        fetchSkills();
-      } else {
+    setShowSuggestions(true);
+    setIsSearching(true);
+    const timer = setTimeout(async () => {
+      try {
+        const result = await fetch(`/api/skills?skill=${skillInput}`);
+        const data = await result.json();
+        setSuggestions(data);
+      } catch (error) {
+        console.error("Error fetching skills:", error);
         setSuggestions([]);
+      } finally {
+        setIsSearching(false);
       }
     }, 300);
 
-    return () => clearTimeout(debounceTimer);
-  }, [skillInput, fetchSkills]);
+    return () => clearTimeout(timer);
+  }, [skillInput]);
 
   const handleEditClick = () => {
     setTempSkills([...skills]);
@@ -97,8 +80,24 @@ export default function Skills() {
     }
   };
 
-  const removeSkill = (skillToRemove: string) => {
+  const removeSkill = async (skillToRemove: string) => {
     setTempSkills(tempSkills.filter((skill) => skill !== skillToRemove));
+    try {
+      setSaving(true);
+      const response = await fetch("/api/skillsToDB", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ skills: tempSkills }),
+      });
+
+      if (response.ok) {
+        setSkills([...tempSkills]);
+      }
+    } catch (error) {
+      console.error("Error saving skills:", error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleSaveSkills = async () => {
@@ -130,7 +129,10 @@ export default function Skills() {
   if (loading) {
     return (
       <motion.div
-        {...{className:"rounded-lg border border-slate-700 bg-slate-800/50 backdrop-blur-sm p-6"}}
+        {...{
+          className:
+            "rounded-lg border border-slate-700 bg-slate-800/50 backdrop-blur-sm p-6",
+        }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
@@ -152,7 +154,10 @@ export default function Skills() {
   return (
     <>
       <motion.div
-        {...{className:"rounded-lg border border-slate-700 bg-slate-800/50 backdrop-blur-sm p-6 group hover:border-slate-600 transition-all duration-300"}}
+        {...{
+          className:
+            "rounded-lg border border-slate-700 bg-slate-800/50 backdrop-blur-sm p-6 group hover:border-slate-600 transition-all duration-300",
+        }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
@@ -168,7 +173,7 @@ export default function Skills() {
         </div>
 
         <AnimatePresence>
-          <motion.div {...{className:"flex flex-wrap gap-2"}}>
+          <motion.div {...{ className: "flex flex-wrap gap-2" }}>
             {skills.map((skill) => (
               <motion.span
                 key={skill}
@@ -176,7 +181,10 @@ export default function Skills() {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                {...{className:"px-3 py-1 bg-blue-600/20 text-blue-300 rounded-full text-sm font-medium border border-blue-600/30 hover:bg-blue-600/30 transition-colors"}}
+                {...{
+                  className:
+                    "px-3 py-1 bg-blue-600/20 text-blue-300 rounded-full text-sm font-medium border border-blue-600/30 hover:bg-blue-600/30 transition-colors",
+                }}
               >
                 {skill}
               </motion.span>
@@ -278,7 +286,10 @@ export default function Skills() {
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            {...{className:"inline-flex items-center gap-1 px-3 py-1 bg-blue-600/20 text-blue-300 rounded-full text-sm font-medium border border-blue-600/30"}}
+                            {...{
+                              className:
+                                "inline-flex items-center gap-1 px-3 py-1 bg-blue-600/20 text-blue-300 rounded-full text-sm font-medium border border-blue-600/30",
+                            }}
                           >
                             {skill}
                             <button
