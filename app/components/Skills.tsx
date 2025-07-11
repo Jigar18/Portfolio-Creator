@@ -80,24 +80,8 @@ export default function Skills() {
     }
   };
 
-  const removeSkill = async (skillToRemove: string) => {
+  const removeSkill = (skillToRemove: string) => {
     setTempSkills(tempSkills.filter((skill) => skill !== skillToRemove));
-    try {
-      setSaving(true);
-      const response = await fetch("/api/skillsToDB", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ skills: tempSkills }),
-      });
-
-      if (response.ok) {
-        setSkills([...tempSkills]);
-      }
-    } catch (error) {
-      console.error("Error saving skills:", error);
-    } finally {
-      setSaving(false);
-    }
   };
 
   const handleSaveSkills = async () => {
