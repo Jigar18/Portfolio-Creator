@@ -30,7 +30,7 @@ function useOutsideClick(ref: React.RefObject<HTMLElement>, handler: () => void)
 
 interface Card {
   title: string
-  pdf: string
+  pdfUrl: string
   description: string
 }
 
@@ -76,7 +76,7 @@ export default function Certificate({ cards = [] }: CertificateProps) {
                   {/* PDF Viewer */}
                   <div className="mb-8 bg-slate-200 dark:bg-slate-800 rounded-lg overflow-hidden h-[60vh]">
                     <embed
-                      src={`/uploads/${active.pdf}#toolbar=0`}
+                      src={`${active.pdfUrl}#toolbar=0`}
                       height="100%"
                       width="100%"
                       className="object-contain"

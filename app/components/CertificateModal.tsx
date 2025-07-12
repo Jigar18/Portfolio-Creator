@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 
 interface Card {
   title: string
-  pdf: string
+  pdfUrl: string
   description: string
 }
 
@@ -109,7 +109,7 @@ export default function CertificateModal({ isOpen, onClose, certificate, certifi
               <div className="flex-1 bg-slate-800 relative">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <iframe
-                    src={`/api/view-pdf?file=${currentCertificate.pdf}`}
+                    src={`/api/view-pdf?file=${currentCertificate.pdfUrl}`}
                     className="w-full h-full"
                     title={currentCertificate.title}
                   />
@@ -176,7 +176,7 @@ export default function CertificateModal({ isOpen, onClose, certificate, certifi
                     </div>
 
                     <a
-                      href={`/api/download?file=${currentCertificate.pdf}`}
+                      href={`/api/download?file=${currentCertificate.pdfUrl}`}
                       className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors"
                       download
                     >

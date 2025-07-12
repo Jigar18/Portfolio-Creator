@@ -27,6 +27,7 @@ model User {
   experiences    Experience[]
   details        Details?
   socialLinks    SocialLink[]
+  certifications Certifications[]
 }
 
 model Details {
@@ -86,4 +87,13 @@ model SocialLink {
   userId    String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Certifications {
+  id             String    @id @default(uuid())
+  title          String
+  description    String
+  pdfUrl         String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 }

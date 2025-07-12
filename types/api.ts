@@ -35,3 +35,9 @@ export interface UploadResponse {
   imageUrl?: string;
   error?: string;
 }
+
+export interface PdfUploadRResponse {
+  success: boolean,
+  pdfUrl ?: string,
+  error ?: string
+}

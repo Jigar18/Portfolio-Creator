@@ -5,7 +5,7 @@ import { FileText, Download, Eye, X } from "lucide-react";
 
 interface Card {
   title: string;
-  pdf: string;
+  pdfUrl: string;
   description: string;
 }
 
@@ -54,7 +54,7 @@ export default function CertificateList({
               </p>
               <div className="mt-3 flex gap-4">
                 <a
-                  href={`/api/download?file=${card.pdf}`}
+                  href={`/api/download?file=${card.pdfUrl}`}
                   className="inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 transition-colors"
                   onClick={(e) => e.stopPropagation()}
                   download

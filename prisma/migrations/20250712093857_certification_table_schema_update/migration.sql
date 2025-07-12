@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Certifications" ALTER COLUMN "pdfUrl" SET NOT NULL,
+ALTER COLUMN "pdfUrl" SET DATA TYPE TEXT;

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import { uploadFile } from "@/utils/uploadImage";
+import { uploadFile } from "@/utils/uploadFiles";
 import { UploadResponse } from "@/types/api";
 import { db } from "@/lib/db";
 

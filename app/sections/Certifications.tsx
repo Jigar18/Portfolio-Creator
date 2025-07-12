@@ -9,7 +9,7 @@ import CertificateModal from "../components/CertificateModal";
 
 interface Card {
   title: string;
-  pdf: string;
+  pdfUrl: string;
   description: string;
 }
 
@@ -20,7 +20,7 @@ interface CertificationsProps {
 const initialCards: Card[] = [
   {
     title: "Advanced Web Development",
-    pdf: "web-development-cert.pdf",
+    pdfUrl: "web-development-cert.pdf",
     description:
       "This certificate validates the completion of an advanced course in full-stack web development, covering modern JavaScript frameworks, server-side programming, and database management. The program included hands-on projects and real-world applications, demonstrating proficiency in building scalable web applications.",
   },
@@ -28,18 +28,18 @@ const initialCards: Card[] = [
     title: "UI/UX Design Fundamentals",
     description:
       "Comprehensive training in user interface and experience design principles, including wireframing, prototyping, and user research methodologies. This certification demonstrates expertise in creating intuitive and accessible user interfaces that enhance the overall user experience.",
-    pdf: "uiux-design-cert.pdf",
+    pdfUrl: "uiux-design-cert.pdf",
   },
   {
     title: "Cloud Computing Certification",
     description:
       "Professional certification in cloud architecture and deployment, covering major cloud platforms and services. This certification validates expertise in designing, implementing, and managing cloud-based solutions for enterprise applications.",
-    pdf: "cloud-computing-cert.pdf",
+    pdfUrl: "cloud-computing-cert.pdf",
   },
 ];
 
 export default function Certifications({
-  onOpenCertificate,
+  onOpenCertificate
 }: CertificationsProps) {
   const [cards, setCards] = useState<Card[]>(initialCards);
   const [selectedCertificate, setSelectedCertificate] = useState<Card | null>(
@@ -61,7 +61,6 @@ export default function Certifications({
     if (typeof onOpenCertificate === "function") {
       onOpenCertificate(certificate, cards);
     } else {
-      // If no parent handler is provided, handle it locally
       setSelectedCertificate(certificate);
       setIsModalOpen(true);
     }
