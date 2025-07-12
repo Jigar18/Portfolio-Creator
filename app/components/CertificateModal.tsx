@@ -6,6 +6,7 @@ import { X, Download, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface Card {
+  id: string
   title: string
   pdfUrl: string
   description: string
@@ -24,7 +25,7 @@ export default function CertificateModal({ isOpen, onClose, certificate, certifi
   // Set the current index when the certificate changes
   useEffect(() => {
     if (certificate) {
-      const index = certificates.findIndex((cert) => cert.title === certificate.title)
+      const index = certificates.findIndex((cert) => cert.id === certificate.id)
       if (index !== -1) {
         setCurrentIndex(index)
       }

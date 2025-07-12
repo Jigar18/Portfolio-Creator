@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { FileText, Download, Eye, X } from "lucide-react";
 
 interface Card {
+  id: string;
   title: string;
   pdfUrl: string;
   description: string;
@@ -22,14 +23,14 @@ export default function CertificateList({
 }: CertificateListProps) {
   return (
     <div className="space-y-4 mt-4 mb-6">
-      {cards.map((card, index) => (
+      {cards.map((card) => (
         <motion.div
-          key={index}
+          key={card.id}
           {...{className:"relative group bg-slate-700/30 rounded-lg p-4 border border-slate-700/50 hover:border-blue-500/30 transition-colors cursor-pointer",
           onClick:() => onOpenCertificate(card)}}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: index * 0.2 }}
+          transition={{ duration: 0.3, delay: cards.indexOf(card) * 0.2 }}
           whileHover={{ y: -2, backgroundColor: "rgba(30, 41, 59, 0.7)" }}
         >
           <button

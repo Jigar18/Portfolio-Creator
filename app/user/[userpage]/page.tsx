@@ -15,8 +15,9 @@ import { UserProvider } from "../../context/UserContext";
 import { ArrowUp } from "lucide-react";
 
 interface Card {
+  id: string;
   title: string;
-  pdf: string;
+  pdfUrl: string;
   description: string;
 }
 

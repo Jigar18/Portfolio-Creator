@@ -27,7 +27,7 @@ interface Card {
   pdfUrl: string;
   description: string;
 }
-//
+
 export default function EditCertifications({
   onAddCard,
 }: {
@@ -56,15 +56,19 @@ export default function EditCertifications({
       formData.append("title", data.title);
       formData.append("description", data.description);
       formData.append("pdf", data.fileInput[0]);
-      
+
       const response = await fetch("/api/uploadCertificate", {
-          method: "POST",
-          body: formData,
-        });
+        method: "POST",
+        body: formData,
+      });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
-        throw new Error(errorData.error || `Upload failed with status ${response.status}`);
+        const errorData = await response
+          .json()
+          .catch(() => ({ error: `HTTP ${response.status}` }));
+        throw new Error(
+          errorData.error || `Upload failed with status ${response.status}`
+        );
       }
 
       const responseData = await response.json();
@@ -74,16 +78,21 @@ export default function EditCertifications({
         description: data.description,
         pdfUrl: responseData.pdfUrl,
       };
-      
+
       const apiResponse = await fetch("/api/certificateToDB", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({card: newCard}),
-        });
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ card: newCard }),
+      });
 
       if (!apiResponse.ok) {
-        const errorData = await apiResponse.json().catch(() => ({ error: `HTTP ${apiResponse.status}` }));
-        throw new Error(errorData.error || `Database save failed with status ${apiResponse.status}`);
+        const errorData = await apiResponse
+          .json()
+          .catch(() => ({ error: `HTTP ${apiResponse.status}` }));
+        throw new Error(
+          errorData.error ||
+            `Database save failed with status ${apiResponse.status}`
+        );
       }
 
       console.log("Certificate saved to database successfully");
@@ -96,12 +105,16 @@ export default function EditCertifications({
     } catch (error) {
       console.error("Error during form submission:", error);
       // You might want to show a toast notification here
-      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`);
+      alert(
+        `Error: ${
+          error instanceof Error ? error.message : "Unknown error occurred"
+        }`
+      );
     } finally {
       setIsUploading(false);
     }
   };
-//Error: Error: Upload failed: new row violates row-level security policy
+  //Error: Error: Upload failed: new row violates row-level security policy
   const getFileName = () => {
     if (selectedFile && selectedFile[0]) {
       const name = selectedFile[0].name;

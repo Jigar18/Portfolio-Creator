@@ -8,8 +8,9 @@ import Skills from "../components/Skills";
 import Connect from "../components/Connect";
 
 interface Card {
+  id: string;
   title: string;
-  pdf: string;
+  pdfUrl: string;
   description: string;
 }
 
