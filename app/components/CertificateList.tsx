@@ -26,8 +26,11 @@ export default function CertificateList({
       {cards.map((card) => (
         <motion.div
           key={card.id}
-          {...{className:"relative group bg-slate-700/30 rounded-lg p-4 border border-slate-700/50 hover:border-blue-500/30 transition-colors cursor-pointer",
-          onClick:() => onOpenCertificate(card)}}
+          {...{
+            className:
+              "relative group bg-slate-700/30 rounded-lg p-4 border border-slate-700/50 hover:border-blue-500/30 transition-colors cursor-pointer",
+            onClick: () => onOpenCertificate(card),
+          }}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: cards.indexOf(card) * 0.2 }}
@@ -55,7 +58,7 @@ export default function CertificateList({
               </p>
               <div className="mt-3 flex gap-4">
                 <a
-                  href={`/api/download?file=${card.pdfUrl}`}
+                  href={`/api/download-certificate?id=${card.id}`}
                   className="inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 transition-colors"
                   onClick={(e) => e.stopPropagation()}
                   download

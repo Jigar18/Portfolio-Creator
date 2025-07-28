@@ -20,14 +20,18 @@ interface CertificationsProps {
 }
 
 export default function Certifications({
-  onOpenCertificate
+  onOpenCertificate,
 }: CertificationsProps) {
   const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCertificate, setSelectedCertificate] = useState<Card | null>(null);
+  const [selectedCertificate, setSelectedCertificate] = useState<Card | null>(
+    null
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [certificateToDelete, setCertificateToDelete] = useState<Card | null>(null);
+  const [certificateToDelete, setCertificateToDelete] = useState<Card | null>(
+    null
+  );
 
   useEffect(() => {
     fetchCertificates();
@@ -50,7 +54,7 @@ export default function Certifications({
     }
   };
 
-  const handleAddCard = (newCard: Omit<Card, 'id'>) => {
+  const handleAddCard = (newCard: Omit<Card, "id">) => {
     fetchCertificates();
   };
 
@@ -63,13 +67,16 @@ export default function Certifications({
     if (!certificateToDelete) return;
 
     try {
-      const response = await fetch(`/api/deleteCertificate?id=${certificateToDelete.id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `/api/deleteCertificate?id=${certificateToDelete.id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (response.ok) {
-        setCards(prevCards => 
-          prevCards.filter(card => card.id !== certificateToDelete.id)
+        setCards((prevCards) =>
+          prevCards.filter((card) => card.id !== certificateToDelete.id)
         );
         setDeleteModalOpen(false);
         setCertificateToDelete(null);
@@ -99,7 +106,10 @@ export default function Certifications({
   if (loading) {
     return (
       <motion.div
-        {...{className:"bg-slate-800/50 rounded-xl border border-slate-700 p-4 shadow-md backdrop-blur-sm"}}
+        {...{
+          className:
+            "bg-slate-800/50 rounded-xl border border-slate-700 p-4 shadow-md backdrop-blur-sm",
+        }}
         whileHover={{ y: -5 }}
         transition={{ duration: 0.3 }}
       >
@@ -120,7 +130,10 @@ export default function Certifications({
 
   return (
     <motion.div
-      {...{className:"bg-slate-800/50 rounded-xl border border-slate-700 p-4 shadow-md backdrop-blur-sm"}}
+      {...{
+        className:
+          "bg-slate-800/50 rounded-xl border border-slate-700 p-4 shadow-md backdrop-blur-sm",
+      }}
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
     >
@@ -167,7 +180,6 @@ export default function Certifications({
         certificate={certificateToDelete}
       />
 
-      {/* Local modal if no parent handler is provided */}
       {!onOpenCertificate && (
         <CertificateModal
           isOpen={isModalOpen}
