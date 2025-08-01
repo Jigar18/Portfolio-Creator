@@ -51,31 +51,52 @@ export default function Education() {
     try {
       setLoading(true);
       
-      // First, delete all existing education entries
       const existingEducation = education.filter(edu => edu.id);
+      const existingIds = new Set(existingEducation.map(edu => edu.id));
+      const updatedIds = new Set(updatedEducation.filter(edu => edu.id).map(edu => edu.id));
+
+      // Delete education entries that were removed
       for (const edu of existingEducation) {
-        await fetch("/api/deleteEducation", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: edu.id })
-        });
+        if (!updatedIds.has(edu.id)) {
+          await fetch(`/api/deleteEducation?id=${edu.id}`, {
+            method: "DELETE"
+          });
+        }
       }
 
-      // Then add all the new education entries
+      // Process each education entry
       for (const edu of updatedEducation) {
         if (edu.school && edu.degree && edu.field) {
-          await fetch("/api/education", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              school: edu.school,
-              degree: edu.degree,
-              field: edu.field,
-              startYear: edu.startYear,
-              endYear: edu.endYear,
-              isCurrently: edu.isCurrently
-            })
-          });
+          if (edu.id && existingIds.has(edu.id)) {
+            // Update existing education
+            await fetch("/api/education", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id: edu.id,
+                school: edu.school,
+                degree: edu.degree,
+                field: edu.field,
+                startYear: edu.startYear,
+                endYear: edu.endYear,
+                isCurrently: edu.isCurrently
+              })
+            });
+          } else {
+            // Create new education
+            await fetch("/api/education", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                school: edu.school,
+                degree: edu.degree,
+                field: edu.field,
+                startYear: edu.startYear,
+                endYear: edu.endYear,
+                isCurrently: edu.isCurrently
+              })
+            });
+          }
         }
       }
 

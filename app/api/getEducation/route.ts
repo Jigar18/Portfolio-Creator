@@ -21,7 +21,20 @@ export async function GET(req: NextRequest) {
 
     const education = await db.education.findMany({
       where: { userId: userId },
-      orderBy: { startYear: "desc" },
+    });
+
+    const sortedEducation = education.sort((a, b) => {
+      if (a.isCurrently && !b.isCurrently) return -1;
+      if (!a.isCurrently && b.isCurrently) return 1;
+
+      const aEndYear = a.endYear || a.startYear;
+      const bEndYear = b.endYear || b.startYear;
+
+      if (aEndYear !== bEndYear) {
+        return bEndYear - aEndYear;
+      }
+
+      return b.startYear - a.startYear;
     });
 
     if (education.length === 0) {
@@ -51,7 +64,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      education: education,
+      education: sortedEducation,
     });
   } catch (error) {
     console.error("Error fetching education:", error);
