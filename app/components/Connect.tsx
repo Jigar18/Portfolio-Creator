@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { X, Edit3 } from "lucide-react";
+import { X, Edit3, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SocialLink {
@@ -33,8 +33,25 @@ export default function Connect() {
   const [tempSocialLinks, setTempSocialLinks] = useState<{
     [key: string]: string;
   }>({});
-
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  const showCopyToast = (message: string) => {
+    setToastMessage(message);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const copyToClipboard = async (url: string, linkName: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      showCopyToast(`${linkName} link copied to clipboard!`);
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+      showCopyToast("Failed to copy link");
+    }
+  };
 
   const fetchSocialLinks = useCallback(async () => {
     try {
@@ -380,15 +397,14 @@ export default function Connect() {
 
           <div className="flex flex-wrap gap-3">
             {socialLinks.map((link, index) => (
-              <a
+              <button
                 key={index}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-lg bg-slate-700 hover:bg-slate-600 border border-slate-600 p-3 text-slate-200 transition-all duration-200 hover:scale-105 hover:bg-blue-600/20"
+                onClick={() => copyToClipboard(link.url, link.name)}
+                className="inline-flex items-center justify-center rounded-lg bg-slate-700 hover:bg-slate-600 border border-slate-600 p-3 text-slate-200 transition-all duration-200 hover:scale-105 hover:bg-blue-600/20 cursor-pointer"
+                title={`Copy ${link.name} link`}
               >
                 {link.icon}
-              </a>
+              </button>
             ))}
           </div>
         </motion.div>
@@ -478,6 +494,41 @@ export default function Connect() {
               </div>
             </div>
           </div>,
+          document.body
+        )}
+
+      {/* Toast Notification */}
+      {mounted &&
+        showToast &&
+        createPortal(
+          <AnimatePresence>
+            <motion.div
+              {...{
+                className:
+                  "fixed top-4 right-4 z-[60000] bg-slate-800 border border-slate-600 rounded-lg shadow-lg p-4 max-w-sm",
+              }}
+              initial={{ opacity: 0, y: -50, x: 50 }}
+              animate={{ opacity: 1, y: 0, x: 0 }}
+              exit={{ opacity: 0, y: -50, x: 50 }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0">
+                  <Check className="h-5 w-5 text-green-400" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-slate-200">
+                    {toastMessage}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowToast(false)}
+                  className="flex-shrink-0 text-slate-400 hover:text-slate-200"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </motion.div>
+          </AnimatePresence>,
           document.body
         )}
     </>

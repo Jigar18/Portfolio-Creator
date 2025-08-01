@@ -284,12 +284,8 @@ export default function Experience() {
 
     try {
       setSaving(true);
-      const response = await fetch("/api/updateUserExperience", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: exp.id }),
+      const response = await fetch(`/api/updateUserExperience?id=${exp.id}`, {
+        method: "DELETE"
       });
 
       if (!response.ok) {
