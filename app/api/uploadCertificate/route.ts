@@ -5,21 +5,20 @@ import { PdfUploadRResponse } from "@/types/api";
 
 export async function POST(req: NextRequest) {
   try {
-    // const token = req.cookies.get("id&Uname")?.value;
+    const token = req.cookies.get("id&Uname")?.value;
 
-    // if (!token) {
-    //   return NextResponse.json(
-    //     { success: false, error: "Authentication token is missing" },
-    //     { status: 401 }
-    //   );
-    // }
+    if (!token) {
+      return NextResponse.json(
+        { success: false, error: "Authentication token is missing" },
+        { status: 401 }
+      );
+    }
 
-    // const { payload } = await jwtVerify(
-    //   token,
-    //   new TextEncoder().encode(process.env.JWT_SECRET!)
-    // );
-    // const userId = payload.userId as string;
-    const userId = "f7fa07d7-81eb-4f8e-aabb-049c65cc6e58";
+    const { payload } = await jwtVerify(
+      token,
+      new TextEncoder().encode(process.env.JWT_SECRET!)
+    );
+    const userId = payload.userId as string;
 
     const formData = await req.formData();
     const file = formData.get("pdf") as File | null;

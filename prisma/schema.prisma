@@ -28,6 +28,7 @@ model User {
   details        Details?
   socialLinks    SocialLink[]
   certifications Certifications[]
+  education      Education[]
 }
 
 model Details {
@@ -96,4 +97,19 @@ model Certifications {
   pdfUrl         String
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
+}
+
+model Education {
+  id           String   @id @default(uuid())
+  school       String
+  degree       String
+  field        String
+  startYear    Int
+  endYear      Int?
+  isCurrently  Boolean  @default(false)
+  description  String?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
