@@ -5,7 +5,11 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const selectedSkills: string[] = body.skills;
+    const selectedSkills: string[] = Array.isArray(body) ? body : body.skills;
+
+    if (!Array.isArray(selectedSkills) || selectedSkills.some((skill) => typeof skill !== "string" || skill.trim().length === 0)) {
+      return NextResponse.json({ success: false, error: "Skills must be a list of names" }, { status: 400 });
+    }
 
     const token = req.cookies.get("id&Uname")?.value;
 

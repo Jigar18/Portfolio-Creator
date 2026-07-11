@@ -1,5 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 
+function isSafePdfUrl(value: string) {
+  try {
+    const url = new URL(value);
+    const hostname = url.hostname.toLowerCase();
+    const isPrivateHost =
+      hostname === "localhost" ||
+      hostname.endsWith(".local") ||
+      /^127\./.test(hostname) ||
+      /^10\./.test(hostname) ||
+      /^192\.168\./.test(hostname) ||
+      /^172\.(1[6-9]|2\d|3[0-1])\./.test(hostname) ||
+      hostname === "169.254.169.254";
+    return url.protocol === "https:" && !isPrivateHost;
+  } catch {
+    return false;
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -14,6 +32,9 @@ export async function GET(req: NextRequest) {
 
     // Decode the URL that was encoded in the frontend
     const decodedUrl = decodeURIComponent(pdfUrl);
+    if (!isSafePdfUrl(decodedUrl)) {
+      return NextResponse.json({ error: "Only public HTTPS PDF URLs are allowed" }, { status: 400 });
+    }
     const response = await fetch(decodedUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; PDFProxy/1.0)',

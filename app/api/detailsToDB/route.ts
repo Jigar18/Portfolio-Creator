@@ -1,46 +1,26 @@
-import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import { Details } from "@/types/api";
-import { jwtVerify } from "jose";
+import { db } from "@/lib/db";
+import { getSession } from "@/lib/session";
 
 export async function POST(req: NextRequest) {
-  try {
-    const formData: Details = await req.json();
-    const token = req.cookies.get("id&Uname")?.value;
+  const session = await getSession(req);
+  if (!session) return NextResponse.json({ success: false, error: "Authentication required" }, { status: 401 });
 
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: "Authentication token is missing" },
-        { status: 401 }
-      );
+  try {
+    const form = await req.json() as Record<string, string>;
+    const startYear = Number(form.startYear);
+    const endYear = Number(form.endYear);
+    if (!form.firstName?.trim() || !form.lastName?.trim() || !form.email?.trim() || !form.jobTitle?.trim() || !Number.isInteger(startYear) || !Number.isInteger(endYear)) {
+      return NextResponse.json({ success: false, error: "Please complete all required details" }, { status: 400 });
     }
 
-    const { payload } = await jwtVerify(
-      token,
-      new TextEncoder().encode(process.env.JWT_SECRET)
-    );
-    const userId = payload.userId as string;
-
-    await db.details.create({
-      data: {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        location: formData.location,
-        jobTitle: formData.jobTitle,
-        college: formData.school,
-        startYear: Number(formData.startYear),
-        endYear: Number(formData.endYear),
-        userId: userId
-      },
+    await db.details.upsert({
+      where: { userId: session.userId },
+      update: { firstName: form.firstName.trim(), lastName: form.lastName.trim(), email: form.email.trim(), location: form.location?.trim() ?? "", jobTitle: form.jobTitle.trim(), college: form.school?.trim() ?? "", startYear, endYear },
+      create: { userId: session.userId, firstName: form.firstName.trim(), lastName: form.lastName.trim(), email: form.email.trim(), location: form.location?.trim() ?? "", jobTitle: form.jobTitle.trim(), college: form.school?.trim() ?? "", startYear, endYear },
     });
-
     return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("Error adding Details", err);
-    return NextResponse.json(
-      { success: false, error: String(err) },
-      { status: 500 }
-    );
+  } catch {
+    return NextResponse.json({ success: false, error: "Failed to save profile details" }, { status: 500 });
   }
 }

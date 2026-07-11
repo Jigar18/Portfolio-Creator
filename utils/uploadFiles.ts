@@ -1,14 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 
-const PROJECT_URL = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL!;
-const SUPABASE_API_KEY = process.env.SUPABASE_API_KEY!;
-
-if (!PROJECT_URL || !SUPABASE_API_KEY) {
-  throw new Error(
-    "supabase url or api key is missing for uploading user profile picture."
-  );
+function getSupabase() {
+  const projectUrl = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
+  const apiKey = process.env.SUPABASE_API_KEY;
+  if (!projectUrl || !apiKey) {
+    throw new Error("File storage is not configured");
+  }
+  return createClient(projectUrl, apiKey);
 }
-const supabase = createClient(PROJECT_URL, SUPABASE_API_KEY);
 
 // function for uploading images like in profile picture.
 export async function uploadFile(
@@ -16,6 +15,7 @@ export async function uploadFile(
   fileName: string,
   userId: String
 ) {
+  const supabase = getSupabase();
   const filePath = `user-image/${userId}-${Date.now()}-${fileName}`;
   const { data, error } = await supabase.storage
     .from("profile-picture")
@@ -35,6 +35,7 @@ export async function uploadPdfFile(
   fileName: string,
   userId: String
 ) {
+  const supabase = getSupabase();
   const filePath = `certifications/${userId}-${Date.now()}-${fileName}`;
 
   try {

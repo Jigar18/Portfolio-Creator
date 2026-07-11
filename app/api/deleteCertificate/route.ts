@@ -3,11 +3,6 @@ import { jwtVerify } from "jose";
 import { db } from "@/lib/db";
 import { createClient } from "@supabase/supabase-js";
 
-const PROJECT_URL = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL!;
-const SUPABASE_API_KEY = process.env.SUPABASE_API_KEY!;
-
-const supabase = createClient(PROJECT_URL, SUPABASE_API_KEY);
-
 export async function DELETE(req: NextRequest) {
   try {
     const token = req.cookies.get("id&Uname")?.value;
@@ -49,7 +44,11 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
+    const projectUrl = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
+    const apiKey = process.env.SUPABASE_API_KEY;
     try {
+      if (!projectUrl || !apiKey) throw new Error("File storage is not configured");
+      const supabase = createClient(projectUrl, apiKey);
       // Extract the file path from the URL
       const url = new URL(certificate.pdfUrl);
       const pathSegments = url.pathname.split("/");

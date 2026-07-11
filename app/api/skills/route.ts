@@ -1,19 +1,25 @@
-import axios from "axios";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const skill = searchParams.get("skill") || "";
-  const key = process.env.SKILL_KEY;
+  const query = req.nextUrl.searchParams.get("skill")?.trim() ?? "";
+  if (query.length < 2 || query.length > 80) {
+    return NextResponse.json([]);
+  }
 
-  const res = await axios.get(`https://api.apilayer.com/skills?q=${skill}`, {
-    headers: {
-        apiKey: key,
-    }
-  });
-
-  return new Response(JSON.stringify(res.data), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+  try {
+    const response = await fetch(
+      `https://api.github.com/search/topics?q=${encodeURIComponent(query)}&per_page=8`,
+      {
+        headers: { Accept: "application/vnd.github+json", "User-Agent": "portfolio-creator" },
+        next: { revalidate: 3600 },
+      }
+    );
+    if (!response.ok) throw new Error("GitHub topics lookup failed");
+    const body = (await response.json()) as { items?: Array<{ name?: string }> };
+    return NextResponse.json(
+      (body.items ?? []).flatMap((item) => (item.name ? [item.name.replace(/-/g, " ")] : []))
+    );
+  } catch {
+    return NextResponse.json([]);
+  }
 }

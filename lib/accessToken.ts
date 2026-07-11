@@ -1,31 +1,20 @@
 import { db } from "@/lib/db";
-import jwt from "jsonwebtoken";
 import axios from "axios";
 import { NextRequest } from "next/server";
-import { jwtVerify } from "jose";
+import { getGitHubAppJwt } from "@/lib/github";
+import { getSession } from "@/lib/session";
 
 // Function to get installation token for repositories and other GitHub App scopes
 // this function access token scope is to get the details that app has of account like repos, pr's etc.,
 export async function getInstallationAccessToken(req: NextRequest) {
-  const token = req.cookies.get("auth_token")?.value;
-
-  if (!token) {
+  const session = await getSession(req);
+  if (!session) {
     throw new Error("Authentication token is missing");
   }
 
   try {
-    const { payload } = await jwtVerify(
-      token,
-      new TextEncoder().encode(process.env.JWT_SECRET)
-    );
-    const githubId = payload.githubId as string;
-
-    if (!githubId) {
-      throw new Error("GitHub ID not found in token payload");
-    }
-
     const userInfo = await db.user.findUnique({
-      where: { githubId: String(githubId) },
+      where: { id: session.userId },
       select: { installationId: true },
     });
 
@@ -33,21 +22,7 @@ export async function getInstallationAccessToken(req: NextRequest) {
       throw new Error("User installation ID not found");
     }
 
-    const payloadCreate = {
-      iss: process.env.GITHUB_APP_ID,
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 10 * 60,
-    };
-
-    const privateKey = process.env.GITHUB_APP_PRIVATE_KEY!;
-
-    if (!privateKey) {
-      throw new Error("GitHub app private key is missing");
-    }
-
-    const jwtToken = jwt.sign(payloadCreate, privateKey, {
-      algorithm: "RS256",
-    });
+    const jwtToken = getGitHubAppJwt();
 
     const tokenResponse = await axios.post(
       `https://api.github.com/app/installations/${userInfo.installationId}/access_tokens`,
@@ -87,50 +62,19 @@ export async function getInstallationAccessToken(req: NextRequest) {
 //this function access token is for the scope for fetching details like email or /user things etc.,
 // Storing this in the database
 export async function getAccessToken(req: NextRequest) {
-  try {
-    const token = req.cookies.get("auth_token")?.value;
-
-    if (!token) {
-      throw new Error("Authentication token is missing");
-    }
-
-    try {
-      const { payload } = await jwtVerify(
-        token,
-        new TextEncoder().encode(process.env.JWT_SECRET)
-      );
-
-      if (payload.oauthToken) {
-        return payload.oauthToken as string;
-      }
-    } catch (jwtError) {
-      console.warn("JWT token doesn't contain OAuth token or is invalid", jwtError);
-    }
-
-    // Check for code parameter
-    const code = req.url.split("code=")[1]?.split("&")[0];
-
-    if (code) {
-      const tokenResponse = await axios.post(
-        "https://github.com/login/oauth/access_token",
-        {
-          client_id: process.env.NEXT_PUBLIC_GITHUB_APP_CLIENT_ID,
-          client_secret: process.env.GITHUB_APP_CLIENT_SECRET,
-          code,
-          scope: "user:email",
-        },
-        { headers: { Accept: "application/json" } }
-      );
-
-      const accessToken = tokenResponse.data.access_token;
-      if (accessToken) {
-        return accessToken;
-      }
-    }
-
-    return getInstallationAccessToken(req);
-  } catch (error) {
-    console.error("Error getting user access token:", error);
-    return getInstallationAccessToken(req);
+  const session = await getSession(req);
+  if (!session) {
+    throw new Error("Authentication token is missing");
   }
+
+  const user = await db.user.findUnique({
+    where: { id: session.userId },
+    select: { accessToken: true },
+  });
+
+  if (!user?.accessToken) {
+    throw new Error("GitHub OAuth token is missing");
+  }
+
+  return user.accessToken;
 }

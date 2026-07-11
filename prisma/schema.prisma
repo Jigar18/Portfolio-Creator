@@ -21,6 +21,7 @@ model User {
   username       String    @unique
   installationId String?   @unique
   accessToken    String?
+  githubAccessTokenUpdatedAt DateTime?
   createdAt      DateTime  @default(now())  
   updatedAt      DateTime  @updatedAt
   skills         Skill[]
@@ -112,4 +113,23 @@ model Education {
   userId       String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model GitHubInstallation {
+  id             String   @id
+  accountId      String
+  accountLogin   String
+  accountType    String
+  targetId       String?
+  targetType     String?
+  senderGithubId String?
+  permissions    Json
+  events         String[]
+  suspendedAt    DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([accountId])
+  @@index([senderGithubId])
 }
