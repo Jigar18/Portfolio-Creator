@@ -28,7 +28,7 @@ export default function CertificateList({
           key={card.id}
           {...{
             className:
-              "relative group bg-slate-700/30 rounded-lg p-4 border border-slate-700/50 hover:border-blue-500/30 transition-colors cursor-pointer",
+              "relative group bg-slate-700/30 rounded-lg p-4 border border-slate-700/50 hover:border-zinc-500/30 transition-colors cursor-pointer",
             onClick: () => onOpenCertificate(card),
           }}
           initial={{ opacity: 0, y: 10 }}
@@ -41,14 +41,14 @@ export default function CertificateList({
               e.stopPropagation();
               onDeleteCard(card);
             }}
-            className="absolute top-2 right-2 p-1 bg-red-600/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-500 z-10"
+            className="absolute top-2 right-2 p-1 bg-zinc-600/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-zinc-500 z-10"
             title="Delete certificate"
           >
             <X className="h-2 w-2" />
           </button>
 
           <div className="flex items-start gap-3">
-            <div className="bg-slate-700 p-2 rounded-md text-blue-400 flex-shrink-0 mt-1">
+            <div className="bg-slate-700 p-2 rounded-md text-zinc-400 flex-shrink-0 mt-1">
               <FileText className="h-5 w-5" />
             </div>
             <div className="flex-1">
@@ -59,7 +59,7 @@ export default function CertificateList({
               <div className="mt-3 flex gap-4">
                 <a
                   href={`/api/download-certificate?id=${card.id}`}
-                  className="inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-300 transition-colors"
                   onClick={(e) => e.stopPropagation()}
                   download
                 >
@@ -67,7 +67,7 @@ export default function CertificateList({
                   <span>Download</span>
                 </a>
                 <button
-                  className="inline-flex items-center gap-1.5 text-xs text-green-400 hover:text-green-300 transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-300 transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     onOpenCertificate(card);

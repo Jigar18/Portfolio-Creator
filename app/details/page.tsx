@@ -23,7 +23,7 @@ const globalStyles = `
 `;
 
 const inputClassName =
-  "w-full px-3 py-2 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200";
+  "w-full px-3 py-2 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200";
 
 export default function Details() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -41,6 +41,9 @@ export default function Details() {
   const [universitySuggestions, setUniversitySuggestions] = useState<string[]>(
     []
   );
+  const [jobTitleSuggestions, setJobTitleSuggestions] = useState<string[]>([]);
+  const [isSearchingJobTitles, setIsSearchingJobTitles] = useState(false);
+  const [jobTitleAttribution, setJobTitleAttribution] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [isLoadingEmail, setIsLoadingEmail] = useState(true);
 
@@ -81,6 +84,34 @@ export default function Details() {
 
     fetchEmail();
   }, []);
+
+  useEffect(() => {
+    const query = formData.jobTitle.trim();
+    if (query.length < 2) {
+      setJobTitleSuggestions([]);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setIsSearchingJobTitles(true);
+      try {
+        const response = await fetch(`/api/job-titles?q=${encodeURIComponent(query)}`, { signal: controller.signal });
+        const data = await response.json() as { titles?: Array<{ title: string }>; attribution?: string };
+        setJobTitleSuggestions((data.titles ?? []).map((item) => item.title));
+        setJobTitleAttribution(Boolean(data.attribution));
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") setJobTitleSuggestions([]);
+      } finally {
+        setIsSearchingJobTitles(false);
+      }
+    }, 280);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
+  }, [formData.jobTitle]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -140,6 +171,11 @@ export default function Details() {
     setUniversitySuggestions([]);
   };
 
+  const handleJobTitleSelect = (jobTitle: string) => {
+    setFormData((prev) => ({ ...prev, jobTitle }));
+    setJobTitleSuggestions([]);
+  };
+
   const nextStep = () => {
     setCurrentStep((prev) => prev + 1);
   };
@@ -158,7 +194,7 @@ export default function Details() {
         <div className="max-w-2xl mx-auto bg-slate-900 rounded-xl shadow-xl overflow-hidden border border-slate-800">
           <div className="w-full bg-slate-800 h-2">
             <div
-              className="bg-blue-600 h-2 transition-all duration-500 ease-out"
+              className="bg-zinc-600 h-2 transition-all duration-500 ease-out"
               style={{ width: `${(currentStep / totalSteps) * 100}%` }}
             />
           </div>
@@ -185,7 +221,7 @@ export default function Details() {
                 {currentStep > 1 && (
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
-                      <CheckCircle2 className="h-5 w-5 text-blue-400 mr-2" />
+                      <CheckCircle2 className="h-5 w-5 text-zinc-400 mr-2" />
                       <span className="text-sm font-medium text-slate-300">
                         Personal Information
                       </span>
@@ -251,7 +287,7 @@ export default function Details() {
                   <div className="mt-6 flex justify-end">
                     <Button
                       onClick={nextStep}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                      className="bg-zinc-600 hover:bg-zinc-700 text-white px-6"
                       disabled={!formData.firstName || !formData.lastName}
                     >
                       Continue
@@ -272,7 +308,7 @@ export default function Details() {
                   {currentStep > 2 && (
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center">
-                        <CheckCircle2 className="h-5 w-5 text-blue-400 mr-2" />
+                        <CheckCircle2 className="h-5 w-5 text-zinc-400 mr-2" />
                         <span className="text-sm font-medium text-slate-300">
                           Email
                         </span>
@@ -314,7 +350,7 @@ export default function Details() {
                     />
                     {isLoadingEmail && (
                       <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-400"></div>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-zinc-400"></div>
                       </div>
                     )}
                     {!isLoadingEmail && !formData.email && (
@@ -336,7 +372,7 @@ export default function Details() {
                       </Button>
                       <Button
                         onClick={nextStep}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                        className="bg-zinc-600 hover:bg-zinc-700 text-white px-6"
                         disabled={!formData.email}
                       >
                         Continue
@@ -358,7 +394,7 @@ export default function Details() {
                   {currentStep > 3 && (
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center">
-                        <CheckCircle2 className="h-5 w-5 text-blue-400 mr-2" />
+                        <CheckCircle2 className="h-5 w-5 text-zinc-400 mr-2" />
                         <span className="text-sm font-medium text-slate-300">
                           Location
                         </span>
@@ -407,7 +443,7 @@ export default function Details() {
                       />
                       {isSearching && (
                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-400"></div>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-zinc-400"></div>
                         </div>
                       )}
                     </div>
@@ -444,7 +480,7 @@ export default function Details() {
                       </Button>
                       <Button
                         onClick={nextStep}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                        className="bg-zinc-600 hover:bg-zinc-700 text-white px-6"
                         disabled={!formData.location}
                       >
                         Continue
@@ -466,7 +502,7 @@ export default function Details() {
                   {currentStep > 4 && (
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center">
-                        <CheckCircle2 className="h-5 w-5 text-blue-400 mr-2" />
+                        <CheckCircle2 className="h-5 w-5 text-zinc-400 mr-2" />
                         <span className="text-sm font-medium text-slate-300">
                           Professional Experience
                         </span>
@@ -487,22 +523,34 @@ export default function Details() {
                     </div>
                   )}
 
-                  <div className={`${currentStep > 4 ? "opacity-70" : ""}`}>
+                  <div className={`${currentStep > 4 ? "opacity-70" : ""} relative`}>
                     <Label
                       htmlFor="jobTitle"
                       className="text-slate-300 font-medium"
                     >
                       Most Recent Job Title
                     </Label>
-                    <Input
-                      id="jobTitle"
-                      name="jobTitle"
-                      value={formData.jobTitle}
-                      onChange={handleInputChange}
-                      className={inputClassName}
-                      placeholder="e.g. Software Engineer"
-                      disabled={currentStep > 4}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="jobTitle"
+                        name="jobTitle"
+                        value={formData.jobTitle}
+                        onChange={handleInputChange}
+                        className={inputClassName}
+                        placeholder="e.g. Software Engineer"
+                        disabled={currentStep > 4}
+                        autoComplete="off"
+                      />
+                      {isSearchingJobTitles && currentStep === 4 && <div className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100" />}
+                    </div>
+                    {jobTitleSuggestions.length > 0 && currentStep === 4 && (
+                      <ul className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-md border border-zinc-700 bg-zinc-900 py-1 shadow-xl">
+                        {jobTitleSuggestions.map((title) => (
+                          <li key={title}><button type="button" onClick={() => handleJobTitleSelect(title)} className="w-full px-4 py-2 text-left text-sm text-zinc-200 transition hover:bg-zinc-800">{title}</button></li>
+                        ))}
+                      </ul>
+                    )}
+                    {jobTitleAttribution && currentStep === 4 && <p className="mt-2 text-xs text-zinc-500">Job titles powered by O*NET Web Services.</p>}
                   </div>
 
                   {currentStep === 4 && (
@@ -517,7 +565,7 @@ export default function Details() {
                       </Button>
                       <Button
                         onClick={nextStep}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                        className="bg-zinc-600 hover:bg-zinc-700 text-white px-6"
                         disabled={!formData.jobTitle}
                       >
                         Continue
@@ -554,7 +602,7 @@ export default function Details() {
                         />
                         {isSearching && (
                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-400"></div>
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-zinc-400"></div>
                           </div>
                         )}
                       </div>
@@ -624,18 +672,17 @@ export default function Details() {
                         Back
                       </Button>
                       <Button
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                        className="bg-zinc-600 hover:bg-zinc-700 text-white px-6"
                         disabled={!formData.school || !formData.startYear}
                         onClick={async () => {
-                          router.push("/skills");
-
-                          await fetch("/api/detailsToDB", {
+                          const response = await fetch("/api/detailsToDB", {
                             method: "POST",
                             headers: {
                               "Content-type": "application/json",
                             },
                             body: JSON.stringify(formData),
                           });
+                          if (response.ok) router.push("/skills");
                         }}
                       >
                         Complete Profile

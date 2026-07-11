@@ -145,7 +145,7 @@ export default function CertificateModal({
                 {isLoadingPdf && !pdfLoadError && (
                   <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
                     <div className="text-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-zinc-500 mx-auto mb-4"></div>
                       <p className="text-slate-400">Loading PDF...</p>
                     </div>
                   </div>
@@ -154,9 +154,9 @@ export default function CertificateModal({
                 {pdfLoadError ? (
                   <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
                     <div className="text-center p-8 max-w-md">
-                      <div className="bg-red-900/20 border border-red-800/30 rounded-lg p-6 mb-4">
+                      <div className="bg-zinc-900/20 border border-zinc-800/30 rounded-lg p-6 mb-4">
                         <svg
-                          className="w-12 h-12 text-red-400 mx-auto mb-4"
+                          className="w-12 h-12 text-zinc-400 mx-auto mb-4"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -168,7 +168,7 @@ export default function CertificateModal({
                             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.684-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"
                           />
                         </svg>
-                        <h3 className="text-lg font-semibold text-red-400 mb-2">
+                        <h3 className="text-lg font-semibold text-zinc-400 mb-2">
                           PDF Preview Unavailable
                         </h3>
                         <p className="text-slate-300 text-sm mb-4">
@@ -182,7 +182,7 @@ export default function CertificateModal({
                               setIsLoadingPdf(true);
                               setUseDirectUrl(!useDirectUrl);
                             }}
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors text-sm"
+                            className="w-full bg-zinc-600 hover:bg-zinc-700 text-white py-2 px-4 rounded-md transition-colors text-sm"
                           >
                             Try {useDirectUrl ? "Proxy" : "Direct"} Mode
                           </button>
@@ -190,7 +190,7 @@ export default function CertificateModal({
                             href={currentCertificate.pdfUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="block w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition-colors text-sm text-center"
+                            className="block w-full bg-zinc-600 hover:bg-zinc-700 text-white py-2 px-4 rounded-md transition-colors text-sm text-center"
                           >
                             Open in New Tab
                           </a>
@@ -271,7 +271,7 @@ export default function CertificateModal({
                 <div className="max-w-3xl mx-auto">
                   <div className="mb-8">
                     <h2 className="text-3xl font-bold text-slate-100 mb-2 flex items-center gap-3">
-                      <span className="inline-flex p-2 rounded-lg bg-orange-900/20 text-orange-400 shadow-lg shadow-orange-500/20 border border-orange-800/30">
+                      <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="20"
@@ -324,7 +324,7 @@ export default function CertificateModal({
                     <div className="flex items-center gap-4">
                       <a
                         href={`/api/download-certificate?id=${currentCertificate.id}`}
-                        className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors"
+                        className="flex items-center justify-center gap-2 bg-zinc-600 hover:bg-zinc-700 text-white py-2 px-4 rounded-md transition-colors"
                         download
                         onClick={(e) => {
                           console.log(
@@ -341,7 +341,7 @@ export default function CertificateModal({
                         href={currentCertificate.pdfUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition-colors"
+                        className="flex items-center justify-center gap-2 bg-zinc-600 hover:bg-zinc-700 text-white py-2 px-4 rounded-md transition-colors"
                         onClick={(e) => {
                           console.log(
                             "Direct view clicked for PDF:",

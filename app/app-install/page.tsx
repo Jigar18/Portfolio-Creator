@@ -1,59 +1,37 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
-import axios from "axios";
+import { useRouter } from "next/navigation";
 
-function InstallAppContent() {
+const INSTALL_URL = "https://github.com/apps/portfolio-creator/installations/new";
+
+export default function InstallApp() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const access_token = searchParams.get("access_token");
-
-  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("Checking your GitHub App access…");
 
   useEffect(() => {
     async function checkInstallation() {
-      if (!access_token) {
-        router.push("/");
+      const response = await fetch("/api/github/installations");
+      if (response.status === 401) {
+        router.replace("/login");
         return;
+      }
+
+      if (!response.ok) {
+        setMessage("We could not check GitHub App access. Please try again.");
+        return;
+      }
+
+      const data = (await response.json()) as { installations: unknown[] };
+      if (data.installations.length > 0) {
+        router.replace("/details");
       } else {
-        try {
-          const response = await axios.get(
-            "https://api.github.com/user/installations",
-            {
-              headers: { Authorization: `Bearer ${access_token}` },
-            }
-          );
-
-          const installations = response.data.installations;
-
-          if (installations.length > 0) {
-            router.push("/details");
-          } else {
-            window.location.href =
-              "https://github.com/apps/portfolio-creator/installations/new";
-          }
-        } catch (error) {
-          console.error("Error checking installation:", error);
-          router.push("/");
-        } finally {
-          setLoading(false);
-        }
+        window.location.assign(INSTALL_URL);
       }
     }
-    checkInstallation();
-  }, [access_token, router]);
 
-  return (
-    <div>{loading ? "Checking installation status..." : "Redirecting..."}</div>
-  );
-}
+    void checkInstallation();
+  }, [router]);
 
-export default function InstallApp() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <InstallAppContent />
-    </Suspense>
-  );
+  return <main className="grid min-h-screen place-items-center bg-zinc-950 px-6 text-center text-zinc-100"><p className="animate-pulse text-sm tracking-wide text-zinc-400">{message}</p></main>;
 }

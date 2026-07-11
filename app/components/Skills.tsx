@@ -167,7 +167,7 @@ export default function Skills() {
                 exit="exit"
                 {...{
                   className:
-                    "px-3 py-1 bg-blue-600/20 text-blue-300 rounded-full text-sm font-medium border border-blue-600/30 hover:bg-blue-600/30 transition-colors",
+                    "px-3 py-1 bg-zinc-600/20 text-zinc-300 rounded-full text-sm font-medium border border-zinc-600/30 hover:bg-zinc-600/30 transition-colors",
                 }}
               >
                 {skill}
@@ -189,7 +189,7 @@ export default function Skills() {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-slate-200 flex items-center gap-2">
-                    <span className="p-2 bg-blue-600/20 rounded-lg">
+                    <span className="p-2 bg-zinc-600/20 rounded-lg">
                       <Edit3 className="h-5 w-5" />
                     </span>
                     Edit Skills
@@ -220,7 +220,7 @@ export default function Skills() {
                       }}
                       onFocus={() => setShowSuggestions(true)}
                       placeholder="Search for skills..."
-                      className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-600 rounded-md text-slate-200 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-600 rounded-md text-slate-200 text-sm focus:ring-2 focus:ring-zinc-500 focus:border-transparent"
                     />
 
                     {showSuggestions &&
@@ -228,7 +228,7 @@ export default function Skills() {
                         <div className="absolute z-10 mt-1 w-full bg-slate-800 border border-slate-600 rounded-md shadow-lg max-h-48 overflow-y-auto">
                           {isSearching && (
                             <div className="px-4 py-2 text-slate-400 text-sm flex items-center gap-2">
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-zinc-500"></div>
                               Searching...
                             </div>
                           )}
@@ -272,13 +272,13 @@ export default function Skills() {
                             exit="exit"
                             {...{
                               className:
-                                "inline-flex items-center gap-1 px-3 py-1 bg-blue-600/20 text-blue-300 rounded-full text-sm font-medium border border-blue-600/30",
+                                "inline-flex items-center gap-1 px-3 py-1 bg-zinc-600/20 text-zinc-300 rounded-full text-sm font-medium border border-zinc-600/30",
                             }}
                           >
                             {skill}
                             <button
                               onClick={() => removeSkill(skill)}
-                              className="ml-1 hover:text-red-400 transition-colors"
+                              className="ml-1 hover:text-zinc-400 transition-colors"
                             >
                               <X className="h-3 w-3" />
                             </button>
@@ -299,7 +299,7 @@ export default function Skills() {
                   <button
                     onClick={handleSaveSkills}
                     disabled={saving}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-800 text-white rounded-md text-sm font-medium transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-600 hover:bg-zinc-700 disabled:bg-zinc-800 text-white rounded-md text-sm font-medium transition-colors"
                   >
                     {saving ? (
                       <>

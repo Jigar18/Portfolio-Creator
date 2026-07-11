@@ -121,16 +121,16 @@ export default function Experience() {
   const getIconForIndex = (index: number) => {
     const icons = [
       <Briefcase
-        className="h-5 w-5 text-blue-400"
+        className="h-5 w-5 text-zinc-400"
         key={`briefcase-${index}`}
       />,
-      <Code className="h-5 w-5 text-blue-400" key={`code-${index}`} />,
-      <Users className="h-5 w-5 text-blue-400" key={`users-${index}`} />,
-      <BarChart2 className="h-5 w-5 text-blue-400" key={`chart-${index}`} />,
-      <Award className="h-5 w-5 text-blue-400" key={`award-${index}`} />,
-      <Clock className="h-5 w-5 text-blue-400" key={`clock-${index}`} />,
-      <Zap className="h-5 w-5 text-blue-400" key={`zap-${index}`} />,
-      <CheckCircle2 className="h-5 w-5 text-blue-400" key={`check-${index}`} />,
+      <Code className="h-5 w-5 text-zinc-400" key={`code-${index}`} />,
+      <Users className="h-5 w-5 text-zinc-400" key={`users-${index}`} />,
+      <BarChart2 className="h-5 w-5 text-zinc-400" key={`chart-${index}`} />,
+      <Award className="h-5 w-5 text-zinc-400" key={`award-${index}`} />,
+      <Clock className="h-5 w-5 text-zinc-400" key={`clock-${index}`} />,
+      <Zap className="h-5 w-5 text-zinc-400" key={`zap-${index}`} />,
+      <CheckCircle2 className="h-5 w-5 text-zinc-400" key={`check-${index}`} />,
     ];
     return icons[index % icons.length];
   };
@@ -330,7 +330,7 @@ export default function Experience() {
           </button>
 
           <h2 className="text-2xl font-bold text-slate-100 mb-6 border-b border-slate-700 pb-2 flex items-center gap-3">
-            <span className="inline-flex p-2 rounded-lg bg-blue-900/20 text-blue-400 shadow-lg shadow-blue-500/20 border border-blue-800/30">
+            <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
               <Briefcase className="h-5 w-5" />
             </span>
             Experience
@@ -339,7 +339,7 @@ export default function Experience() {
           <div className="space-y-8">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-zinc-500"></div>
                 <span className="ml-3 text-slate-400">
                   Loading experiences...
                 </span>
@@ -350,7 +350,7 @@ export default function Experience() {
                 <p className="text-slate-400 mb-4">No experiences added yet</p>
                 <Button
                   onClick={() => handleOpenModal()}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className="bg-zinc-600 hover:bg-zinc-700 text-white"
                 >
                   Add Your First Experience
                 </Button>
@@ -369,7 +369,7 @@ export default function Experience() {
                   <div className="flex flex-col md:flex-row gap-6">
                     {/* Timeline dot and line */}
                     <div className="hidden md:flex flex-col items-center">
-                      <div className="w-4 h-4 rounded-full bg-blue-600 z-10"></div>
+                      <div className="w-4 h-4 rounded-full bg-zinc-600 z-10"></div>
                       {index < experience.length - 1 && (
                         <div className="w-0.5 bg-slate-600 h-full absolute top-4 left-[7px] -z-10"></div>
                       )}
@@ -390,7 +390,7 @@ export default function Experience() {
                         <h3 className="text-xl font-bold text-slate-100">
                           {level.company}
                         </h3>
-                        <p className="text-blue-400 font-medium">
+                        <p className="text-zinc-400 font-medium">
                           {level.position}
                         </p>
                         <p className="text-slate-400 text-sm mt-1">
@@ -405,7 +405,7 @@ export default function Experience() {
                               key={idx}
                               {...{
                                 className:
-                                  "flex items-center gap-3 bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 hover:border-blue-500/30 transition-colors",
+                                  "flex items-center gap-3 bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 hover:border-zinc-500/30 transition-colors",
                               }}
                               initial={{ opacity: 0, y: 10 }}
                               animate={
@@ -488,7 +488,7 @@ export default function Experience() {
 
               <div className="p-6">
                 <h2 className="text-xl font-bold text-slate-100 mb-6 flex items-center gap-2">
-                  <span className="bg-blue-900/20 p-1.5 rounded text-blue-400">
+                  <span className="bg-zinc-900/20 p-1.5 rounded text-zinc-400">
                     <Edit3 className="h-5 w-5" />
                   </span>
                   {editingIndex !== null ? "Edit Experience" : "Add Experience"}
@@ -502,13 +502,13 @@ export default function Experience() {
                       className="text-slate-300 font-medium flex items-center gap-2"
                     >
                       <Building className="h-4 w-4" />
-                      Organization <span className="text-red-400">*</span>
+                      Organization <span className="text-zinc-400">*</span>
                     </Label>
                     <Input
                       id="organization"
                       value={tempOrganization}
                       onChange={(e) => setTempOrganization(e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
+                      className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200"
                       placeholder="e.g., Google, Microsoft, Startup Inc."
                     />
                   </div>
@@ -520,13 +520,13 @@ export default function Experience() {
                       className="text-slate-300 font-medium flex items-center gap-2"
                     >
                       <Briefcase className="h-4 w-4" />
-                      Role <span className="text-red-400">*</span>
+                      Role <span className="text-zinc-400">*</span>
                     </Label>
                     <Input
                       id="role"
                       value={tempRole}
                       onChange={(e) => setTempRole(e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
+                      className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200"
                       placeholder="e.g., Software Engineer, Product Manager"
                     />
                   </div>
@@ -535,7 +535,7 @@ export default function Experience() {
                   <div className="space-y-4">
                     <Label className="text-slate-300 font-medium flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
-                      Time Period <span className="text-red-400">*</span>
+                      Time Period <span className="text-zinc-400">*</span>
                     </Label>
 
                     {/* Start Date */}
@@ -547,7 +547,7 @@ export default function Experience() {
                         <select
                           value={tempStartMonth}
                           onChange={(e) => setTempStartMonth(e.target.value)}
-                          className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
+                          className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200"
                         >
                           <option value="">Select month</option>
                           {months.map((month) => (
@@ -564,7 +564,7 @@ export default function Experience() {
                         <select
                           value={tempStartYear}
                           onChange={(e) => setTempStartYear(e.target.value)}
-                          className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
+                          className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200"
                         >
                           <option value="">Select year</option>
                           {years.map((year) => (
@@ -583,7 +583,7 @@ export default function Experience() {
                         id="currentRole"
                         checked={tempIsCurrentRole}
                         onChange={(e) => setTempIsCurrentRole(e.target.checked)}
-                        className="rounded border-slate-600 bg-slate-800 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-slate-600 bg-slate-800 text-zinc-600 focus:ring-zinc-500"
                       />
                       <Label
                         htmlFor="currentRole"
@@ -603,7 +603,7 @@ export default function Experience() {
                           <select
                             value={tempEndMonth}
                             onChange={(e) => setTempEndMonth(e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
+                            className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200"
                           >
                             <option value="">Select month</option>
                             {months.map((month) => (
@@ -620,7 +620,7 @@ export default function Experience() {
                           <select
                             value={tempEndYear}
                             onChange={(e) => setTempEndYear(e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
+                            className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200"
                           >
                             <option value="">Select year</option>
                             {years.map((year) => (
@@ -646,7 +646,7 @@ export default function Experience() {
                       id="contributions"
                       value={tempContributions}
                       onChange={(e) => setTempContributions(e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200 resize-none min-h-[120px]"
+                      className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200 resize-none min-h-[120px]"
                       placeholder="Enter each contribution on a new line, e.g.:&#10;Led development of core authentication system&#10;Optimized database queries reducing response time by 40%&#10;Mentored 5 junior developers"
                     />
                     <p className="text-xs text-slate-500">
@@ -675,7 +675,7 @@ export default function Experience() {
                             handleCloseModal();
                           }
                         }}
-                        className="bg-red-800 hover:bg-red-700 border-red-700 text-red-300 hover:text-red-200"
+                        className="bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300 hover:text-zinc-200"
                         disabled={saving}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
@@ -685,7 +685,7 @@ export default function Experience() {
                   </div>
                   <Button
                     onClick={handleSaveChanges}
-                    className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+                    className="bg-zinc-600 hover:bg-zinc-700 text-white flex items-center gap-2"
                     disabled={
                       saving ||
                       !tempOrganization ||

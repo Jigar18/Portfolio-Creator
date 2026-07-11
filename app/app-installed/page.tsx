@@ -1,31 +1,14 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-
-function AppInstalled() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const installation_id = searchParams.get("installation_id");
-
-  useEffect(() => {
-    if (installation_id) {
-      console.log("GitHub App installed with ID:", installation_id);
-      setTimeout(() => {
-        router.push("/details");
-      }, 3000);
-    } else {
-      router.push("/");
-    }
-  }, [installation_id, router]);
-
-  return <div>✅ GitHub App installed! Redirecting...</div>;
-}
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function AppInstalledPage() {
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <AppInstalled />
-        </Suspense>
-    )
+  const router = useRouter();
+  useEffect(() => {
+    const timer = window.setTimeout(() => router.replace("/details"), 1200);
+    return () => window.clearTimeout(timer);
+  }, [router]);
+
+  return <main className="grid min-h-screen place-items-center bg-zinc-950 px-6 text-center text-zinc-100"><p className="animate-pulse text-sm tracking-wide text-zinc-400">GitHub App installed. Preparing your profile…</p></main>;
 }

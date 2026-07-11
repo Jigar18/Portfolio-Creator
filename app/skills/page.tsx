@@ -21,7 +21,7 @@ const globalStyles = `
 `;
 
 const inputClassName =
-  "w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200";
+  "w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200";
 
 export default function SkillsPage() {
   const [skillInput, setSkillInput] = useState("");
@@ -125,13 +125,13 @@ export default function SkillsPage() {
                   />
                   <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
                     {isSearching ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-400"></div>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-zinc-400"></div>
                     ) : (
                       skillInput && (
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6 p-0 text-slate-400 hover:text-blue-400 hover:bg-slate-700/50 rounded-full transition-colors"
+                          className="h-6 w-6 p-0 text-slate-400 hover:text-zinc-400 hover:bg-slate-700/50 rounded-full transition-colors"
                           onClick={() => setSkillInput("")}
                         >
                           <X className="h-4 w-4" />
@@ -168,7 +168,7 @@ export default function SkillsPage() {
                             }}
                           >
                             <span className="flex-1">{skill}</span>
-                            <span className="bg-slate-700/50 hover:bg-blue-600/30 p-1 rounded-full text-blue-400 transition-colors">
+                            <span className="bg-slate-700/50 hover:bg-zinc-600/30 p-1 rounded-full text-zinc-400 transition-colors">
                               <Plus className="h-3.5 w-3.5" />
                             </span>
                           </motion.li>
@@ -190,7 +190,7 @@ export default function SkillsPage() {
                       onClick={handleAddCustomSkill}
                       className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 w-full justify-start rounded-md transition-colors"
                     >
-                      <Plus className="h-4 w-4 mr-2 text-blue-400" />
+                      <Plus className="h-4 w-4 mr-2 text-zinc-400" />
                       {`Add "${skillInput}" as a new skill`}
                     </Button>
                   </motion.div>
@@ -220,14 +220,14 @@ export default function SkillsPage() {
                         transition={{ duration: 0.2 }}
                         {...{
                           className:
-                            "bg-slate-800 border border-slate-700 rounded-full px-3.5 py-1.5 flex items-center gap-2 group hover:border-blue-500/50 transition-colors",
+                            "bg-slate-800 border border-slate-700 rounded-full px-3.5 py-1.5 flex items-center gap-2 group hover:border-zinc-500/50 transition-colors",
                         }}
                       >
                         <span className="text-slate-200 text-sm">{skill}</span>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-5 w-5 p-0 text-slate-500 hover:text-blue-400 hover:bg-slate-700/50 rounded-full opacity-80 group-hover:opacity-100 transition-all"
+                          className="h-5 w-5 p-0 text-slate-500 hover:text-zinc-400 hover:bg-slate-700/50 rounded-full opacity-80 group-hover:opacity-100 transition-all"
                           onClick={() => handleRemoveSkill(skill)}
                           aria-label={`Remove ${skill}`}
                         >
@@ -242,7 +242,7 @@ export default function SkillsPage() {
               {/* Continue button */}
               <div className="mt-12 flex justify-end">
                 <Button
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-md transition-colors"
+                  className="bg-zinc-600 hover:bg-zinc-700 text-white px-6 py-2.5 rounded-md transition-colors"
                   disabled={selectedSkills.length === 0}
                   onClick={async () => {
                       router.push("/profile-picture");

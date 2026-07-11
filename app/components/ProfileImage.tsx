@@ -43,7 +43,7 @@ export default function ProfileImage() {
         <motion.button
           {...{
             className:
-              "absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full z-20 shadow-lg border-2 border-slate-700 cursor-pointer",
+              "absolute bottom-0 right-0 bg-zinc-600 hover:bg-zinc-700 text-white p-2 rounded-full z-20 shadow-lg border-2 border-slate-700 cursor-pointer",
             onClick: (e: React.MouseEvent<HTMLDivElement>) => {
               e.stopPropagation();
               setIsModalOpen(true);

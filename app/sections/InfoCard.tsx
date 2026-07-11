@@ -217,7 +217,7 @@ function InfoCard() {
 
               <div className="p-6">
                 <h2 className="text-xl font-bold text-slate-100 mb-6 flex items-center gap-2">
-                  <span className="bg-blue-900/20 p-1.5 rounded text-blue-400">
+                  <span className="bg-zinc-900/20 p-1.5 rounded text-zinc-400">
                     <Edit3 className="h-5 w-5" />
                   </span>
                   Edit Profile Information
@@ -226,8 +226,8 @@ function InfoCard() {
                 <div className="space-y-6 max-h-96 overflow-y-auto">
                   {/* Validation Errors */}
                   {validationErrors.length > 0 && (
-                    <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-3">
-                      <ul className="text-red-300 text-sm space-y-1">
+                    <div className="bg-zinc-900/20 border border-zinc-500/30 rounded-lg p-3">
+                      <ul className="text-zinc-300 text-sm space-y-1">
                         {validationErrors.map((error, index) => (
                           <li key={index}>• {error}</li>
                         ))}
@@ -298,7 +298,7 @@ function InfoCard() {
                             setValidationErrors([]);
                           }
                         }}
-                        className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
+                        className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200"
                         placeholder="Enter your first name"
                       />
                     </div>
@@ -322,7 +322,7 @@ function InfoCard() {
                             setValidationErrors([]);
                           }
                         }}
-                        className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
+                        className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200"
                         placeholder="Enter your last name"
                       />
                     </div>
@@ -351,7 +351,7 @@ function InfoCard() {
                           setValidationErrors([]);
                         }
                       }}
-                      className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
+                      className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200"
                       placeholder="your.email@example.com"
                     />
                   </div>
@@ -374,7 +374,7 @@ function InfoCard() {
                           jobTitle: e.target.value,
                         }))
                       }
-                      className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
+                      className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200"
                       placeholder="e.g., Software Engineer"
                     />
                   </div>
@@ -397,7 +397,7 @@ function InfoCard() {
                           location: e.target.value,
                         }))
                       }
-                      className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
+                      className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200"
                       placeholder="City, Country"
                     />
                   </div>
@@ -420,7 +420,7 @@ function InfoCard() {
                           college: e.target.value,
                         }))
                       }
-                      className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
+                      className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200"
                       placeholder="e.g., University of Technology"
                     />
                   </div>
@@ -443,7 +443,7 @@ function InfoCard() {
                       !tempDetails.lastName ||
                       validationErrors.length > 0
                     }
-                    className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+                    className="bg-zinc-600 hover:bg-zinc-700 text-white flex items-center gap-2"
                   >
                     <Save className="h-4 w-4" />
                     {saving ? "Saving..." : "Save Changes"}

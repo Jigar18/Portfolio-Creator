@@ -127,7 +127,7 @@ export default function Education() {
         transition={{ duration: 0.3 }}
       >
         <h2 className="text-xl font-bold text-slate-100 mb-4 flex items-center gap-3">
-          <span className="bg-blue-900/20 p-2 rounded text-blue-400">
+          <span className="bg-zinc-900/20 p-2 rounded text-zinc-400">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -174,7 +174,7 @@ export default function Education() {
         </motion.button>
 
         <h2 className="text-xl font-bold text-slate-100 mb-4 flex items-center gap-3">
-          <span className="bg-blue-900/20 p-2 rounded text-blue-400">
+          <span className="bg-zinc-900/20 p-2 rounded text-zinc-400">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -198,7 +198,7 @@ export default function Education() {
               <p className="text-slate-400 mb-4">No education information added yet</p>
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 bg-zinc-600 text-white rounded-lg hover:bg-zinc-700 transition-colors"
               >
                 Add Education
               </button>
@@ -223,7 +223,7 @@ export default function Education() {
                     {formatYears(edu.startYear, edu.endYear, edu.isCurrently)}
                   </span>
                 </div>
-                <p className="text-blue-400 font-medium mb-1">{edu.degree}</p>
+                <p className="text-zinc-400 font-medium mb-1">{edu.degree}</p>
                 <p className="text-slate-300 text-sm">{edu.field}</p>
               </motion.div>
             ))

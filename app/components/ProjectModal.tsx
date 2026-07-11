@@ -177,7 +177,7 @@ export default function ProjectModal({
                     {currentProject.title}
                   </h3>
                   <motion.div
-                    {...{className:"absolute -bottom-1 left-0 h-[3px] bg-blue-500 rounded-full"}}
+                    {...{className:"absolute -bottom-1 left-0 h-[3px] bg-zinc-500 rounded-full"}}
                     initial={{ width: 0 }}
                     animate={{ width: "60px" }}
                     transition={{ duration: 0.5, delay: 0.2 }}
@@ -189,7 +189,7 @@ export default function ProjectModal({
                 {/* 1. Description */}
                 <div className="mb-8">
                   <h4 className="text-lg font-medium text-slate-100 mb-3 flex items-center gap-2">
-                    <span className="inline-flex p-1.5 rounded-md bg-blue-900/20 text-blue-400 shadow-md shadow-blue-500/20 border border-blue-800/30">
+                    <span className="inline-flex p-1.5 rounded-md bg-zinc-900/20 text-zinc-400 shadow-md shadow-zinc-500/20 border border-zinc-800/30">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -220,7 +220,7 @@ export default function ProjectModal({
                 {/* 2. Tech stack */}
                 <div className="mb-8">
                   <h4 className="text-lg font-medium text-slate-100 mb-3 flex items-center gap-2">
-                    <span className="inline-flex p-1.5 rounded-md bg-purple-900/20 text-purple-400 shadow-md shadow-purple-500/20 border border-purple-800/30">
+                    <span className="inline-flex p-1.5 rounded-md bg-zinc-900/20 text-zinc-400 shadow-md shadow-zinc-500/20 border border-zinc-800/30">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -255,7 +255,7 @@ export default function ProjectModal({
                                 duration: 0.3,
                                 delay: index * 0.05,
                               }}
-                              {...{className:"bg-gradient-to-r from-blue-600/20 to-blue-500/20 text-blue-300 px-3 py-1.5 rounded-md text-sm border border-blue-500/30 shadow-sm"}}
+                              {...{className:"bg-gradient-to-r from-zinc-600/20 to-zinc-500/20 text-zinc-300 px-3 py-1.5 rounded-md text-sm border border-zinc-500/30 shadow-sm"}}
                             >
                               {tech}
                             </motion.span>
@@ -293,7 +293,7 @@ export default function ProjectModal({
                 {/* 3. Demo video/image with appropriate height */}
                 <div className="mb-8">
                   <h4 className="text-lg font-medium text-slate-100 mb-3 flex items-center gap-2">
-                    <span className="inline-flex p-1.5 rounded-md bg-green-900/20 text-green-400 shadow-md shadow-green-500/20 border border-green-800/30">
+                    <span className="inline-flex p-1.5 rounded-md bg-zinc-900/20 text-zinc-400 shadow-md shadow-zinc-500/20 border border-zinc-800/30">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"

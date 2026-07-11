@@ -92,7 +92,7 @@ export default function About() {
           </button>
 
           <h2 className="text-2xl font-bold text-slate-100 mb-4 border-b border-slate-700 pb-2 flex items-center gap-3">
-            <span className="inline-flex p-2 rounded-lg bg-emerald-900/20 text-emerald-400 shadow-lg shadow-emerald-500/20 border border-emerald-800/30">
+            <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -153,7 +153,7 @@ export default function About() {
 
               <div className="p-6">
                 <h2 className="text-xl font-bold text-slate-100 mb-6 flex items-center gap-2">
-                  <span className="bg-emerald-900/20 p-1.5 rounded text-emerald-400">
+                  <span className="bg-zinc-900/20 p-1.5 rounded text-zinc-400">
                     <Edit3 className="h-5 w-5" />
                   </span>
                   Edit About Section
@@ -176,7 +176,7 @@ export default function About() {
                       }
                     }}
                     placeholder="Write something about yourself..."
-                    className="w-full h-40 p-4 bg-slate-800 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                    className="w-full h-40 p-4 bg-slate-800 border border-slate-700 rounded-lg text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:border-transparent resize-none"
                     maxLength={1000}
                   />
                   <p className="text-xs text-slate-500 mt-1">
@@ -197,7 +197,7 @@ export default function About() {
                   <Button
                     onClick={handleSaveChanges}
                     disabled={saving}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-zinc-600 hover:bg-zinc-700 text-white flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Save className="h-4 w-4" />
                     {saving ? "Saving..." : "Save Changes"}

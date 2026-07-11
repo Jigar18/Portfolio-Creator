@@ -372,7 +372,7 @@ export default function Connect() {
           </button>
 
           <h2 className="text-xl font-bold text-slate-100 mb-4 border-b border-slate-700 pb-2 flex items-center gap-3">
-            <span className="inline-flex p-2 rounded-lg bg-pink-900/20 text-pink-400 shadow-lg shadow-pink-500/20 border border-pink-800/30">
+            <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -400,7 +400,7 @@ export default function Connect() {
               <button
                 key={index}
                 onClick={() => copyToClipboard(link.url, link.name)}
-                className="inline-flex items-center justify-center rounded-lg bg-slate-700 hover:bg-slate-600 border border-slate-600 p-3 text-slate-200 transition-all duration-200 hover:scale-105 hover:bg-blue-600/20 cursor-pointer"
+                className="inline-flex items-center justify-center rounded-lg bg-slate-700 hover:bg-slate-600 border border-slate-600 p-3 text-slate-200 transition-all duration-200 hover:scale-105 hover:bg-zinc-600/20 cursor-pointer"
                 title={`Copy ${link.name} link`}
               >
                 {link.icon}
@@ -434,7 +434,7 @@ export default function Connect() {
 
               <div className="p-6">
                 <h2 className="text-xl font-bold text-slate-100 mb-6 flex items-center gap-2">
-                  <span className="bg-pink-900/20 p-1.5 rounded text-pink-400">
+                  <span className="bg-zinc-900/20 p-1.5 rounded text-zinc-400">
                     <Edit3 className="h-5 w-5" />
                   </span>
                   Edit Social Links
@@ -472,7 +472,7 @@ export default function Connect() {
                   </Button>
                   <Button
                     onClick={handleSaveChanges}
-                    className="bg-pink-600 hover:bg-pink-700 text-white flex items-center gap-2"
+                    className="bg-zinc-600 hover:bg-zinc-700 text-white flex items-center gap-2"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -513,7 +513,7 @@ export default function Connect() {
             >
               <div className="flex items-center gap-3">
                 <div className="flex-shrink-0">
-                  <Check className="h-5 w-5 text-green-400" />
+                  <Check className="h-5 w-5 text-zinc-400" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-slate-200">

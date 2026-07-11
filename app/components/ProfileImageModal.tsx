@@ -157,7 +157,7 @@ export default function ProfileImageModal({
 
         <div className="p-6">
           <h2 className="text-xl font-bold text-slate-100 mb-6 flex items-center gap-2">
-            <span className="bg-blue-600/20 p-1.5 rounded text-blue-400">
+            <span className="bg-zinc-600/20 p-1.5 rounded text-zinc-400">
               <Camera className="h-5 w-5" />
             </span>
             Change Profile Picture
@@ -180,7 +180,7 @@ export default function ProfileImageModal({
           <div
             className={`border-2 border-dashed rounded-lg p-6 mb-6 text-center transition-colors ${
               isDragging
-                ? "border-blue-500 bg-blue-500/10"
+                ? "border-zinc-500 bg-zinc-500/10"
                 : "border-slate-700 bg-slate-800/50 hover:border-slate-600"
             }`}
             onDragOver={handleDragOver}
@@ -200,7 +200,7 @@ export default function ProfileImageModal({
               className="flex flex-col items-center gap-2 cursor-pointer"
             >
               <div className="p-3 rounded-full bg-slate-700">
-                <Upload className="h-6 w-6 text-blue-400" />
+                <Upload className="h-6 w-6 text-zinc-400" />
               </div>
               <p className="text-slate-300 font-medium">Upload a photo</p>
               <p className="text-slate-500 text-sm">
@@ -222,7 +222,7 @@ export default function ProfileImageModal({
             <Button
               onClick={handleSave}
               disabled={!selectedFile || isUploading}
-              className={`bg-blue-600 hover:bg-blue-700 text-white ${
+              className={`bg-zinc-600 hover:bg-zinc-700 text-white ${
                 !selectedFile || isUploading
                   ? "opacity-50 cursor-not-allowed"
                   : ""

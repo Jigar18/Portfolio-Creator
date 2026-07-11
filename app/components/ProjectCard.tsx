@@ -56,7 +56,7 @@ export default function ProjectCard({
       {/* Delete button - appears on hover */}
       <button
         onClick={handleDelete}
-        className="absolute top-2 right-2 p-1 bg-red-600/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-500 z-10"
+        className="absolute top-2 right-2 p-1 bg-zinc-600/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-zinc-500 z-10"
         title="Delete project"
       >
         <X className="h-3 w-3" />
@@ -86,7 +86,7 @@ export default function ProjectCard({
 
       <div className="p-4">
         <h3
-          className="text-lg font-bold text-slate-100 cursor-pointer hover:text-blue-400 transition-colors"
+          className="text-lg font-bold text-slate-100 cursor-pointer hover:text-zinc-400 transition-colors"
           onClick={handleClick}
         >
           {project.title}
@@ -99,7 +99,7 @@ export default function ProjectCard({
           {project.tags.slice(0, 3).map((tech) => (
             <span
               key={tech}
-              className="text-xs bg-blue-900/50 text-blue-300 px-2 py-1 rounded"
+              className="text-xs bg-zinc-900/50 text-zinc-300 px-2 py-1 rounded"
             >
               {tech}
             </span>
@@ -117,7 +117,7 @@ export default function ProjectCard({
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-300 hover:text-blue-400 transition-colors"
+              className="text-slate-300 hover:text-zinc-400 transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
               <Github size={18} />

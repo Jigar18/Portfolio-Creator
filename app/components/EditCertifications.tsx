@@ -129,7 +129,7 @@ export default function EditCertifications({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-md transition-colors flex items-center gap-2">
+        <Button className="bg-zinc-600 hover:bg-zinc-700 text-white px-5 py-2.5 rounded-md transition-colors flex items-center gap-2">
           <FileUp className="h-4 w-4" />
           Add Certificates
         </Button>
@@ -156,13 +156,13 @@ export default function EditCertifications({
               <Input
                 id="title"
                 placeholder="e.g. AWS Solutions Architect"
-                className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200"
+                className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200"
                 {...register("title", {
                   required: "Title is required",
                 })}
               />
               {errors.title && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-zinc-500 text-xs mt-1">
                   {errors.title.message}
                 </p>
               )}
@@ -179,7 +179,7 @@ export default function EditCertifications({
               <Textarea
                 id="description"
                 placeholder="Briefly describe what this certificate is about..."
-                className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-800 text-slate-200 resize-none min-h-[120px]"
+                className="w-full px-4 py-3 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-500 bg-slate-800 text-slate-200 resize-none min-h-[120px]"
                 {...register("description", {
                   required: "Description is required",
                   validate: (value) =>
@@ -188,7 +188,7 @@ export default function EditCertifications({
                 })}
               />
               {errors.description ? (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-zinc-500 text-xs mt-1">
                   {errors.description.message}
                 </p>
               ) : (
@@ -217,20 +217,20 @@ export default function EditCertifications({
                 <div
                   className={`w-full px-4 py-3 border border-dashed ${
                     selectedFile && selectedFile[0]
-                      ? "border-blue-500 bg-blue-500/10"
+                      ? "border-zinc-500 bg-zinc-500/10"
                       : "border-slate-600 bg-slate-800"
                   } rounded-md cursor-pointer flex items-center justify-center h-20 hover:bg-slate-700/50 transition-colors`}
                   onClick={() => document.getElementById("fileInput")?.click()}
                 >
                   {selectedFile && selectedFile[0] ? (
                     <div className="flex items-center gap-2">
-                      <Check className="h-5 w-5 text-green-400" />
+                      <Check className="h-5 w-5 text-zinc-400" />
                       <span className="text-slate-200">{getFileName()}</span>
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 p-0 text-slate-400 hover:text-red-400 hover:bg-slate-700/50 rounded-full transition-colors"
+                        className="h-6 w-6 p-0 text-slate-400 hover:text-zinc-400 hover:bg-slate-700/50 rounded-full transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
                           reset({ fileInput: undefined });
@@ -241,7 +241,7 @@ export default function EditCertifications({
                     </div>
                   ) : (
                     <div className="flex flex-col items-center gap-1">
-                      <FileUp className="h-6 w-6 text-blue-400" />
+                      <FileUp className="h-6 w-6 text-zinc-400" />
                       <span className="text-slate-400 text-sm">
                         Click to select PDF
                       </span>
@@ -249,7 +249,7 @@ export default function EditCertifications({
                   )}
                 </div>
                 {errors.fileInput && (
-                  <p className="text-red-500 text-xs mt-1">
+                  <p className="text-zinc-500 text-xs mt-1">
                     {errors.fileInput.message}
                   </p>
                 )}
@@ -266,7 +266,7 @@ export default function EditCertifications({
             </Button>
             <Button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-md transition-colors flex items-center gap-2"
+              className="bg-zinc-600 hover:bg-zinc-700 text-white px-5 py-2.5 rounded-md transition-colors flex items-center gap-2"
               disabled={isUploading}
             >
               {isUploading ? (

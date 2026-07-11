@@ -96,8 +96,8 @@ export default function EducationModal({
           <div className="sticky top-0 bg-slate-900/95 backdrop-blur-sm border-b border-slate-700 p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="bg-blue-900/20 p-2 rounded-lg">
-                  <BookOpen className="h-6 w-6 text-blue-400" />
+                <div className="bg-zinc-900/20 p-2 rounded-lg">
+                  <BookOpen className="h-6 w-6 text-zinc-400" />
                 </div>
                 <h2 className="text-2xl font-bold text-slate-100">
                   Manage Education
@@ -130,7 +130,7 @@ export default function EducationModal({
                 </p>
                 <Button
                   onClick={addNewEducation}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-zinc-600 hover:bg-zinc-700"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Education
@@ -157,7 +157,7 @@ export default function EducationModal({
                         onClick={() => removeEducation(index)}
                         variant="ghost"
                         size="sm"
-                        className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                        className="text-zinc-400 hover:text-zinc-300 hover:bg-zinc-900/20"
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -174,7 +174,7 @@ export default function EducationModal({
                           onChange={(e) =>
                             updateEducation(index, "school", e.target.value)
                           }
-                          className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-500"
                           placeholder="Enter school or university name"
                         />
                       </div>
@@ -189,7 +189,7 @@ export default function EducationModal({
                           onChange={(e) =>
                             updateEducation(index, "degree", e.target.value)
                           }
-                          className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-500"
                           placeholder="e.g., Bachelor of Technology"
                         />
                       </div>
@@ -204,7 +204,7 @@ export default function EducationModal({
                           onChange={(e) =>
                             updateEducation(index, "field", e.target.value)
                           }
-                          className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-500"
                           placeholder="e.g., Computer Science"
                         />
                       </div>
@@ -223,7 +223,7 @@ export default function EducationModal({
                               parseInt(e.target.value)
                             )
                           }
-                          className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-500"
                           min="1950"
                           max="2030"
                         />
@@ -242,7 +242,7 @@ export default function EducationModal({
                                   e.target.checked
                                 )
                               }
-                              className="w-4 h-4 text-blue-600 bg-slate-700 border-slate-600 rounded focus:ring-blue-500"
+                              className="w-4 h-4 text-zinc-600 bg-slate-700 border-slate-600 rounded focus:ring-zinc-500"
                             />
                             <span className="text-sm text-slate-300">
                               Currently studying here
@@ -266,7 +266,7 @@ export default function EducationModal({
                                     : undefined
                                 )
                               }
-                              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-500"
                               min="1950"
                               max="2030"
                             />
@@ -303,7 +303,7 @@ export default function EducationModal({
               </Button>
               <Button
                 onClick={handleSave}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-zinc-600 hover:bg-zinc-700"
               >
                 Save Changes
               </Button>

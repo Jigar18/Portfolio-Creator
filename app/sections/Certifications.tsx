@@ -114,7 +114,7 @@ export default function Certifications({
         transition={{ duration: 0.3 }}
       >
         <h2 className="text-xl font-bold text-slate-100 mb-4 border-b border-slate-700 pb-2 flex items-center gap-3">
-          <span className="inline-flex p-2 rounded-lg bg-orange-900/20 text-orange-400 shadow-lg shadow-orange-500/20 border border-orange-800/30">
+          <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
             <Award className="h-5 w-5" />
           </span>
           Certifications
@@ -138,7 +138,7 @@ export default function Certifications({
       transition={{ duration: 0.3 }}
     >
       <h2 className="text-xl font-bold text-slate-100 mb-4 border-b border-slate-700 pb-2 flex items-center gap-3">
-        <span className="inline-flex p-2 rounded-lg bg-orange-900/20 text-orange-400 shadow-lg shadow-orange-500/20 border border-orange-800/30">
+        <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
           <Award className="h-5 w-5" />
         </span>
         Certifications

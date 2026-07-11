@@ -2,7 +2,10 @@ import { University } from "@/types/api";
 
 export async function getUniversities(query: string): Promise<string[]> {
     try {
-        const response = await fetch(`api/universities?name=${query}`);
+        const response = await fetch(`/api/universities?name=${encodeURIComponent(query)}`);
+        if (!response.ok) {
+            throw new Error("University search failed");
+        }
         const data = await response.json();
         if (data.error) {
             throw new Error(data.msg);

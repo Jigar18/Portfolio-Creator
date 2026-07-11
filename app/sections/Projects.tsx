@@ -170,7 +170,7 @@ export default function Projects({ onOpenProject }: ProjectsProps) {
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         <h2 className="text-2xl font-bold text-slate-100 mb-6 border-b border-slate-700 pb-2 flex items-center gap-3">
-          <span className="inline-flex p-2 rounded-lg bg-purple-900/20 text-purple-400 shadow-lg shadow-purple-500/20 border border-purple-800/30">
+          <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"

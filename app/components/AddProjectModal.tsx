@@ -204,8 +204,8 @@ export default function AddProjectModal({
             <div className="sticky top-0 bg-gradient-to-r from-slate-800/90 to-slate-700/90 backdrop-blur-sm border-b border-slate-700/50 p-6 z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-900/20 rounded-lg shadow-lg shadow-blue-500/20 border border-blue-800/30">
-                    <Plus className="h-5 w-5 text-blue-400" />
+                  <div className="p-2 bg-zinc-900/20 rounded-lg shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
+                    <Plus className="h-5 w-5 text-zinc-400" />
                   </div>
                   <h2 className="text-2xl font-bold text-slate-100">
                     Add New Project
@@ -229,7 +229,7 @@ export default function AddProjectModal({
                     htmlFor="title"
                     className="text-slate-200 font-medium flex items-center gap-2"
                   >
-                    <span className="inline-flex p-1 rounded bg-emerald-900/20 text-emerald-400 border border-emerald-800/30">
+                    <span className="inline-flex p-1 rounded bg-zinc-900/20 text-zinc-400 border border-zinc-800/30">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="12"
@@ -245,17 +245,17 @@ export default function AddProjectModal({
                         <polyline points="14 2 14 8 20 8" />
                       </svg>
                     </span>
-                    Project Title <span className="text-red-400">*</span>
+                    Project Title <span className="text-zinc-400">*</span>
                   </Label>
                   <Input
                     id="title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Enter your project title"
-                    className="bg-slate-800/50 border-slate-600/50 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                    className="bg-slate-800/50 border-slate-600/50 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-zinc-500/50 focus:border-zinc-500/50 transition-all"
                   />
                   {errors.title && (
-                    <p className="text-red-400 text-sm flex items-center gap-1">
+                    <p className="text-zinc-400 text-sm flex items-center gap-1">
                       <X className="h-3 w-3" />
                       {errors.title}
                     </p>
@@ -268,7 +268,7 @@ export default function AddProjectModal({
                     htmlFor="description"
                     className="text-slate-200 font-medium flex items-center gap-2"
                   >
-                    <span className="inline-flex p-1 rounded bg-purple-900/20 text-purple-400 border border-purple-800/30">
+                    <span className="inline-flex p-1 rounded bg-zinc-900/20 text-zinc-400 border border-zinc-800/30">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="12"
@@ -284,7 +284,7 @@ export default function AddProjectModal({
                         <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
                       </svg>
                     </span>
-                    Project Description <span className="text-red-400">*</span>
+                    Project Description <span className="text-zinc-400">*</span>
                   </Label>
                   <Textarea
                     id="description"
@@ -292,10 +292,10 @@ export default function AddProjectModal({
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Describe your project, its features, and what makes it special..."
                     rows={4}
-                    className="bg-slate-800/50 border-slate-600/50 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 resize-none transition-all"
+                    className="bg-slate-800/50 border-slate-600/50 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-zinc-500/50 focus:border-zinc-500/50 resize-none transition-all"
                   />
                   {errors.description && (
-                    <p className="text-red-400 text-sm flex items-center gap-1">
+                    <p className="text-zinc-400 text-sm flex items-center gap-1">
                       <X className="h-3 w-3" />
                       {errors.description}
                     </p>
@@ -305,7 +305,7 @@ export default function AddProjectModal({
                 {/* Tech Stack */}
                 <div className="space-y-4">
                   <Label className="text-slate-200 font-medium flex items-center gap-2">
-                    <span className="inline-flex p-1 rounded bg-cyan-900/20 text-cyan-400 border border-cyan-800/30">
+                    <span className="inline-flex p-1 rounded bg-zinc-900/20 text-zinc-400 border border-zinc-800/30">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="12"
@@ -337,18 +337,18 @@ export default function AddProjectModal({
                             {selectedSkills.map((skill) => (
                               <motion.span
                                 key={skill}
-                                {...{className:"inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600/20 to-blue-500/20 text-blue-300 rounded-full text-sm border border-blue-500/30 shadow-sm"}}
+                                {...{className:"inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-zinc-600/20 to-zinc-500/20 text-zinc-300 rounded-full text-sm border border-zinc-500/30 shadow-sm"}}
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.8 }}
                                 whileHover={{ scale: 1.05 }}
                               >
-                                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
+                                <span className="w-1.5 h-1.5 bg-zinc-400 rounded-full"></span>
                                 {skill}
                                 <button
                                   type="button"
                                   onClick={() => handleSkillRemove(skill)}
-                                  className="ml-1 p-0.5 rounded-full hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors"
+                                  className="ml-1 p-0.5 rounded-full hover:bg-zinc-500/20 text-zinc-400 hover:text-zinc-300 transition-colors"
                                 >
                                   <X className="h-3 w-3" />
                                 </button>
@@ -370,7 +370,7 @@ export default function AddProjectModal({
                               setSkillSearchQuery(e.target.value)
                             }
                             placeholder="Search your skills..."
-                            className="w-full pl-10 pr-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-lg text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                            className="w-full pl-10 pr-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-lg text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-zinc-500/50 focus:border-zinc-500/50 transition-all"
                           />
                         </div>
                       </div>
@@ -424,7 +424,7 @@ export default function AddProjectModal({
                   ) : (
                     <div className="p-6 bg-slate-800/20 border border-slate-700/30 rounded-lg text-center">
                       <div className="flex flex-col items-center gap-3">
-                        <div className="p-3 bg-amber-900/20 rounded-full">
+                        <div className="p-3 bg-zinc-900/20 rounded-full">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="24"
@@ -435,7 +435,7 @@ export default function AddProjectModal({
                             strokeWidth="2"
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            className="text-amber-400"
+                            className="text-zinc-400"
                           >
                             <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
                             <path d="M12 9v4" />
@@ -459,7 +459,7 @@ export default function AddProjectModal({
                 {/* Video Upload (Optional) */}
                 <div className="space-y-3">
                   <Label className="text-slate-200 font-medium flex items-center gap-2">
-                    <span className="inline-flex p-1 rounded bg-green-900/20 text-green-400 border border-green-800/30">
+                    <span className="inline-flex p-1 rounded bg-zinc-900/20 text-zinc-400 border border-zinc-800/30">
                       <Upload className="h-3 w-3" />
                     </span>
                     Project Demo Video (Optional)
@@ -471,8 +471,8 @@ export default function AddProjectModal({
                         className="border-2 border-dashed border-slate-600/50 rounded-lg p-8 text-center cursor-pointer hover:border-slate-500/50 transition-colors bg-slate-800/20"
                       >
                         <div className="flex flex-col items-center gap-3">
-                          <div className="p-3 bg-green-900/20 rounded-full">
-                            <Upload className="h-6 w-6 text-green-400" />
+                          <div className="p-3 bg-zinc-900/20 rounded-full">
+                            <Upload className="h-6 w-6 text-zinc-400" />
                           </div>
                           <div>
                             <p className="text-slate-300 font-medium">
@@ -491,8 +491,8 @@ export default function AddProjectModal({
                       <div className="bg-slate-800/30 border border-slate-600/50 rounded-lg p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="p-2 bg-green-900/20 rounded-lg">
-                              <Upload className="h-4 w-4 text-green-400" />
+                            <div className="p-2 bg-zinc-900/20 rounded-lg">
+                              <Upload className="h-4 w-4 text-zinc-400" />
                             </div>
                             <div>
                               <p className="text-slate-100 text-sm font-medium">
@@ -506,7 +506,7 @@ export default function AddProjectModal({
                           <button
                             type="button"
                             onClick={removeVideo}
-                            className="p-1 rounded-full hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors"
+                            className="p-1 rounded-full hover:bg-zinc-500/20 text-zinc-400 hover:text-zinc-300 transition-colors"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -533,7 +533,7 @@ export default function AddProjectModal({
                       <Github className="h-3 w-3" />
                     </span>
                     GitHub Repository URL{" "}
-                    <span className="text-red-400">*</span>
+                    <span className="text-zinc-400">*</span>
                   </Label>
                   <div className="relative">
                     <Github className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
@@ -542,11 +542,11 @@ export default function AddProjectModal({
                       value={githubUrl}
                       onChange={(e) => setGithubUrl(e.target.value)}
                       placeholder="https://github.com/username/repository"
-                      className="pl-10 bg-slate-800/50 border-slate-600/50 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                      className="pl-10 bg-slate-800/50 border-slate-600/50 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-zinc-500/50 focus:border-zinc-500/50 transition-all"
                     />
                   </div>
                   {errors.githubUrl && (
-                    <p className="text-red-400 text-sm flex items-center gap-1">
+                    <p className="text-zinc-400 text-sm flex items-center gap-1">
                       <X className="h-3 w-3" />
                       {errors.githubUrl}
                     </p>
@@ -566,7 +566,7 @@ export default function AddProjectModal({
                   </Button>
                   <Button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/25 transition-all"
+                    className="flex-1 bg-gradient-to-r from-zinc-600 to-zinc-500 hover:from-zinc-700 hover:to-zinc-600 text-white shadow-lg shadow-zinc-500/25 transition-all"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (

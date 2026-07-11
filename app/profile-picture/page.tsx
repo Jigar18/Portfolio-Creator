@@ -285,8 +285,8 @@ export default function ProfilePicturePage() {
                       }}
                       transition={{ duration: 0.3, ease: "easeOut" }}
                     >
-                      <div className="bg-blue-600/20 rounded-full p-6">
-                        <User className="h-16 w-16 text-blue-400" />
+                      <div className="bg-zinc-600/20 rounded-full p-6">
+                        <User className="h-16 w-16 text-zinc-400" />
                       </div>
                     </motion.div>
                   </motion.div>
@@ -320,7 +320,7 @@ export default function ProfilePicturePage() {
                             </button>
                             <button
                               onClick={handleDone}
-                              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors font-medium"
+                              className="px-4 py-2 bg-zinc-600 hover:bg-zinc-700 text-white rounded-md transition-colors font-medium"
                             >
                               Done
                             </button>
@@ -329,7 +329,7 @@ export default function ProfilePicturePage() {
                       </div>
                     ) : (
                       <div className="flex flex-col items-center">
-                        <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-full overflow-hidden border-2 border-blue-500">
+                        <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-full overflow-hidden border-2 border-zinc-500">
                           <Image
                             src={croppedImage || "/placeholder.svg"}
                             alt="Cropped preview"
@@ -351,7 +351,7 @@ export default function ProfilePicturePage() {
                             className={`px-6 py-2.5 rounded-md transition-colors flex items-center ${
                               isUploading || uploadSuccess
                                 ? "bg-slate-700 text-slate-400 cursor-not-allowed"
-                                : "bg-blue-600 hover:bg-blue-700 text-white"
+                                : "bg-zinc-600 hover:bg-zinc-700 text-white"
                             }`}
                           >
                             {isUploading ? (
@@ -388,7 +388,7 @@ export default function ProfilePicturePage() {
               {/* Success message */}
               {uploadSuccess && (
                 <div className="mt-6 text-center">
-                  <p className="text-green-400">
+                  <p className="text-zinc-400">
                     Your profile picture has been uploaded successfully!
                   </p>
                 </div>
