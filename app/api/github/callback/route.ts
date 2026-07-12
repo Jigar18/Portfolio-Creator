@@ -48,28 +48,37 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-      const installationResponse = await axios.get<GitHubInstallationData>(
-        `https://api.github.com/user/installations/${encodeURIComponent(installationId)}`,
+      const installationResponse = await axios.get<{
+        installations?: GitHubInstallationData[];
+      }>(
+        "https://api.github.com/user/installations",
         {
           headers: {
             Authorization: `Bearer ${user.accessToken}`,
             Accept: "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
           },
+          params: { per_page: 100 },
           timeout: 10_000,
         }
       );
-      if (String(installationResponse.data.id) !== installationId) {
-        return NextResponse.json({ error: "GitHub returned the wrong installation" }, { status: 502 });
+      const installation = (installationResponse.data.installations ?? []).find(
+        (item) => String(item.id) === installationId
+      );
+      if (!installation) {
+        return NextResponse.json(
+          { error: "This GitHub installation does not belong to the signed-in user" },
+          { status: 403 }
+        );
       }
 
-      await persistGitHubInstallation(session.userId, installationResponse.data);
+      await persistGitHubInstallation(session.userId, installation);
       const response = NextResponse.redirect(new URL("/app-installed", req.url));
       clearOAuthCookies(response);
       return response;
     } catch (error) {
-      const status = axios.isAxiosError(error) && error.response?.status === 404 ? 403 : 502;
       console.error("GitHub installation callback failed", error);
-      return NextResponse.json({ error: "Unable to verify the GitHub App installation" }, { status });
+      return NextResponse.json({ error: "Unable to verify the GitHub App installation" }, { status: 502 });
     }
   }
 

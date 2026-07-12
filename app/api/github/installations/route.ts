@@ -16,7 +16,12 @@ export async function GET(req: NextRequest) {
     }
 
     const response = await axios.get<{ installations?: GitHubInstallationData[] }>("https://api.github.com/user/installations", {
-      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json" },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+      params: { per_page: 100 },
       timeout: 10_000,
     });
     const installations = response.data.installations ?? [];
