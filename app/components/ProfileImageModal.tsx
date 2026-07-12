@@ -5,7 +5,6 @@ import type { ChangeEvent, DragEvent } from "react";
 import { useState, useRef, useEffect } from "react";
 import { X, Upload, Camera, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { createPortal } from "react-dom";
 
 interface ProfileImageModalProps {
@@ -166,11 +165,9 @@ export default function ProfileImageModal({
           {/* Current image preview */}
           <div className="flex justify-center mb-6">
             <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-slate-700">
-              <Image
-                src={previewUrl || selectedImage || currentImage}
+              <img
+                src={previewUrl || selectedImage || currentImage || "/placeholder.png"}
                 alt="-"
-                width={128}
-                height={128}
                 className="object-cover w-full h-full"
               />
             </div>

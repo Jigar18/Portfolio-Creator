@@ -29,6 +29,7 @@ model User {
   socialLinks                SocialLink[]
   certifications             Certifications[]
   education                  Education[]
+  projects                   Project[]
   githubInstallation         GitHubInstallation? @relation(fields: [installationId], references: [id], onDelete: SetNull)
 }
 
@@ -112,6 +113,21 @@ model Education {
   userId      String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  techStack   String[]
+  githubUrl   String?
+  liveUrl     String?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model GitHubInstallation {

@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { useState } from "react";
 import { Camera } from "lucide-react";
 import ProfileImageModal from "./ProfileImageModal";
@@ -10,9 +9,10 @@ import { useUser } from "../context/UserContext";
 export default function ProfileImage() {
   const [isHovering, setIsHovering] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { userDetails, refreshUserDetails } = useUser();
+  const { userDetails, refreshUserDetails, updateUserDetails } = useUser();
 
   const handleImageChange = async (newImageUrl: string) => {
+    updateUserDetails({ imageUrl: newImageUrl });
     await refreshUserDetails();
     setIsModalOpen(false);
   };
@@ -29,11 +29,9 @@ export default function ProfileImage() {
         onHoverEnd={() => setIsHovering(false)}
       >
         <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-4 border-slate-700 relative z-10">
-          <Image
+          <img
             src={userDetails?.imageUrl || "/placeholder.png"}
             alt="Profile"
-            width={200}
-            height={200}
             className="object-cover w-full h-full"
           />
         </div>

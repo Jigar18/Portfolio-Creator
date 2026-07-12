@@ -9,6 +9,8 @@ interface UserSkills {
   skills: string[];
 }
 
+const capitalizeFirst = (skill: string) => skill ? skill.charAt(0).toUpperCase() + skill.slice(1) : skill;
+
 export default function Skills() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -27,7 +29,7 @@ export default function Skills() {
       const response = await fetch("/api/getUserSkills");
       if (response.ok) {
         const data: UserSkills = await response.json();
-        setSkills(data.skills || []);
+        setSkills((data.skills || []).map(capitalizeFirst));
       }
     } catch (error) {
       console.error("Error fetching user skills:", error);
@@ -72,8 +74,9 @@ export default function Skills() {
   };
 
   const addSkill = (skill: string) => {
-    if (!tempSkills.includes(skill)) {
-      setTempSkills([...tempSkills, skill]);
+    const formattedSkill = capitalizeFirst(skill);
+    if (!tempSkills.includes(formattedSkill)) {
+      setTempSkills([...tempSkills, formattedSkill]);
       setSkillInput("");
       setSuggestions([]);
       setShowSuggestions(false);

@@ -12,7 +12,7 @@ import Projects from "../../sections/Projects";
 import ProjectModal from "../../components/ProjectModal";
 import CertificateModal from "../../components/CertificateModal";
 import { UserProvider } from "../../context/UserContext";
-import { ArrowUp, Asterisk } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 
 interface Card {
   id: string;
@@ -96,19 +96,7 @@ export default function Home() {
       <div ref={topRef} className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-200">
         <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_76%_8%,rgba(255,255,255,0.08),transparent_28rem),radial-gradient(circle_at_5%_55%,rgba(255,255,255,0.04),transparent_24rem)]" />
         <div className="pointer-events-none fixed inset-0 opacity-[0.025] [background-image:linear-gradient(rgba(255,255,255,.7)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.7)_1px,transparent_1px)] [background-size:72px_72px]" />
-        <main className="relative mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 sm:py-12 lg:px-10 lg:py-16">
-          <motion.header
-            initial={{ opacity: 0, y: -12 }}
-            animate={{ opacity: 1, y: 0 }}
-            {...{ className: "mb-14 flex items-center justify-between gap-5 border-b border-white/10 pb-5" }}
-          >
-            <div className="flex items-center gap-3 text-sm font-medium tracking-wide text-white">
-              <span className="grid h-8 w-8 place-items-center rounded-lg border border-white/15 bg-white/[0.06]"><Asterisk className="h-4 w-4" /></span>
-              Portfolio
-            </div>
-            <span className="text-right text-[10px] uppercase tracking-[0.16em] text-zinc-500 sm:text-xs sm:tracking-[0.2em]">Selected work &amp; profile</span>
-          </motion.header>
-
+        <main className="relative mx-auto w-full max-w-7xl px-5 py-6 sm:px-8 sm:py-9 lg:px-10 lg:py-12">
           <div className="space-y-16 lg:space-y-24">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -120,7 +108,7 @@ export default function Home() {
 
           <div className="space-y-16 lg:space-y-24">
             <motion.div
-              {...{ className: "max-w-3xl" }}
+              {...{ className: "w-full" }}
               custom={1}
               initial="hidden"
               animate="visible"

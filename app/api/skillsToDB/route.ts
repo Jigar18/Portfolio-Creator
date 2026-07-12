@@ -5,7 +5,9 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const selectedSkills: string[] = Array.isArray(body) ? body : body.skills;
+    const selectedSkills: string[] = (Array.isArray(body) ? body : body.skills)?.map((skill: unknown) =>
+      typeof skill === "string" ? skill.trim().charAt(0).toUpperCase() + skill.trim().slice(1) : skill
+    );
 
     if (!Array.isArray(selectedSkills) || selectedSkills.some((skill) => typeof skill !== "string" || skill.trim().length === 0)) {
       return NextResponse.json({ success: false, error: "Skills must be a list of names" }, { status: 400 });

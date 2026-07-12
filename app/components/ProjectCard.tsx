@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Github, Eye, X } from "lucide-react";
+import { Github, Eye, Pencil, X } from "lucide-react";
 import { useRandomImage } from "@/utils/randomImageSelect";
 
 interface Project {
@@ -22,12 +22,14 @@ interface ProjectProps {
   project: Project;
   index: number;
   onOpenProject?: (project: Project) => void;
+  onEditProject?: (project: Project) => void;
   onDeleteProject?: (project: Project) => void;
 }
 
 export default function ProjectCard({
   project,
   onOpenProject,
+  onEditProject,
   onDeleteProject,
 }: ProjectProps) {
   const handleClick = () => {
@@ -43,6 +45,11 @@ export default function ProjectCard({
     }
   };
 
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEditProject?.(project);
+  };
+
   const randomBg = useRandomImage();
 
   return (
@@ -53,7 +60,14 @@ export default function ProjectCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      {/* Delete button - appears on hover */}
+      {/* Project actions appear without competing with the content. */}
+      <button
+        onClick={handleEdit}
+        className="absolute top-2 right-9 z-10 rounded-full bg-zinc-800/90 p-1.5 text-white opacity-0 transition-opacity duration-200 hover:bg-zinc-700 group-hover:opacity-100"
+        title="Edit project"
+      >
+        <Pencil className="h-3 w-3" />
+      </button>
       <button
         onClick={handleDelete}
         className="absolute top-2 right-2 p-1 bg-zinc-600/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-zinc-500 z-10"

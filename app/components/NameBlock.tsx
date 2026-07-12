@@ -20,20 +20,16 @@ export default function NameBlock() {
     );
   }
 
-  const displayName = userDetails
-    ? `${capitalizeWords(userDetails.firstName)} ${capitalizeWords(
-        userDetails.lastName
-      )}`
-    : "Jigar Rajput";
+  const displayName = [userDetails?.firstName, userDetails?.lastName]
+    .filter((value): value is string => Boolean(value))
+    .map(capitalizeWords)
+    .join(" ") || "Your name";
 
-  const displayJobTitle = userDetails
+  const displayJobTitle = userDetails?.jobTitle
     ? capitalizeWords(userDetails.jobTitle)
-    : "Software Engineer";
+    : "Add a professional title";
 
-  const displayLocation =
-    userDetails && userDetails.location
-      ? userDetails.location
-      : "Ahmedabad, India";
+  const displayLocation = userDetails?.location || "";
 
   return (
     <div className="flex flex-col items-center sm:items-start">
@@ -45,14 +41,14 @@ export default function NameBlock() {
       >
         {displayName}
       </motion.h1>
-      <motion.p
+      {displayLocation && <motion.p
         {...{ className: "text-lg text-zinc-400 mt-1" }}
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
         {displayJobTitle}
-      </motion.p>
+      </motion.p>}
       <motion.p
         {...{
           className: "text-sm text-slate-400 mt-1 flex items-center gap-1",

@@ -17,7 +17,10 @@ export async function GET(req: NextRequest) {
     if (!response.ok) throw new Error("GitHub topics lookup failed");
     const body = (await response.json()) as { items?: Array<{ name?: string }> };
     return NextResponse.json(
-      (body.items ?? []).flatMap((item) => (item.name ? [item.name.replace(/-/g, " ")] : []))
+      (body.items ?? []).flatMap((item) => {
+        const skill = item.name?.replace(/-/g, " ");
+        return skill ? [skill.charAt(0).toUpperCase() + skill.slice(1)] : [];
+      })
     );
   } catch {
     return NextResponse.json([]);

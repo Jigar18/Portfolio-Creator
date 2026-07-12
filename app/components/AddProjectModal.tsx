@@ -1,594 +1,89 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, Upload, Search, Github, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Check, ExternalLink, Github, Plus, Save, X } from "lucide-react";
 
-interface Project {
+export interface PortfolioProject {
   id: string;
   title: string;
   description: string;
   techStack: string[];
-  image: string;
-  tags: string[];
-  github: string;
-  githubUrl: string;
-  liveUrl: string;
-  videoUrl?: string;
-  longDescription?: string;
+  githubUrl: string | null;
+  liveUrl: string | null;
 }
 
-interface AddProjectModalProps {
+type ProjectDraft = Omit<PortfolioProject, "id">;
+
+interface ProjectEditorProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddProject: (project: Omit<Project, "id">) => void;
+  onSave: (project: ProjectDraft) => Promise<void>;
   userSkills: string[];
+  project?: PortfolioProject | null;
 }
 
-export default function AddProjectModal({
-  isOpen,
-  onClose,
-  onAddProject,
-  userSkills,
-}: AddProjectModalProps) {
+const emptyDraft: ProjectDraft = { title: "", description: "", techStack: [], githubUrl: null, liveUrl: null };
+
+export default function AddProjectModal({ isOpen, onClose, onSave, userSkills, project }: ProjectEditorProps) {
   const [mounted, setMounted] = useState(false);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [githubUrl, setGithubUrl] = useState("");
-  const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [skillSearchQuery, setSkillSearchQuery] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [draft, setDraft] = useState<ProjectDraft>(emptyDraft);
+  const [skillSearch, setSkillSearch] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  const inputRef = useRef<HTMLInputElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
+  useEffect(() => { setMounted(true); return () => setMounted(false); }, []);
   useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
-  }, []);
-
-  // Filter user skills based on search query
-  const filteredSkills = userSkills.filter(
-    (skill) =>
-      skill.toLowerCase().includes(skillSearchQuery.toLowerCase()) &&
-      !selectedSkills.includes(skill)
-  );
-
-  const resetForm = () => {
-    setTitle("");
-    setDescription("");
-    setGithubUrl("");
-    setVideoFile(null);
-    setSelectedSkills([]);
-    setSkillSearchQuery("");
-    setErrors({});
-  };
-
-  const handleClose = () => {
-    resetForm();
-    onClose();
-  };
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!title.trim()) {
-      newErrors.title = "Project title is required";
+    if (isOpen) {
+      setDraft(project ? { title: project.title, description: project.description, techStack: project.techStack, githubUrl: project.githubUrl, liveUrl: project.liveUrl } : emptyDraft);
+      setSkillSearch("");
+      setError("");
     }
+  }, [isOpen, project]);
 
-    if (!description.trim()) {
-      newErrors.description = "Project description is required";
-    }
+  const addSkill = (skill: string) => setDraft((current) => current.techStack.includes(skill) ? current : { ...current, techStack: [...current.techStack, skill] });
+  const availableSkills = userSkills.filter((skill) => !draft.techStack.includes(skill) && skill.toLowerCase().includes(skillSearch.toLowerCase()));
 
-    if (!githubUrl.trim()) {
-      newErrors.githubUrl = "GitHub URL is required";
-    } else if (!isValidUrl(githubUrl)) {
-      newErrors.githubUrl = "Please enter a valid URL";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const isValidUrl = (url: string) => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!draft.title.trim() || !draft.description.trim()) {
+      setError("Add a clear title and a short description before saving.");
       return;
     }
-
-    setIsSubmitting(true);
-
+    setSaving(true);
+    setError("");
     try {
-      // Simulate video upload if file exists
-      let videoUrl = "";
-      if (videoFile) {
-        // In a real app, you would upload the video to a service like AWS S3 or similar
-        videoUrl = URL.createObjectURL(videoFile);
-      }
-
-      const newProject: Omit<Project, "id"> = {
-        title: title.trim(),
-        description: description.trim(),
-        techStack: selectedSkills,
-        image: "/placeholder.svg?height=400&width=600", // Default placeholder
-        tags: selectedSkills,
-        github: githubUrl.trim(),
-        githubUrl: githubUrl.trim(),
-        liveUrl: githubUrl.trim(), // Using GitHub URL as default live URL
-        videoUrl: videoUrl || undefined,
-        longDescription: description.trim(),
-      };
-
-      onAddProject(newProject);
-      handleClose();
-    } catch (error) {
-      console.error("Error adding project:", error);
+      await onSave({ ...draft, title: draft.title.trim(), description: draft.description.trim(), githubUrl: draft.githubUrl?.trim() || null, liveUrl: draft.liveUrl?.trim() || null });
+      onClose();
+    } catch {
+      setError("The project could not be saved. Please try again.");
     } finally {
-      setIsSubmitting(false);
+      setSaving(false);
     }
   };
 
-  const handleSkillSelect = (skill: string) => {
-    if (!selectedSkills.includes(skill)) {
-      setSelectedSkills([...selectedSkills, skill]);
-      setSkillSearchQuery("");
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    }
-  };
+  if (!mounted || !isOpen) return null;
+  const editing = Boolean(project);
 
-  const handleSkillRemove = (skillToRemove: string) => {
-    setSelectedSkills(
-      selectedSkills.filter((skill) => skill !== skillToRemove)
-    );
-  };
-
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (file.type.startsWith("video/")) {
-        setVideoFile(file);
-      } else {
-        alert("Please select a valid video file");
-      }
-    }
-  };
-
-  const removeVideo = () => {
-    setVideoFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  if (!mounted) return null;
-
-  const modalContent = (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <motion.div
-            {...{className:"fixed inset-0 bg-black/50 backdrop-blur-sm",
-            onClick:handleClose}}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          />
-          <motion.div
-            {...{className:"relative bg-gradient-to-b from-slate-900 to-slate-950 rounded-xl border border-slate-700/50 shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden"}}
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* Header */}
-            <div className="sticky top-0 bg-gradient-to-r from-slate-800/90 to-slate-700/90 backdrop-blur-sm border-b border-slate-700/50 p-6 z-10">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-zinc-900/20 rounded-lg shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
-                    <Plus className="h-5 w-5 text-zinc-400" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-slate-100">
-                    Add New Project
-                  </h2>
-                </div>
-                <button
-                  onClick={handleClose}
-                  className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700 text-slate-400 hover:text-slate-300 transition-colors border border-slate-700/50"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
-              <form onSubmit={handleSubmit} className="p-6 space-y-8">
-                {/* Project Title */}
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="title"
-                    className="text-slate-200 font-medium flex items-center gap-2"
-                  >
-                    <span className="inline-flex p-1 rounded bg-zinc-900/20 text-zinc-400 border border-zinc-800/30">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-                        <polyline points="14 2 14 8 20 8" />
-                      </svg>
-                    </span>
-                    Project Title <span className="text-zinc-400">*</span>
-                  </Label>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Enter your project title"
-                    className="bg-slate-800/50 border-slate-600/50 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-zinc-500/50 focus:border-zinc-500/50 transition-all"
-                  />
-                  {errors.title && (
-                    <p className="text-zinc-400 text-sm flex items-center gap-1">
-                      <X className="h-3 w-3" />
-                      {errors.title}
-                    </p>
-                  )}
-                </div>
-
-                {/* Project Description */}
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="description"
-                    className="text-slate-200 font-medium flex items-center gap-2"
-                  >
-                    <span className="inline-flex p-1 rounded bg-zinc-900/20 text-zinc-400 border border-zinc-800/30">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-                      </svg>
-                    </span>
-                    Project Description <span className="text-zinc-400">*</span>
-                  </Label>
-                  <Textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Describe your project, its features, and what makes it special..."
-                    rows={4}
-                    className="bg-slate-800/50 border-slate-600/50 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-zinc-500/50 focus:border-zinc-500/50 resize-none transition-all"
-                  />
-                  {errors.description && (
-                    <p className="text-zinc-400 text-sm flex items-center gap-1">
-                      <X className="h-3 w-3" />
-                      {errors.description}
-                    </p>
-                  )}
-                </div>
-
-                {/* Tech Stack */}
-                <div className="space-y-4">
-                  <Label className="text-slate-200 font-medium flex items-center gap-2">
-                    <span className="inline-flex p-1 rounded bg-zinc-900/20 text-zinc-400 border border-zinc-800/30">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="m18 16 4-4-4-4" />
-                        <path d="m6 8-4 4 4 4" />
-                        <path d="m14.5 4-5 16" />
-                      </svg>
-                    </span>
-                    Tech Stack
-                  </Label>
-
-                  {userSkills.length > 0 ? (
-                    <div className="space-y-4">
-                      {/* Selected Skills */}
-                      {selectedSkills.length > 0 && (
-                        <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-700/30">
-                          <p className="text-slate-300 text-sm mb-3 font-medium">
-                            Selected Technologies:
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {selectedSkills.map((skill) => (
-                              <motion.span
-                                key={skill}
-                                {...{className:"inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-zinc-600/20 to-zinc-500/20 text-zinc-300 rounded-full text-sm border border-zinc-500/30 shadow-sm"}}
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.8 }}
-                                whileHover={{ scale: 1.05 }}
-                              >
-                                <span className="w-1.5 h-1.5 bg-zinc-400 rounded-full"></span>
-                                {skill}
-                                <button
-                                  type="button"
-                                  onClick={() => handleSkillRemove(skill)}
-                                  className="ml-1 p-0.5 rounded-full hover:bg-zinc-500/20 text-zinc-400 hover:text-zinc-300 transition-colors"
-                                >
-                                  <X className="h-3 w-3" />
-                                </button>
-                              </motion.span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Search Input */}
-                      <div className="relative">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                          <input
-                            ref={inputRef}
-                            type="text"
-                            value={skillSearchQuery}
-                            onChange={(e) =>
-                              setSkillSearchQuery(e.target.value)
-                            }
-                            placeholder="Search your skills..."
-                            className="w-full pl-10 pr-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-lg text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-zinc-500/50 focus:border-zinc-500/50 transition-all"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Available Skills */}
-                      <div className="space-y-3">
-                        <p className="text-slate-300 text-sm font-medium">
-                          Available Skills:
-                        </p>
-                        <div className="max-h-40 overflow-y-auto p-3 bg-slate-800/20 rounded-lg border border-slate-700/30">
-                          {skillSearchQuery === "" ? (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                              {userSkills
-                                .filter(
-                                  (skill) => !selectedSkills.includes(skill)
-                                )
-                                .map((skill) => (
-                                  <button
-                                    key={skill}
-                                    type="button"
-                                    onClick={() => handleSkillSelect(skill)}
-                                    className="text-left px-3 py-2 text-slate-300 hover:text-slate-100 bg-slate-700/30 hover:bg-slate-600/50 rounded-md transition-all text-sm border border-slate-600/30 hover:border-slate-500/50"
-                                  >
-                                    {skill}
-                                  </button>
-                                ))}
-                            </div>
-                          ) : (
-                            <div className="space-y-1">
-                              {filteredSkills.length > 0 ? (
-                                filteredSkills.map((skill) => (
-                                  <button
-                                    key={skill}
-                                    type="button"
-                                    onClick={() => handleSkillSelect(skill)}
-                                    className="w-full text-left px-3 py-2 text-slate-300 hover:text-slate-100 hover:bg-slate-600/50 rounded-md transition-colors"
-                                  >
-                                    {skill}
-                                  </button>
-                                ))
-                              ) : (
-                                <p className="text-slate-400 text-sm italic px-3 py-2">
-                                  {`No skills found matching "${skillSearchQuery}"`}
-                                </p>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-6 bg-slate-800/20 border border-slate-700/30 rounded-lg text-center">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="p-3 bg-zinc-900/20 rounded-full">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="text-zinc-400"
-                          >
-                            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-                            <path d="M12 9v4" />
-                            <path d="m12 17 .01 0" />
-                          </svg>
-                        </div>
-                        <div>
-                          <p className="text-slate-300 font-medium mb-1">
-                            No Skills Available
-                          </p>
-                          <p className="text-slate-400 text-sm">
-                            Add skills to your profile first to select tech
-                            stack for projects.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Video Upload (Optional) */}
-                <div className="space-y-3">
-                  <Label className="text-slate-200 font-medium flex items-center gap-2">
-                    <span className="inline-flex p-1 rounded bg-zinc-900/20 text-zinc-400 border border-zinc-800/30">
-                      <Upload className="h-3 w-3" />
-                    </span>
-                    Project Demo Video (Optional)
-                  </Label>
-                  <div className="space-y-3">
-                    {!videoFile ? (
-                      <div
-                        onClick={() => fileInputRef.current?.click()}
-                        className="border-2 border-dashed border-slate-600/50 rounded-lg p-8 text-center cursor-pointer hover:border-slate-500/50 transition-colors bg-slate-800/20"
-                      >
-                        <div className="flex flex-col items-center gap-3">
-                          <div className="p-3 bg-zinc-900/20 rounded-full">
-                            <Upload className="h-6 w-6 text-zinc-400" />
-                          </div>
-                          <div>
-                            <p className="text-slate-300 font-medium">
-                              Upload Demo Video
-                            </p>
-                            <p className="text-slate-400 text-sm mt-1">
-                              Click to browse or drag and drop
-                            </p>
-                            <p className="text-slate-500 text-xs mt-1">
-                              Supports MP4, WebM, AVI formats
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="bg-slate-800/30 border border-slate-600/50 rounded-lg p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-zinc-900/20 rounded-lg">
-                              <Upload className="h-4 w-4 text-zinc-400" />
-                            </div>
-                            <div>
-                              <p className="text-slate-100 text-sm font-medium">
-                                {videoFile.name}
-                              </p>
-                              <p className="text-slate-400 text-xs">
-                                {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={removeVideo}
-                            className="p-1 rounded-full hover:bg-zinc-500/20 text-zinc-400 hover:text-zinc-300 transition-colors"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="video/*"
-                      onChange={handleVideoUpload}
-                      className="hidden"
-                    />
-                  </div>
-                </div>
-
-                {/* GitHub URL */}
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="githubUrl"
-                    className="text-slate-200 font-medium flex items-center gap-2"
-                  >
-                    <span className="inline-flex p-1 rounded bg-slate-700/50 text-slate-300 border border-slate-600/30">
-                      <Github className="h-3 w-3" />
-                    </span>
-                    GitHub Repository URL{" "}
-                    <span className="text-zinc-400">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Github className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                    <Input
-                      id="githubUrl"
-                      value={githubUrl}
-                      onChange={(e) => setGithubUrl(e.target.value)}
-                      placeholder="https://github.com/username/repository"
-                      className="pl-10 bg-slate-800/50 border-slate-600/50 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-zinc-500/50 focus:border-zinc-500/50 transition-all"
-                    />
-                  </div>
-                  {errors.githubUrl && (
-                    <p className="text-zinc-400 text-sm flex items-center gap-1">
-                      <X className="h-3 w-3" />
-                      {errors.githubUrl}
-                    </p>
-                  )}
-                </div>
-
-                {/* Submit Buttons */}
-                <div className="flex gap-3 pt-6 border-t border-slate-700/30">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleClose}
-                    className="flex-1 border-slate-600/50 text-slate-300 hover:bg-slate-700/50 hover:text-slate-100 transition-all"
-                    disabled={isSubmitting}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="flex-1 bg-gradient-to-r from-zinc-600 to-zinc-500 hover:from-zinc-700 hover:to-zinc-600 text-white shadow-lg shadow-zinc-500/25 transition-all"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <div className="flex items-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Adding Project...
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Plus className="h-4 w-4" />
-                        Add Project
-                      </div>
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </motion.div>
+  return createPortal(
+    <div className="fixed inset-0 z-[100] grid place-items-center p-4" role="dialog" aria-modal="true" aria-label={editing ? "Edit project" : "Add project"}>
+      <button className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} aria-label="Close project editor" />
+      <form onSubmit={submit} className="relative max-h-[calc(100vh-2rem)] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/10 bg-zinc-900 p-5 shadow-2xl sm:p-7">
+        <button type="button" onClick={onClose} className="absolute right-4 top-4 rounded-lg p-2 text-zinc-400 transition hover:bg-white/10 hover:text-white"><X className="h-5 w-5" /></button>
+        <div className="pr-10">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-zinc-500">Portfolio project</p>
+          <h2 className="mt-2 text-2xl font-semibold text-white">{editing ? "Refine this project" : "Add a project"}</h2>
+          <p className="mt-2 text-sm leading-6 text-zinc-400">Keep it focused: the problem, the work, and the links that let people explore it.</p>
         </div>
-      )}
-    </AnimatePresence>
+        <div className="mt-7 space-y-5">
+          <label className="block text-sm font-medium text-zinc-200">Project title<span className="ml-1 text-zinc-500">*</span><input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} placeholder="e.g. Customer insights dashboard" className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-white/35 focus:ring-2 focus:ring-white/10" /></label>
+          <label className="block text-sm font-medium text-zinc-200">What did you make?<span className="ml-1 text-zinc-500">*</span><textarea value={draft.description} onChange={(e) => setDraft({ ...draft, description: e.target.value })} placeholder="Describe the outcome, your contribution, and why it mattered." rows={4} className="mt-2 w-full resize-y rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-white/35 focus:ring-2 focus:ring-white/10" /></label>
+          <div><p className="text-sm font-medium text-zinc-200">Tools and skills <span className="font-normal text-zinc-500">(optional)</span></p><div className="mt-2 flex min-h-12 flex-wrap gap-2 rounded-xl border border-white/10 bg-black/20 p-2">{draft.techStack.map((skill) => <button key={skill} type="button" onClick={() => setDraft({ ...draft, techStack: draft.techStack.filter((item) => item !== skill) })} className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.08] px-3 py-1 text-sm text-zinc-200 transition hover:bg-white/[0.14]"><Check className="h-3.5 w-3.5" />{skill}<X className="h-3.5 w-3.5" /></button>)}{draft.techStack.length === 0 && <span className="px-2 py-1 text-sm text-zinc-600">Select the skills used in this work.</span>}</div>{userSkills.length > 0 && <><input value={skillSearch} onChange={(e) => setSkillSearch(e.target.value)} placeholder="Filter your skills" className="mt-3 w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-white/30" /><div className="mt-2 flex flex-wrap gap-2">{availableSkills.slice(0, 12).map((skill) => <button type="button" key={skill} onClick={() => addSkill(skill)} className="rounded-full border border-white/10 px-3 py-1 text-sm text-zinc-400 transition hover:border-white/30 hover:bg-white/[0.06] hover:text-white"><Plus className="mr-1 inline h-3 w-3" />{skill}</button>)}</div></>}</div>
+          <div className="grid gap-4 sm:grid-cols-2"><label className="block text-sm font-medium text-zinc-200"><span className="inline-flex items-center gap-1"><Github className="h-4 w-4" />Repository</span><input type="url" value={draft.githubUrl || ""} onChange={(e) => setDraft({ ...draft, githubUrl: e.target.value })} placeholder="https://github.com/..." className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none placeholder:text-zinc-600 focus:border-white/35" /></label><label className="block text-sm font-medium text-zinc-200"><span className="inline-flex items-center gap-1"><ExternalLink className="h-4 w-4" />Live site</span><input type="url" value={draft.liveUrl || ""} onChange={(e) => setDraft({ ...draft, liveUrl: e.target.value })} placeholder="https://..." className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none placeholder:text-zinc-600 focus:border-white/35" /></label></div>
+        </div>
+        {error && <p className="mt-4 rounded-lg border border-red-400/20 bg-red-400/10 px-3 py-2 text-sm text-red-200">{error}</p>}
+        <div className="mt-7 flex justify-end gap-3 border-t border-white/10 pt-5"><button type="button" onClick={onClose} className="rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.07] hover:text-white">Cancel</button><button disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-zinc-950 transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50">{editing ? <Save className="h-4 w-4" /> : <Plus className="h-4 w-4" />}{saving ? "Saving…" : editing ? "Save changes" : "Add project"}</button></div>
+      </form>
+    </div>, document.body
   );
-
-  return mounted ? createPortal(modalContent, document.body) : null;
 }

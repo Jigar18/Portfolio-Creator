@@ -11,7 +11,7 @@ interface AddProjectCardProps {
 export default function AddProjectCard({ onAddProject }: AddProjectCardProps) {
   return (
     <motion.div
-      {...{className: "bg-slate-700/20 rounded-lg border-2 border-dashed border-slate-600 hover:border-slate-500 shadow-md cursor-pointer transition-colors duration-300 flex items-center justify-center min-h-[320px]",
+      {...{className: "bg-white/[0.025] rounded-2xl border-2 border-dashed border-white/15 hover:border-white/30 shadow-md cursor-pointer transition-colors duration-300 flex items-center justify-center min-h-[280px]",
       onClick: onAddProject}}
       whileHover={{ y: -5, borderColor: "#a1a1aa" }}
       transition={{ duration: 0.3 }}

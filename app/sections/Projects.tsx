@@ -1,238 +1,76 @@
 "use client";
 
-import type React from "react";
-
 import { motion, useInView } from "framer-motion";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Code2, FolderPlus } from "lucide-react";
 import ProjectCard from "../components/ProjectCard";
 import AddProjectCard from "../components/AddProjectCard";
 import DeleteProjectModal from "../components/DeleteProjectModal";
-import AddProjectModal from "../components/AddProjectModal";
+import AddProjectModal, { PortfolioProject } from "../components/AddProjectModal";
 
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
-  techStack: string[];
-  tags: string[];
-  github: string;
+type ModalProject = Omit<PortfolioProject, "githubUrl" | "liveUrl"> & {
   githubUrl: string;
   liveUrl: string;
+  image: string;
+  tags: string[];
+  github: string;
   videoUrl?: string;
   longDescription?: string;
-}
+};
 
 interface ProjectsProps {
-  onOpenProject?: (project: Project, projects: Project[]) => void;
+  onOpenProject?: (project: ModalProject, projects: ModalProject[]) => void;
 }
+
+const toModalProject = (project: PortfolioProject): ModalProject => ({ ...project, githubUrl: project.githubUrl || "", liveUrl: project.liveUrl || "", image: "", tags: project.techStack, github: project.githubUrl || "", longDescription: project.description });
 
 export default function Projects({ onOpenProject }: ProjectsProps) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const isInView = useInView(ref as React.RefObject<HTMLElement>, {
-    once: true,
-    margin: "-100px",
-  });
+  const isInView = useInView(ref as React.RefObject<HTMLElement>, { once: true, margin: "-100px" });
+  const [projects, setProjects] = useState<PortfolioProject[]>([]);
+  const [skills, setSkills] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<PortfolioProject | null>(null);
+  const [projectToDelete, setProjectToDelete] = useState<PortfolioProject | null>(null);
 
-  const [projectList, setProjectList] = useState([
-    {
-      id: "project1",
-      title: "Portfolio Builder",
-      description:
-        "A web application that allows users to create and customize their portfolio websites with ease.",
-      image: "",
-      tags: ["React", "Next.js", "Tailwind CSS"],
-      github: "https://github.com/username/portfolio-builder",
-      githubUrl: "https://github.com/username/portfolio-builder",
-      liveUrl: "https://portfolio-builder.example.com",
-      videoUrl: "https://www.example.com/videos/portfolio-builder.mp4",
-      longDescription:
-        "This project is a comprehensive portfolio builder that allows users to create professional portfolios without any coding knowledge. It features a drag-and-drop interface, customizable templates, and integration with various platforms to showcase projects and skills. The application is built with React and Next.js for the frontend, with a Node.js backend and MongoDB database.",
-    },
-    {
-      id: "project2",
-      title: "Task Manager",
-      description:
-        "A task management application with features like task categorization, due dates, and notifications.",
-      image: "/placeholder.svg?height=400&width=600",
-      tags: ["Vue.js", "Express", "MongoDB"],
-      github: "https://github.com/username/task-manager",
-      githubUrl: "https://github.com/username/task-manager",
-      liveUrl: "https://task-manager.example.com",
-      videoUrl: "https://www.example.com/videos/task-manager.mp4",
-      longDescription:
-        "The Task Manager is a comprehensive productivity tool designed to help users organize their work efficiently. It includes features such as task categorization, priority levels, due date reminders, and real-time notifications. The application uses Vue.js for the frontend, Express for the backend API, and MongoDB for data storage. It also implements user authentication and data synchronization across devices.",
-    },
-    {
-      id: "project3",
-      title: "E-commerce Platform",
-      description:
-        "A full-featured e-commerce platform with product listings, cart functionality, and payment processing.",
-      image: "/placeholder.svg?height=400&width=600",
-      tags: ["React", "Node.js", "Stripe", "PostgreSQL"],
-      github: "https://github.com/username/ecommerce-platform",
-      githubUrl: "https://github.com/username/ecommerce-platform",
-      liveUrl: "https://ecommerce.example.com",
-      videoUrl: "https://www.example.com/videos/ecommerce.mp4",
-      longDescription:
-        "This e-commerce platform provides a complete solution for online stores. It includes product catalog management, user accounts, shopping cart functionality, secure checkout with Stripe integration, and order tracking. The platform is built with React for the frontend, Node.js for the backend, and PostgreSQL for the database. It also features an admin dashboard for store owners to manage products, orders, and customer data.",
-    },
-    {
-      id: "project4",
-      title: "Weather App",
-      description:
-        "A weather application that provides current conditions and forecasts for locations worldwide.",
-      image: "/placeholder.svg?height=400&width=600",
-      tags: ["JavaScript", "OpenWeather API", "CSS"],
-      github: "https://github.com/username/weather-app",
-      githubUrl: "https://github.com/username/weather-app",
-      liveUrl: "https://weather.example.com",
-      videoUrl: "https://www.example.com/videos/weather-app.mp4",
-      longDescription:
-        "The Weather App provides users with accurate weather information for any location around the world. It displays current conditions, hourly forecasts, and 7-day predictions. The application uses the OpenWeather API for data retrieval and features a responsive design that works well on both desktop and mobile devices. Users can save favorite locations and receive weather alerts for severe conditions.",
-    },
-  ] as Project[]);
+  const loadProjects = useCallback(async () => {
+    try {
+      const [projectResponse, skillResponse] = await Promise.all([fetch("/api/projects", { credentials: "include" }), fetch("/api/getUserSkills", { credentials: "include" })]);
+      if (projectResponse.ok) {
+        const data = await projectResponse.json();
+        setProjects(data.projects || []);
+      }
+      if (skillResponse.ok) {
+        const data = await skillResponse.json();
+        setSkills(data.skills || []);
+      }
+    } finally { setLoading(false); }
+  }, []);
 
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
-  const [addModalOpen, setAddModalOpen] = useState(false);
+  useEffect(() => { loadProjects(); }, [loadProjects]);
 
-  // Mock user skills - in a real app, this would come from user's profile
-  const userSkills = [
-    "JavaScript",
-    "TypeScript",
-    "React",
-    "Next.js",
-    "Node.js",
-    "Tailwind CSS",
-    "GraphQL",
-    "MongoDB",
-    "PostgreSQL",
-    "Git",
-    "Docker",
-    "AWS",
-    "Redux",
-    "Express",
-    "Python",
-    "Java",
-    "C++",
-    "HTML/CSS",
-    "REST API",
-    "CI/CD",
-  ];
-
-  const handleOpenProject = (project: Project) => {
-    if (onOpenProject) {
-      onOpenProject(project, projectList);
-    }
+  const saveProject = async (draft: Omit<PortfolioProject, "id">) => {
+    const response = await fetch("/api/projects", { method: editingProject ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(editingProject ? { ...draft, id: editingProject.id } : draft) });
+    if (!response.ok) throw new Error("Unable to save project");
+    const data = await response.json();
+    setProjects((current) => editingProject ? current.map((project) => project.id === editingProject.id ? data.project : project) : [data.project, ...current]);
   };
 
-  const handleDeleteProject = (project: Project) => {
-    setProjectToDelete(project);
-    setDeleteModalOpen(true);
+  const deleteProject = async () => {
+    if (!projectToDelete) return;
+    const response = await fetch(`/api/projects?id=${projectToDelete.id}`, { method: "DELETE", credentials: "include" });
+    if (response.ok) setProjects((current) => current.filter((project) => project.id !== projectToDelete.id));
+    setProjectToDelete(null);
   };
 
-  const confirmDelete = () => {
-    if (projectToDelete) {
-      setProjectList((prev) => prev.filter((p) => p.id !== projectToDelete.id));
-      setDeleteModalOpen(false);
-      setProjectToDelete(null);
-    }
-  };
+  const openEditor = (project: PortfolioProject | null = null) => { setEditingProject(project); setEditorOpen(true); };
+  const modalProjects = projects.map(toModalProject);
 
-  const handleAddProject = () => {
-    setAddModalOpen(true);
-  };
-
-  const addProject = (projectData: Omit<Project, "id">) => {
-    const newProject: Project = {
-      ...projectData,
-      id: `project${Date.now()}`, // Generate unique ID
-    };
-    setProjectList((prev) => [...prev, newProject]);
-  };
-
-  const canAddMore = projectList.length < 4;
-
-  return (
-    <motion.div
-      ref={ref}
-      {...{className:"w-full"}}
-      initial={{ opacity: 0 }}
-      animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <motion.div
-        {...{className:"border-t border-white/10 pt-7"}}
-        whileHover={{ y: -2 }}
-        initial={{ y: 50, opacity: 0 }}
-        animate={isInView ? { y: 0, opacity: 1 } : { y: 50, opacity: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <h2 className="mb-8 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.22em] text-zinc-400">
-          <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-code-2"
-            >
-              <path d="m18 16 4-4-4-4" />
-              <path d="m6 8-4 4 4 4" />
-              <path d="m14.5 4-5 16" />
-            </svg>
-          </span>
-          Projects
-        </h2>
-
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          {projectList.map((project, index) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              index={index}
-              onOpenProject={handleOpenProject}
-              onDeleteProject={handleDeleteProject}
-            />
-          ))}
-          {canAddMore && (
-            <AddProjectCard
-              index={projectList.length}
-              onAddProject={handleAddProject}
-            />
-          )}
-        </div>
-
-        {!canAddMore && (
-          <div className="mt-4 text-center">
-            <p className="text-slate-400 text-sm italic">
-              Maximum 4 projects allowed in your portfolio.
-            </p>
-          </div>
-        )}
-      </motion.div>
-
-      {/* Delete confirmation modal */}
-      <DeleteProjectModal
-        isOpen={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        onConfirm={confirmDelete}
-        project={projectToDelete}
-      />
-
-      {/* Add project modal */}
-      <AddProjectModal
-        isOpen={addModalOpen}
-        onClose={() => setAddModalOpen(false)}
-        onAddProject={addProject}
-        userSkills={userSkills}
-      />
-    </motion.div>
-  );
+  return <motion.div ref={ref} {...{ className: "w-full border-t border-white/10 pt-7" }} initial={{ opacity: 0, y: 24 }} animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }} transition={{ duration: 0.55 }}>
+    <div className="mb-7 flex flex-wrap items-end justify-between gap-4"><div><p className="flex items-center gap-3 text-xs font-medium uppercase tracking-[0.22em] text-zinc-400"><span className="inline-flex rounded-lg border border-white/10 bg-white/[0.04] p-2"><Code2 className="h-4 w-4" /></span>Selected work</p><p className="mt-3 max-w-xl text-sm leading-6 text-zinc-500">Add the projects you want to be known for. You can return to refine every detail at any time.</p></div>{projects.length > 0 && <button onClick={() => openEditor()} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-4 py-2.5 text-sm font-medium text-zinc-200 transition hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/[0.06]"><FolderPlus className="h-4 w-4" />Add project</button>}</div>
+    {loading ? <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{[1, 2, 3].map((item) => <div key={item} className="h-72 animate-pulse rounded-2xl border border-white/10 bg-white/[0.035]" />)}</div> : projects.length === 0 ? <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} {...{ className: "grid min-h-64 place-items-center rounded-2xl border border-dashed border-white/15 bg-white/[0.025] p-8 text-center" }}><div><span className="mx-auto grid h-12 w-12 place-items-center rounded-xl border border-white/10 bg-white/[0.06]"><FolderPlus className="h-5 w-5 text-zinc-300" /></span><h3 className="mt-5 text-lg font-medium text-white">Your work belongs here.</h3><p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-400">Start with the project that best represents your craft. Nothing is published until you add it.</p><button onClick={() => openEditor()} className="mt-5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-zinc-950 transition hover:-translate-y-0.5 hover:bg-zinc-200">Add your first project</button></div></motion.div> : <div className="grid gap-5 sm:grid-cols-2 2xl:grid-cols-3">{projects.map((project, index) => <ProjectCard key={project.id} project={toModalProject(project)} index={index} onOpenProject={(selected) => onOpenProject?.(selected, modalProjects)} onEditProject={() => openEditor(project)} onDeleteProject={() => setProjectToDelete(project)} />)}</div>}
+    <DeleteProjectModal isOpen={Boolean(projectToDelete)} onClose={() => setProjectToDelete(null)} onConfirm={deleteProject} project={projectToDelete ? toModalProject(projectToDelete) : null} />
+    <AddProjectModal isOpen={editorOpen} onClose={() => { setEditorOpen(false); setEditingProject(null); }} onSave={saveProject} userSkills={skills} project={editingProject} />
+  </motion.div>;
 }

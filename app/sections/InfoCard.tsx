@@ -20,7 +20,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Image from "next/image";
 import ProfileImageModal from "../components/ProfileImageModal";
 import { useUser } from "../context/UserContext";
 
@@ -41,7 +40,6 @@ function InfoCard() {
     college: "",
   });
 
-  const [tempImageFile, setTempImageFile] = useState<File | null>(null);
   const [tempImagePreview, setTempImagePreview] = useState<string>("");
 
   // Validate form fields
@@ -93,14 +91,14 @@ function InfoCard() {
       jobTitle: "",
       college: "",
     });
-    setTempImageFile(null);
     setTempImagePreview("");
     setIsEditModalOpen(false);
   };
 
-  const handleImageChange = (newImageUrl: string) => {
-    // Update the preview for the current editing session
+  const handleImageChange = async (newImageUrl: string) => {
     setTempImagePreview(newImageUrl);
+    updateUserDetails({ imageUrl: newImageUrl });
+    await refreshUserDetails();
     setIsModalOpen(false);
   };
 
@@ -112,24 +110,6 @@ function InfoCard() {
 
     try {
       setSaving(true);
-
-      // Upload new profile image if selected
-      let newImageUrl = userDetails?.imageUrl || "";
-      if (tempImageFile) {
-        const formData = new FormData();
-        formData.append("image", tempImageFile);
-
-        const imageResponse = await fetch("/api/uploadProfilePicture", {
-          method: "POST",
-          body: formData,
-          credentials: "include",
-        });
-
-        if (imageResponse.ok) {
-          const imageData = await imageResponse.json();
-          newImageUrl = imageData.imageUrl;
-        }
-      }
 
       // Update user details
       const response = await fetch("/api/updateUserDetails", {
@@ -149,7 +129,7 @@ function InfoCard() {
         // Update the global state with the new details
         updateUserDetails({
           ...tempDetails,
-          imageUrl: newImageUrl,
+          imageUrl: tempImagePreview || userDetails?.imageUrl || "",
         });
 
         handleCloseModal();
@@ -243,15 +223,13 @@ function InfoCard() {
                     </Label>
                     <div className="flex items-center gap-4">
                       <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-600">
-                        <Image
+                        <img
                           src={
                             tempImagePreview ||
                             userDetails?.imageUrl ||
                             "/placeholder.png"
                           }
                           alt="Profile Preview"
-                          width={64}
-                          height={64}
                           className="object-cover w-full h-full"
                         />
                       </div>

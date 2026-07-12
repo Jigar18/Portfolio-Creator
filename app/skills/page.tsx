@@ -58,9 +58,12 @@ export default function SkillsPage() {
     fetchSkills();
   }, [skillInput, selectedSkills]);
 
+  const formatSkill = (skill: string) => skill ? skill.charAt(0).toUpperCase() + skill.slice(1) : skill;
+
   const handleSkillSelect = (skill: string) => {
-    if (!selectedSkills.includes(skill)) {
-      setSelectedSkills([...selectedSkills, skill]);
+    const formattedSkill = formatSkill(skill);
+    if (!selectedSkills.includes(formattedSkill)) {
+      setSelectedSkills([...selectedSkills, formattedSkill]);
       setSkillInput("");
       setSuggestions([]);
       if (inputRef.current) {
@@ -74,8 +77,9 @@ export default function SkillsPage() {
   };
 
   const handleAddCustomSkill = () => {
-    if (skillInput.trim() && !selectedSkills.includes(skillInput.trim())) {
-      setSelectedSkills([...selectedSkills, skillInput.trim()]);
+    const formattedSkill = formatSkill(skillInput.trim());
+    if (formattedSkill && !selectedSkills.includes(formattedSkill)) {
+      setSelectedSkills([...selectedSkills, formattedSkill]);
       setSkillInput("");
       setSuggestions([]);
     }

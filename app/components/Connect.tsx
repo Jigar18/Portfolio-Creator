@@ -84,19 +84,7 @@ export default function Connect() {
       }
     } catch (error) {
       console.error("Error fetching social links:", error);
-      // Set default links if fetch fails
-      setSocialLinks([
-        {
-          name: "GitHub",
-          icon: getIconForPlatform("github"),
-          url: "https://github.com/jigar",
-        },
-        {
-          name: "LinkedIn",
-          icon: getIconForPlatform("linkedin"),
-          url: "https://linkedin.com/in/jigar",
-        },
-      ]);
+      setSocialLinks([]);
     }
   }, []);
 
@@ -406,6 +394,9 @@ export default function Connect() {
                 {link.icon}
               </button>
             ))}
+            {socialLinks.length === 0 && (
+              <p className="py-2 text-sm text-slate-500">Add links so people can find your work.</p>
+            )}
           </div>
         </motion.div>
       </div>
