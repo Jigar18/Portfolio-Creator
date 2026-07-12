@@ -3,6 +3,10 @@ import axios from "axios";
 import { SignJWT } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import {
+  GitHubInstallationData,
+  persistGitHubInstallation,
+} from "@/lib/githubInstallation";
 import { getSession, SESSION_COOKIE } from "@/lib/session";
 
 function statesMatch(expected: string | undefined, actual: string | null) {
@@ -23,15 +27,50 @@ export async function GET(req: NextRequest) {
   const state = req.nextUrl.searchParams.get("state");
   const oauthError = req.nextUrl.searchParams.get("error");
   const installationId = req.nextUrl.searchParams.get("installation_id");
+  const setupAction = req.nextUrl.searchParams.get("setup_action");
 
-  // GitHub App setup redirects do not carry an OAuth code. They are only a
-  // navigation hint; the signed webhook is the source of truth for persistence.
-  if (!code && installationId) {
+  // GitHub App setup callbacks may include a setup `code`, but they do not
+  // include the OAuth state cookie. Authenticate with our existing session and
+  // verify the exact installation through GitHub before linking it.
+  if (installationId) {
     const session = await getSession(req);
     if (!session) return NextResponse.json({ error: "Sign in before installing the GitHub App" }, { status: 401 });
-    const installation = await db.gitHubInstallation.findFirst({ where: { id: installationId, deletedAt: null } });
-    if (!installation) return NextResponse.json({ error: "Waiting for GitHub to confirm the installation" }, { status: 409 });
-    return NextResponse.redirect(new URL("/app-installed", req.url));
+    if (setupAction && !["install", "update"].includes(setupAction)) {
+      return NextResponse.json({ error: "Invalid GitHub App setup action" }, { status: 400 });
+    }
+
+    const user = await db.user.findUnique({
+      where: { id: session.userId },
+      select: { accessToken: true },
+    });
+    if (!user?.accessToken) {
+      return NextResponse.json({ error: "GitHub OAuth token is missing" }, { status: 401 });
+    }
+
+    try {
+      const installationResponse = await axios.get<GitHubInstallationData>(
+        `https://api.github.com/user/installations/${encodeURIComponent(installationId)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`,
+            Accept: "application/vnd.github+json",
+          },
+          timeout: 10_000,
+        }
+      );
+      if (String(installationResponse.data.id) !== installationId) {
+        return NextResponse.json({ error: "GitHub returned the wrong installation" }, { status: 502 });
+      }
+
+      await persistGitHubInstallation(session.userId, installationResponse.data);
+      const response = NextResponse.redirect(new URL("/app-installed", req.url));
+      clearOAuthCookies(response);
+      return response;
+    } catch (error) {
+      const status = axios.isAxiosError(error) && error.response?.status === 404 ? 403 : 502;
+      console.error("GitHub installation callback failed", error);
+      return NextResponse.json({ error: "Unable to verify the GitHub App installation" }, { status });
+    }
   }
 
   if (oauthError) {

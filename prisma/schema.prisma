@@ -4,7 +4,6 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -16,107 +15,107 @@ datasource db {
 }
 
 model User {
-  id             String    @id @default(uuid())
-  githubId       String    @unique
-  username       String    @unique
-  installationId String?   @unique
-  accessToken    String?
+  id                         String              @id @default(uuid())
+  githubId                   String              @unique
+  username                   String              @unique
+  installationId             String?             @unique
+  accessToken                String?
   githubAccessTokenUpdatedAt DateTime?
-  createdAt      DateTime  @default(now())  
-  updatedAt      DateTime  @updatedAt
-  skills         Skill[]
-  experiences    Experience[]
-  details        Details?
-  socialLinks    SocialLink[]
-  certifications Certifications[]
-  education      Education[]
+  createdAt                  DateTime            @default(now())
+  updatedAt                  DateTime            @updatedAt
+  skills                     Skill[]
+  experiences                Experience[]
+  details                    Details?
+  socialLinks                SocialLink[]
+  certifications             Certifications[]
+  education                  Education[]
+  githubInstallation         GitHubInstallation? @relation(fields: [installationId], references: [id], onDelete: SetNull)
 }
 
 model Details {
-  id             String  @id @default(uuid())
-  firstName      String
-  lastName       String
-  email          String
-  location       String
-  jobTitle       String
-  college        String
-  startYear      Int
-  endYear        Int
-  about          String?
-  user           User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         String @unique
-  imageUrl       String?
+  id        String  @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String
+  location  String
+  jobTitle  String
+  college   String
+  startYear Int
+  endYear   Int
+  about     String?
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String  @unique
+  imageUrl  String?
 }
 
-
 model Skill {
-  id        String   @id @default(uuid())
-  skills      String[]
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
+  id     String   @id @default(uuid())
+  skills String[]
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 }
 
 model Experience {
-  id          String   @id @default(uuid())
-  company     String
-  position    String
-  startMonth  String
-  startYear   String
-  endMonth    String?
-  endYear     String?
-  isCurrentRole Boolean @default(false)
+  id            String   @id @default(uuid())
+  company       String
+  position      String
+  startMonth    String
+  startYear     String
+  endMonth      String?
+  endYear       String?
+  isCurrentRole Boolean  @default(false)
   contributions String[]
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model SocialLink {
+  id         String   @id @default(uuid())
+  email      String?
+  twitter    String?
+  linkedin   String?
+  instagram  String?
+  github     String?
+  medium     String?
+  blog       String?
+  leetcode   String?
+  youtube    String?
+  portfolio  String?
+  hackerrank String?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Certifications {
+  id          String @id @default(uuid())
+  title       String
+  description String
+  pdfUrl      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+}
+
+model Education {
+  id          String   @id @default(uuid())
+  school      String
+  degree      String
+  field       String
+  startYear   Int
+  endYear     Int?
+  isCurrently Boolean  @default(false)
+  description String?
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-model SocialLink {
-  id        String   @id @default(uuid())
-  email     String?
-  twitter   String?
-  linkedin  String?
-  instagram String?
-  github    String?
-  medium    String?
-  blog      String?
-  leetcode  String?
-  youtube   String?
-  portfolio String?
-  hackerrank String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Certifications {
-  id             String    @id @default(uuid())
-  title          String
-  description    String
-  pdfUrl         String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
-}
-
-model Education {
-  id           String   @id @default(uuid())
-  school       String
-  degree       String
-  field        String
-  startYear    Int
-  endYear      Int?
-  isCurrently  Boolean  @default(false)
-  description  String?
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-}
-
 model GitHubInstallation {
-  id             String   @id
+  id             String    @id
   accountId      String
   accountLogin   String
   accountType    String
@@ -127,8 +126,9 @@ model GitHubInstallation {
   events         String[]
   suspendedAt    DateTime?
   deletedAt      DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user           User?
 
   @@index([accountId])
   @@index([senderGithubId])
