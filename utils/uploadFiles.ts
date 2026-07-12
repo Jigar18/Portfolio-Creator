@@ -13,15 +13,19 @@ function getSupabase() {
 export async function uploadFile(
   fileBuffer: Buffer,
   fileName: string,
-  userId: String
+  userId: string,
+  contentType = "image/jpeg"
 ) {
   const supabase = getSupabase();
   const filePath = `user-image/${userId}-${Date.now()}-${fileName}`;
   const { data, error } = await supabase.storage
     .from("profile-picture")
-    .upload(filePath, fileBuffer);
+    .upload(filePath, fileBuffer, {
+      contentType,
+      upsert: false,
+    });
   if (error) {
-    throw error;
+    throw new Error(`Supabase profile image upload failed: ${error.message}`);
   }
 
   return supabase.storage.from("profile-picture").getPublicUrl(filePath).data

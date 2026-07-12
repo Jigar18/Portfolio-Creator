@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
-type OnetResponse = {
-  occupation?: Array<{ code: string; title: string }>;
+type EscoResponse = {
+  _embedded?: {
+    results?: Array<{ uri: string; title: string }>;
+  };
 };
 
 export async function GET(req: NextRequest) {
@@ -10,28 +12,30 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ titles: [] });
   }
 
-  const apiKey = process.env.ONET_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "Job-title search is not configured", titles: [] }, { status: 503 });
-  }
-
   try {
-    const url = new URL("https://api-v2.onetcenter.org/online/search");
-    url.searchParams.set("keyword", query);
-    url.searchParams.set("end", "8");
-    const authorization = `Basic ${Buffer.from(`${apiKey}:`).toString("base64")}`;
+    const url = new URL("https://ec.europa.eu/esco/api/search");
+    url.searchParams.set("text", query);
+    url.searchParams.set("type", "occupation");
+    url.searchParams.set("language", "en");
+    url.searchParams.set("limit", "8");
+    url.searchParams.set("offset", "0");
+    url.searchParams.set("selectedVersion", "v1.2.1");
     const response = await fetch(url, {
-      headers: { Authorization: authorization, Accept: "application/json" },
+      headers: { Accept: "application/json" },
       next: { revalidate: 86_400 },
     });
-    if (!response.ok) throw new Error(`O*NET lookup failed with ${response.status}`);
+    if (!response.ok) throw new Error(`ESCO lookup failed with ${response.status}`);
 
-    const body = (await response.json()) as OnetResponse;
+    const body = (await response.json()) as EscoResponse;
     return NextResponse.json({
-      titles: (body.occupation ?? []).map(({ code, title }) => ({ code, title })),
-      attribution: "O*NET Web Services",
+      titles: (body._embedded?.results ?? []).map(({ uri, title }) => ({
+        code: uri,
+        title,
+      })),
+      attribution: "ESCO — European Commission",
     });
-  } catch {
+  } catch (error) {
+    console.error("Job-title search failed:", error);
     return NextResponse.json({ error: "Unable to search job titles", titles: [] }, { status: 502 });
   }
 }

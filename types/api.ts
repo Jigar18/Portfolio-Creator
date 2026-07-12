@@ -33,6 +33,7 @@ export interface Skill {
 export interface UploadResponse {
   success: boolean;
   imageUrl?: string;
+  username?: string;
   error?: string;
 }
 

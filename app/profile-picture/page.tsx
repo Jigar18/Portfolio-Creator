@@ -195,19 +195,13 @@ export default function ProfilePicturePage() {
       }
 
       const result: UploadResponse = await uploadResponse.json();
-      const imageUrl = result.imageUrl;
+      const { imageUrl, username } = result;
 
-      if (imageUrl) {
+      if (imageUrl && username) {
         setUploadSuccess(true);
-        router.push("user/jigar");
+        router.push(`/user/${encodeURIComponent(username)}`);
       } else {
-        console.error("Upload failed: No image URL returned");
-      }
-
-      if (uploadResponse) {
-        setUploadSuccess(true);
-      } else {
-        console.error("Upload failed");
+        throw new Error("Upload completed without profile information");
       }
     } catch (error) {
       console.error("Error uploading image:", error);

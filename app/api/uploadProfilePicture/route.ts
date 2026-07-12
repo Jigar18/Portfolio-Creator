@@ -20,6 +20,12 @@ export async function POST(req: NextRequest) {
       new TextEncoder().encode(process.env.JWT_SECRET!)
     );
     const userId = payload.userId as string;
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: "Authentication token is invalid" },
+        { status: 401 }
+      );
+    }
 
     const formData = await req.formData();
     const file = formData.get("image") as File | null;
@@ -31,35 +37,48 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!file.type.startsWith("image/")) {
+      return NextResponse.json(
+        { success: false, error: "Only image files are supported" },
+        { status: 400 }
+      );
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
     const imageUrl = await uploadFile(
       buffer,
       file.name || "profile-picture.jpg",
-      userId
+      userId,
+      file.type
     );
 
-    console.log(`User ID: ${userId}`);
-    console.log(`Generated Image URL: ${imageUrl}`);
-
-    try {
-      const updatedDetails = await db.details.update({
-        where: { userId: userId },
-        data: { imageUrl },
-      });
-      console.log("Database update successful:", updatedDetails);
-    } catch (dbError) {
-      console.error("Database update failed:", dbError);
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: { username: true },
+    });
+    if (!user) {
+      throw new Error("Authenticated user was not found");
     }
 
-    const response: UploadResponse = { success: true, imageUrl };
+    await db.details.update({
+      where: { userId },
+      data: { imageUrl },
+    });
+
+    const response: UploadResponse = {
+      success: true,
+      imageUrl,
+      username: user.username,
+    };
     return NextResponse.json(response);
   } catch (error) {
     console.error("Error uploading profile picture:", error);
+    const message = error instanceof Error ? error.message : "Profile image upload failed";
     const errorResponse: UploadResponse = {
       success: false,
-      error: String(error),
+      error: message,
     };
 
     return NextResponse.json(errorResponse, { status: 500 });
