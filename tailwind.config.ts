@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import daisyui from "daisyui"
+import colors from "tailwindcss/colors";
 
 export default {
     darkMode: ["class"],
@@ -11,6 +12,9 @@ export default {
   theme: {
   	extend: {
   		colors: {
+			// The old UI used Tailwind's blue-tinted slate scale extensively.
+			// Pointing it at neutral zinc makes every authenticated surface truly monochrome.
+			slate: colors.zinc,
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

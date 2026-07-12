@@ -17,10 +17,10 @@ const globalStyles = `
   input:-webkit-autofill:hover, 
   input:-webkit-autofill:focus,
   input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 30px #1e293b inset !important;
-    -webkit-text-fill-color: #e2e8f0 !important;
+    -webkit-box-shadow: 0 0 0 30px #27272a inset !important;
+    -webkit-text-fill-color: #e4e4e7 !important;
     transition: background-color 5000s ease-in-out 0s;
-    caret-color: #e2e8f0;
+    caret-color: #e4e4e7;
   }
   
   /* Custom styles for ReactCrop */
@@ -250,7 +250,7 @@ export default function ProfilePicturePage() {
                       onClick: handleImageClick,
                       onMouseEnter: () => setIsHovering(true),
                       onMouseLeave: () => setIsHovering(false),
-                      whileHover: { borderColor: "#3b82f6" },
+                      whileHover: { borderColor: "#a1a1aa" },
                     }}
                   >
                     <input

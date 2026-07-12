@@ -32,7 +32,7 @@ export default function Education() {
       if (data.success) {
         setEducation(data.education || []);
       } else {
-        console.error("Failed to fetch education:", data.error);
+        // Public visitors do not have an auth cookie; the empty state is intentional.
         setEducation([]);
       }
     } catch (error) {

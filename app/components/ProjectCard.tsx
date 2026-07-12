@@ -47,7 +47,7 @@ export default function ProjectCard({
 
   return (
     <motion.div
-      {...{className:"relative group bg-slate-700/30 rounded-lg overflow-hidden border border-slate-600 shadow-md"}}
+      {...{className:"relative group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] shadow-lg shadow-black/20"}}
       whileHover={{ y: -5, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
       transition={{ duration: 0.3 }}
       initial={{ opacity: 0, y: 20 }}
@@ -71,7 +71,7 @@ export default function ProjectCard({
           alt={project.title}
           fill
           className="object-cover"
-          style={{ backgroundColor: "#0f172a", backgroundImage: randomBg }}
+          style={{ backgroundColor: "#18181b", backgroundImage: randomBg }}
         />
         <div className="absolute inset-0 bg-slate-900/70 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
           <motion.div

@@ -13,7 +13,7 @@ export default function AddProjectCard({ onAddProject }: AddProjectCardProps) {
     <motion.div
       {...{className: "bg-slate-700/20 rounded-lg border-2 border-dashed border-slate-600 hover:border-slate-500 shadow-md cursor-pointer transition-colors duration-300 flex items-center justify-center min-h-[320px]",
       onClick: onAddProject}}
-      whileHover={{ y: -5, borderColor: "#64748b" }}
+      whileHover={{ y: -5, borderColor: "#a1a1aa" }}
       transition={{ duration: 0.3 }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}

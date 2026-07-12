@@ -12,7 +12,7 @@ import Projects from "../../sections/Projects";
 import ProjectModal from "../../components/ProjectModal";
 import CertificateModal from "../../components/CertificateModal";
 import { UserProvider } from "../../context/UserContext";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Asterisk } from "lucide-react";
 
 interface Card {
   id: string;
@@ -93,11 +93,23 @@ export default function Home() {
 
   return (
     <UserProvider>
-      <div
-        ref={topRef}
-        className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900"
-      >
-        <main className="mx-auto w-full max-w-6xl space-y-10 text-slate-200 py-12 px-4 sm:px-6 sm:py-16 lg:py-20">
+      <div ref={topRef} className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-200">
+        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_76%_8%,rgba(255,255,255,0.08),transparent_28rem),radial-gradient(circle_at_5%_55%,rgba(255,255,255,0.04),transparent_24rem)]" />
+        <div className="pointer-events-none fixed inset-0 opacity-[0.025] [background-image:linear-gradient(rgba(255,255,255,.7)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.7)_1px,transparent_1px)] [background-size:72px_72px]" />
+        <main className="relative mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 sm:py-12 lg:px-10 lg:py-16">
+          <motion.header
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            {...{ className: "mb-14 flex items-center justify-between gap-5 border-b border-white/10 pb-5" }}
+          >
+            <div className="flex items-center gap-3 text-sm font-medium tracking-wide text-white">
+              <span className="grid h-8 w-8 place-items-center rounded-lg border border-white/15 bg-white/[0.06]"><Asterisk className="h-4 w-4" /></span>
+              Portfolio
+            </div>
+            <span className="text-right text-[10px] uppercase tracking-[0.16em] text-zinc-500 sm:text-xs sm:tracking-[0.2em]">Selected work &amp; profile</span>
+          </motion.header>
+
+          <div className="space-y-16 lg:space-y-24">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -106,34 +118,34 @@ export default function Home() {
             <InfoCard />
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+          <div className="space-y-16 lg:space-y-24">
             <motion.div
-              {...{ className: "lg:col-span-8 space-y-8" }}
+              {...{ className: "max-w-3xl" }}
               custom={1}
               initial="hidden"
               animate="visible"
               variants={sectionVariants}
             >
               <About />
-              <Projects onOpenProject={handleOpenProject} />
             </motion.div>
 
             <motion.div
-              {...{
-                className:
-                  "lg:col-span-4 lg:sticky lg:top-8 self-start space-y-8",
-              }}
+              {...{ className: "w-full" }}
               custom={2}
               initial="hidden"
               animate="visible"
               variants={sectionVariants}
             >
-              <Credentials onOpenCertificate={handleOpenCertificate} />
+              <Projects onOpenProject={handleOpenProject} />
             </motion.div>
           </div>
 
+          <motion.div custom={3} initial="hidden" animate="visible" variants={sectionVariants}>
+            <Credentials onOpenCertificate={handleOpenCertificate} />
+          </motion.div>
+
           <motion.div
-            custom={3}
+            custom={4}
             initial="hidden"
             animate="visible"
             variants={sectionVariants}
@@ -144,17 +156,18 @@ export default function Home() {
           <motion.footer
             ref={footerRef}
             {...{ className: "py-8 border-t border-slate-800 mt-10" }}
-            custom={5}
+            custom={6}
             initial="hidden"
             animate="visible"
             variants={sectionVariants}
           >
             <div className="container mx-auto flex md:flex-row justify-center items-center gap-4">
-              <p className="text-slate-400 text-sm">
-                © {new Date().getFullYear()} Jigar Kumar. All rights reserved.
+              <p className="text-zinc-500 text-xs uppercase tracking-[0.16em]">
+                © {new Date().getFullYear()} · Built with care
               </p>
             </div>
           </motion.footer>
+          </div>
         </main>
 
         <AnimatePresence>
@@ -163,7 +176,7 @@ export default function Home() {
               {...{
                 onClick: scrollToTop,
                 className:
-                  "fixed bottom-6 right-6 p-3 rounded-full bg-zinc-600 text-white shadow-lg hover:bg-zinc-700 transition-colors z-40",
+                  "fixed bottom-6 right-6 grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-zinc-100 text-zinc-950 shadow-2xl transition-colors hover:bg-white z-40",
               }}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}

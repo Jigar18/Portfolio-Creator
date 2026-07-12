@@ -163,13 +163,13 @@ export default function Projects({ onOpenProject }: ProjectsProps) {
       transition={{ duration: 0.5 }}
     >
       <motion.div
-        {...{className:"bg-slate-800/50 rounded-xl border border-slate-700 p-6 shadow-md backdrop-blur-sm"}}
-        whileHover={{ y: -5 }}
+        {...{className:"border-t border-white/10 pt-7"}}
+        whileHover={{ y: -2 }}
         initial={{ y: 50, opacity: 0 }}
         animate={isInView ? { y: 0, opacity: 1 } : { y: 50, opacity: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <h2 className="text-2xl font-bold text-slate-100 mb-6 border-b border-slate-700 pb-2 flex items-center gap-3">
+        <h2 className="mb-8 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.22em] text-zinc-400">
           <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -191,7 +191,7 @@ export default function Projects({ onOpenProject }: ProjectsProps) {
           Projects
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
           {projectList.map((project, index) => (
             <ProjectCard
               key={project.id}

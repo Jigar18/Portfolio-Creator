@@ -101,7 +101,7 @@ export default function Experience() {
           setExperience([]);
         }
       } else {
-        console.error("Failed to fetch experiences");
+        // An unauthenticated public portfolio should render its empty state quietly.
         setExperience([]);
       }
     } catch (error) {
@@ -313,9 +313,9 @@ export default function Experience() {
         <motion.div
           {...{
             className:
-              "bg-slate-800/50 rounded-xl border border-slate-700 p-6 shadow-md backdrop-blur-sm relative group",
+              "relative group border-t border-white/10 pt-8",
           }}
-          whileHover={{ y: -5 }}
+          whileHover={{ y: -2 }}
           transition={{ duration: 0.3 }}
           initial={{ y: 50, opacity: 0 }}
           animate={isInView ? { y: 0, opacity: 1 } : { y: 50, opacity: 0 }}
@@ -329,7 +329,7 @@ export default function Experience() {
             <Edit3 className="h-4 w-4" />
           </button>
 
-          <h2 className="text-2xl font-bold text-slate-100 mb-6 border-b border-slate-700 pb-2 flex items-center gap-3">
+          <h2 className="mb-10 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.22em] text-zinc-400">
             <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
               <Briefcase className="h-5 w-5" />
             </span>
@@ -419,7 +419,7 @@ export default function Experience() {
                               }}
                               whileHover={{
                                 y: -2,
-                                backgroundColor: "rgba(30, 41, 59, 0.7)",
+                                backgroundColor: "rgba(39, 39, 42, 0.7)",
                               }}
                             >
                               <div className="flex-shrink-0 bg-slate-700 p-1.5 rounded-md">

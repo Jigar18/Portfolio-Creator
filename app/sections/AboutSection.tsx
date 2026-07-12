@@ -75,11 +75,11 @@ export default function About() {
         <motion.div
           {...{
             className:
-              "bg-slate-800/50 rounded-xl border border-slate-700 p-6 shadow-md backdrop-blur-sm overflow-hidden relative group",
+              "relative group border-l border-white/15 py-3 pl-6 pr-4 sm:pl-8",
             initial: { y: 50, opacity: 0 },
             animate: isInView ? { y: 0, opacity: 1 } : { y: 50, opacity: 0 },
             transition: { duration: 0.8, ease: "easeOut" },
-            whileHover: { y: -5 },
+            whileHover: { x: 4 },
           }}
         >
           {/* Edit Button */}
@@ -91,7 +91,7 @@ export default function About() {
             <Edit3 className="h-4 w-4" />
           </button>
 
-          <h2 className="text-2xl font-bold text-slate-100 mb-4 border-b border-slate-700 pb-2 flex items-center gap-3">
+          <h2 className="mb-6 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.22em] text-zinc-400">
             <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

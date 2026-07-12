@@ -167,9 +167,9 @@ function InfoCard() {
       <motion.div
         {...{
           className:
-            "w-full rounded-xl bg-slate-800/50 border border-slate-700 shadow-lg p-6 sm:p-8 backdrop-blur-sm relative group",
+            "relative group w-full overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-9 before:pointer-events-none before:absolute before:inset-x-12 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/40 before:to-transparent",
         }}
-        whileHover={{ boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)" }}
+        whileHover={{ y: -3, boxShadow: "0 24px 80px rgba(0, 0, 0, 0.38)" }}
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 100, damping: 15 }}
