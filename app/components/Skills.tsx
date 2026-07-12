@@ -118,7 +118,7 @@ export default function Skills() {
       <motion.div
         {...{
           className:
-            "rounded-lg border border-slate-700 bg-slate-800/50 backdrop-blur-sm p-6",
+            "min-h-[220px] rounded-lg border border-slate-700 bg-slate-800/50 backdrop-blur-sm p-6",
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -143,7 +143,7 @@ export default function Skills() {
       <motion.div
         {...{
           className:
-            "rounded-lg border border-slate-700 bg-slate-800/50 backdrop-blur-sm p-6 group hover:border-slate-600 transition-all duration-300",
+            "min-h-[220px] rounded-lg border border-slate-700 bg-slate-800/50 backdrop-blur-sm p-6 group hover:border-slate-600 transition-all duration-300",
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -160,7 +160,7 @@ export default function Skills() {
         </div>
 
         <AnimatePresence>
-          <motion.div {...{ className: "flex flex-wrap gap-2" }}>
+          <motion.div {...{ className: "flex max-h-[145px] flex-wrap gap-2 overflow-y-auto pr-1" }}>
             {skills.map((skill) => (
               <motion.span
                 key={skill}

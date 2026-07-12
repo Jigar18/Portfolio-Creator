@@ -121,7 +121,7 @@ export default function Education() {
       <motion.div
         {...{
           className:
-            "bg-slate-800/50 rounded-xl border border-slate-700 p-6 shadow-md",
+            "min-h-[220px] bg-slate-800/50 rounded-xl border border-slate-700 p-6 shadow-md",
         }}
         whileHover={{ y: -5 }}
         transition={{ duration: 0.3 }}
@@ -156,7 +156,7 @@ export default function Education() {
     <>
       <motion.div
         {...{
-          className: "bg-slate-800/50 rounded-xl border border-slate-700 p-6 shadow-md relative group"
+          className: "min-h-[220px] bg-slate-800/50 rounded-xl border border-slate-700 p-6 shadow-md relative group"
         }}
         whileHover={{ y: -5 }}
         transition={{ duration: 0.3 }}
@@ -192,7 +192,7 @@ export default function Education() {
           Education
         </h2>
         
-        <div className="space-y-4">
+        <div className="max-h-[170px] space-y-4 overflow-y-auto pr-1">
           {education.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-slate-400 mb-4">No education information added yet</p>

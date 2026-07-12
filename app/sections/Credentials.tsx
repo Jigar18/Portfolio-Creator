@@ -29,20 +29,27 @@ export default function Credentials({ onOpenCertificate }: CredentialsProps) {
     <motion.div
       {...{
         ref,
-        className: "space-y-5",
+        className: "grid grid-cols-1 items-start gap-5 lg:grid-cols-12",
         initial: { opacity: 0 },
         animate: isInView ? { opacity: 1 } : { opacity: 0 },
         transition: { duration: 0.5 },
       }}
     >
-      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-12">
-        <div className="lg:col-span-4"><Skills /></div>
-        <div className="lg:col-span-8"><Certifications onOpenCertificate={onOpenCertificate} /></div>
-      </div>
-      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-12">
-        <div className="lg:col-span-8"><Education /></div>
-        <div className="lg:col-span-4"><Connect /></div>
-      </div>
+      <aside className="lg:col-span-4 lg:self-start">
+        <Skills />
+      </aside>
+
+      <section className="lg:col-span-8">
+        <Certifications onOpenCertificate={onOpenCertificate} />
+      </section>
+
+      <section className="lg:col-span-8">
+        <Education />
+      </section>
+
+      <aside className="lg:col-span-4 lg:self-start">
+        <Connect />
+      </aside>
     </motion.div>
   );
 }
