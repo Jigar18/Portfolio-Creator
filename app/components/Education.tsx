@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import EducationModal from "./EducationModal";
-import { BookOpen, Pencil } from "lucide-react";
+import { BookOpen, Edit3 } from "lucide-react";
 import CredentialCardHeader, { credentialEditButtonClass } from "./CredentialCardHeader";
 
 interface EducationItem {
@@ -122,7 +122,7 @@ export default function Education() {
       <motion.div
         {...{
           className:
-            "h-[278px] bg-slate-800/50 rounded-xl border border-slate-700 p-5 shadow-md",
+            "h-[250px] bg-slate-800/50 rounded-xl border border-slate-700 p-5 shadow-md",
         }}
         whileHover={{ y: -5 }}
         transition={{ duration: 0.3 }}
@@ -140,7 +140,7 @@ export default function Education() {
     <>
       <motion.div
         {...{
-          className: "group flex h-[278px] flex-col bg-slate-800/50 rounded-xl border border-slate-700 p-5 shadow-md relative"
+          className: "group flex h-[250px] flex-col bg-slate-800/50 rounded-xl border border-slate-700 p-5 shadow-md relative"
         }}
         whileHover={{ y: -5 }}
         transition={{ duration: 0.3 }}
@@ -155,12 +155,12 @@ export default function Education() {
               aria-label="Edit education"
               title="Edit education"
             >
-              <Pencil className="h-4 w-4" />
+              <Edit3 className="h-4 w-4" />
             </button>
           }
         />
         
-        <div className="relative min-h-0 flex-1 pt-4">
+        <div className="relative min-h-0 flex-1 pt-3">
         <div
           className="credential-scrollbar h-full space-y-4 overflow-x-hidden overflow-y-auto pr-1"
           onScroll={(event) => setEducationAtTop(event.currentTarget.scrollTop <= 2)}
@@ -180,7 +180,7 @@ export default function Education() {
               <motion.div
                 key={edu.id || index}
                 {...{
-                  className: "min-h-[162px] bg-slate-700/30 rounded-lg p-4 border border-slate-600/50 relative transition-colors hover:border-slate-500/70 hover:bg-slate-700/40"
+                  className: "min-h-[118px] bg-slate-700/30 rounded-lg px-4 py-3 border border-slate-600/50 relative transition-colors hover:border-slate-500/70 hover:bg-slate-700/40"
                 }}
               >
                 <div className="flex justify-between items-start mb-2">

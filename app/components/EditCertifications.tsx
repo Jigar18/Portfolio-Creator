@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
-import { FileUp, Check, Pencil, X } from "lucide-react";
+import { FileUp, Check, Edit3, X } from "lucide-react";
 import { credentialEditButtonClass } from "./CredentialCardHeader";
 
 interface FormValues {
@@ -139,7 +139,7 @@ export default function EditCertifications({
             aria-label="Add certification"
             title="Add certification"
           >
-            <Pencil className="h-4 w-4" />
+            <Edit3 className="h-4 w-4" />
           </button>
         ) : (
           <Button className="bg-zinc-600 hover:bg-zinc-700 text-white px-5 py-2.5 rounded-md transition-colors flex items-center gap-2">

@@ -28,7 +28,7 @@ export default function CertificateList({
           key={card.id}
           {...{
             className:
-              "relative group min-h-[126px] bg-slate-700/30 rounded-lg p-4 border border-slate-700/50 hover:border-zinc-500/30 transition-colors cursor-pointer",
+              "relative group min-h-[108px] bg-slate-700/30 rounded-lg px-4 py-3 border border-slate-700/50 hover:border-zinc-500/30 transition-colors cursor-pointer",
             onClick: () => onOpenCertificate(card),
           }}
           initial={{ opacity: 0, y: 10 }}
@@ -56,7 +56,7 @@ export default function CertificateList({
               <p className="text-slate-400 text-sm mt-1 line-clamp-2">
                 {card.description}
               </p>
-              <div className="mt-3 flex gap-4">
+              <div className="mt-2 flex gap-4">
                 <a
                   href={`/api/download-certificate?id=${card.id}`}
                   className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-300 transition-colors"

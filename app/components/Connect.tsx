@@ -4,7 +4,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { X, Edit3, Copy, Check, Pencil, Share2 } from "lucide-react";
+import { X, Edit3, Copy, Check, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CredentialCardHeader, { credentialEditButtonClass } from "./CredentialCardHeader";
 
@@ -362,7 +362,7 @@ export default function Connect() {
         <motion.div
           {...{
             className:
-              "flex h-[278px] flex-col bg-slate-800/50 rounded-xl border border-slate-700 p-5 shadow-md backdrop-blur-sm overflow-hidden relative",
+              "flex h-[250px] flex-col bg-slate-800/50 rounded-xl border border-slate-700 p-5 shadow-md backdrop-blur-sm overflow-hidden relative",
             whileHover: { y: -5 },
             transition: { duration: 0.3 },
           }}
@@ -378,22 +378,22 @@ export default function Connect() {
                 aria-label="Edit social links"
                 title="Edit social links"
               >
-                <Pencil className="h-4 w-4" />
+                <Edit3 className="h-4 w-4" />
               </button>
             }
           />
 
-          <div className="credential-scrollbar min-h-0 flex-1 overflow-x-hidden overflow-y-auto pt-4 pr-1">
+          <div className="credential-scrollbar min-h-0 flex-1 overflow-x-hidden overflow-y-auto pt-3 pr-1">
           <div className="flex flex-wrap content-start gap-2.5">
             {arrangedSocialLinks.map((link) => (
               <button
                 key={link.name}
                 onClick={() => copyToClipboard(link.url, link.name)}
-                className="inline-flex h-11 w-fit items-center gap-2.5 whitespace-nowrap rounded-xl border border-slate-600 bg-slate-700/75 px-3.5 text-sm font-medium text-slate-200 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-500 hover:bg-slate-600"
+                className="inline-flex h-10 w-fit items-center gap-2.5 whitespace-nowrap rounded-xl border border-slate-600 bg-slate-700/75 px-3.5 text-sm font-medium text-slate-200 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-500 hover:bg-slate-600"
                 title={`Copy ${link.name} link`}
               >
                 {link.icon}
-                <span>{link.name === "Twitter" ? "X Twitter" : link.name}</span>
+                <span>{link.name}</span>
               </button>
             ))}
             {socialLinks.length === 0 && (

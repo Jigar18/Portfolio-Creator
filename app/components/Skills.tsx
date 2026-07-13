@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { X, Pencil, Search, Sparkles } from "lucide-react";
+import { X, Edit3, Pencil, Search, Sparkles } from "lucide-react";
 import CredentialCardHeader, { credentialEditButtonClass } from "./CredentialCardHeader";
 
 interface UserSkills {
@@ -145,7 +145,7 @@ export default function Skills() {
       <motion.div
         {...{
           className:
-            "h-[390px] rounded-xl border border-slate-700 bg-slate-800/50 p-5 shadow-md backdrop-blur-sm",
+            "h-[336px] rounded-xl border border-slate-700 bg-slate-800/50 p-5 shadow-md backdrop-blur-sm",
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -168,7 +168,7 @@ export default function Skills() {
       <motion.div
         {...{
           className:
-            "group flex h-[390px] flex-col rounded-xl border border-slate-700 bg-slate-800/50 p-5 shadow-md backdrop-blur-sm transition-all duration-300 hover:border-slate-600",
+            "group flex h-[336px] flex-col rounded-xl border border-slate-700 bg-slate-800/50 p-5 shadow-md backdrop-blur-sm transition-all duration-300 hover:border-slate-600",
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -184,12 +184,12 @@ export default function Skills() {
             aria-label="Edit skills"
             title="Edit skills"
           >
-            <Pencil className="h-4 w-4" />
+            <Edit3 className="h-4 w-4" />
           </button>
           }
         />
 
-        <div className="relative min-h-0 flex-1 pt-4">
+        <div className="relative min-h-0 flex-1 pt-3">
           <motion.div
             ref={skillsViewportRef}
             {...{

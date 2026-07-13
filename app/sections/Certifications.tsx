@@ -108,7 +108,7 @@ export default function Certifications({
       <motion.div
         {...{
           className:
-            "h-[390px] bg-slate-800/50 rounded-xl border border-slate-700 p-5 shadow-md backdrop-blur-sm",
+            "h-[336px] bg-slate-800/50 rounded-xl border border-slate-700 p-5 shadow-md backdrop-blur-sm",
         }}
         whileHover={{ y: -5 }}
         transition={{ duration: 0.3 }}
@@ -116,7 +116,7 @@ export default function Certifications({
         <CredentialCardHeader title="Certifications" icon={<Award className="h-5 w-5" />} />
         <div className="animate-pulse space-y-3 pt-4">
           {[1, 2].map((i) => (
-            <div key={i} className="h-[126px] bg-slate-700/30 rounded-lg"></div>
+            <div key={i} className="h-[108px] bg-slate-700/30 rounded-lg"></div>
           ))}
         </div>
       </motion.div>
@@ -127,7 +127,7 @@ export default function Certifications({
     <motion.div
       {...{
         className:
-          "group flex h-[390px] flex-col bg-slate-800/50 rounded-xl border border-slate-700 p-5 shadow-md backdrop-blur-sm",
+          "group flex h-[336px] flex-col bg-slate-800/50 rounded-xl border border-slate-700 p-5 shadow-md backdrop-blur-sm",
       }}
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
@@ -138,7 +138,7 @@ export default function Certifications({
         action={<EditCertifications onAddCard={handleAddCard} compact />}
       />
 
-      <div className="relative min-h-0 flex-1 pt-4">
+      <div className="relative min-h-0 flex-1 pt-3">
         <div
           className="credential-scrollbar h-full overflow-x-hidden overflow-y-auto pr-1"
           onScroll={(event) => setCertificatesAtTop(event.currentTarget.scrollTop <= 2)}

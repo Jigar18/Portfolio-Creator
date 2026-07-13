@@ -29,7 +29,7 @@ export default function Credentials({ onOpenCertificate }: CredentialsProps) {
     <motion.div
       {...{
         ref,
-        className: "grid grid-cols-1 items-stretch gap-5 lg:grid-cols-12",
+        className: "grid grid-cols-1 items-stretch gap-5 border-t border-white/10 pt-8 lg:grid-cols-12",
         initial: { opacity: 0 },
         animate: isInView ? { opacity: 1 } : { opacity: 0 },
         transition: { duration: 0.5 },

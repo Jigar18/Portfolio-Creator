@@ -45,7 +45,6 @@ body {
 .credential-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #52525b transparent;
-  overscroll-behavior: contain;
 }
 
 .credential-scrollbar::-webkit-scrollbar {
