@@ -80,9 +80,9 @@ export default function DeleteCertificateModal({
               >
                 Cancel
               </button>
-              <button
-                onClick={onConfirm}
-                className="px-4 py-2 bg-zinc-600 hover:bg-zinc-700 text-white rounded-lg transition-colors"
+                <button
+                  onClick={onConfirm}
+                  className="rounded-lg bg-red-600 px-4 py-2 font-medium text-white transition-colors hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/70"
               >
                 Delete Certificate
               </button>

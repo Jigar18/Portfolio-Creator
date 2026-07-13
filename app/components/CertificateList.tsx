@@ -22,13 +22,13 @@ export default function CertificateList({
   onDeleteCard,
 }: CertificateListProps) {
   return (
-    <div className="space-y-4 mt-4 mb-6">
+    <div className="space-y-3">
       {cards.map((card) => (
         <motion.div
           key={card.id}
           {...{
             className:
-              "relative group bg-slate-700/30 rounded-lg p-4 border border-slate-700/50 hover:border-zinc-500/30 transition-colors cursor-pointer",
+              "relative group min-h-[126px] bg-slate-700/30 rounded-lg p-4 border border-slate-700/50 hover:border-zinc-500/30 transition-colors cursor-pointer",
             onClick: () => onOpenCertificate(card),
           }}
           initial={{ opacity: 0, y: 10 }}

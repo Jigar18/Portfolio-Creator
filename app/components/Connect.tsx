@@ -4,8 +4,9 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { X, Edit3, Copy, Check } from "lucide-react";
+import { X, Edit3, Copy, Check, Pencil, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import CredentialCardHeader, { credentialEditButtonClass } from "./CredentialCardHeader";
 
 interface SocialLink {
   name: string;
@@ -26,6 +27,20 @@ interface SocialLinkData {
   portfolio?: string;
   hackerrank?: string;
 }
+
+const arrangeSocialLinks = (links: SocialLink[]) => {
+  const sorted = [...links].sort((a, b) => b.name.length - a.name.length);
+  const arranged: SocialLink[] = [];
+
+  while (sorted.length) {
+    const longest = sorted.shift();
+    if (longest) arranged.push(longest);
+    const shortest = sorted.pop();
+    if (shortest) arranged.push(shortest);
+  }
+
+  return arranged;
+};
 
 export default function Connect() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -339,64 +354,52 @@ export default function Connect() {
     }));
   };
 
+  const arrangedSocialLinks = arrangeSocialLinks(socialLinks);
+
   return (
     <>
       <div className="relative group">
         <motion.div
           {...{
             className:
-              "bg-slate-800/50 rounded-xl border border-slate-700 p-6 shadow-md backdrop-blur-sm overflow-hidden relative",
+              "flex h-[278px] flex-col bg-slate-800/50 rounded-xl border border-slate-700 p-5 shadow-md backdrop-blur-sm overflow-hidden relative",
             whileHover: { y: -5 },
             transition: { duration: 0.3 },
           }}
         >
-          {/* Edit Button */}
-          <button
-            className="absolute top-4 right-4 p-2 rounded-lg bg-slate-700/80 hover:bg-slate-600 text-slate-300 hover:text-white border border-slate-600 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-105"
-            onClick={handleOpenModal}
-            type="button"
-          >
-            <Edit3 className="h-4 w-4" />
-          </button>
-
-          <h2 className="text-xl font-bold text-slate-100 mb-4 border-b border-slate-700 pb-2 flex items-center gap-3">
-            <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="lucide lucide-share-2"
-              >
-                <circle cx="18" cy="5" r="3" />
-                <circle cx="6" cy="12" r="3" />
-                <circle cx="18" cy="19" r="3" />
-                <line x1="8.59" x2="15.42" y1="13.51" y2="17.49" />
-                <line x1="15.41" x2="8.59" y1="6.51" y2="10.49" />
-              </svg>
-            </span>
-            Connect
-          </h2>
-
-          <div className="flex flex-wrap gap-3">
-            {socialLinks.map((link, index) => (
+          <CredentialCardHeader
+            title="Connect"
+            icon={<Share2 className="h-5 w-5" />}
+            action={
               <button
-                key={index}
+                className={credentialEditButtonClass}
+                onClick={handleOpenModal}
+                type="button"
+                aria-label="Edit social links"
+                title="Edit social links"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+            }
+          />
+
+          <div className="credential-scrollbar min-h-0 flex-1 overflow-x-hidden overflow-y-auto pt-4 pr-1">
+          <div className="flex flex-wrap content-start gap-2.5">
+            {arrangedSocialLinks.map((link) => (
+              <button
+                key={link.name}
                 onClick={() => copyToClipboard(link.url, link.name)}
-                className="inline-flex items-center justify-center rounded-lg bg-slate-700 hover:bg-slate-600 border border-slate-600 p-3 text-slate-200 transition-all duration-200 hover:scale-105 hover:bg-zinc-600/20 cursor-pointer"
+                className="inline-flex h-11 w-fit items-center gap-2.5 whitespace-nowrap rounded-xl border border-slate-600 bg-slate-700/75 px-3.5 text-sm font-medium text-slate-200 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-500 hover:bg-slate-600"
                 title={`Copy ${link.name} link`}
               >
                 {link.icon}
+                <span>{link.name === "Twitter" ? "X Twitter" : link.name}</span>
               </button>
             ))}
             {socialLinks.length === 0 && (
               <p className="py-2 text-sm text-slate-500">Add links so people can find your work.</p>
             )}
+          </div>
           </div>
         </motion.div>
       </div>

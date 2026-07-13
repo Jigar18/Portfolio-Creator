@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import EducationModal from "./EducationModal";
-import { Edit2 } from "lucide-react";
+import { BookOpen, Pencil } from "lucide-react";
+import CredentialCardHeader, { credentialEditButtonClass } from "./CredentialCardHeader";
 
 interface EducationItem {
   id?: string;
@@ -21,7 +22,7 @@ export default function Education() {
   const [education, setEducation] = useState<EducationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [educationAtTop, setEducationAtTop] = useState(true);
   const { userDetails } = useUser();
 
   const fetchEducation = async () => {
@@ -121,30 +122,13 @@ export default function Education() {
       <motion.div
         {...{
           className:
-            "min-h-[220px] bg-slate-800/50 rounded-xl border border-slate-700 p-6 shadow-md",
+            "h-[278px] bg-slate-800/50 rounded-xl border border-slate-700 p-5 shadow-md",
         }}
         whileHover={{ y: -5 }}
         transition={{ duration: 0.3 }}
       >
-        <h2 className="text-xl font-bold text-slate-100 mb-4 flex items-center gap-3">
-          <span className="bg-zinc-900/20 p-2 rounded text-zinc-400">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="w-5 h-5"
-            >
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-            </svg>
-          </span>
-          Education
-        </h2>
-        <div className="space-y-4">
+        <CredentialCardHeader title="Education" icon={<BookOpen className="h-5 w-5" />} />
+        <div className="space-y-4 pt-4">
           <div className="h-16 bg-slate-700 rounded animate-pulse"></div>
           <div className="h-16 bg-slate-700 rounded animate-pulse"></div>
         </div>
@@ -156,43 +140,31 @@ export default function Education() {
     <>
       <motion.div
         {...{
-          className: "min-h-[220px] bg-slate-800/50 rounded-xl border border-slate-700 p-6 shadow-md relative group"
+          className: "group flex h-[278px] flex-col bg-slate-800/50 rounded-xl border border-slate-700 p-5 shadow-md relative"
         }}
         whileHover={{ y: -5 }}
         transition={{ duration: 0.3 }}
       >
-        {/* Edit Button */}
-        <motion.button
-          {...{
-            onClick: () => setIsModalOpen(true),
-            className: "absolute top-4 right-4 p-2 bg-slate-700/50 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-slate-600/50"
-          }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Edit2 className="h-4 w-4 text-slate-300" />
-        </motion.button>
-
-        <h2 className="text-xl font-bold text-slate-100 mb-4 flex items-center gap-3">
-          <span className="bg-zinc-900/20 p-2 rounded text-zinc-400">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="w-5 h-5"
+        <CredentialCardHeader
+          title="Education"
+          icon={<BookOpen className="h-5 w-5" />}
+          action={
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className={credentialEditButtonClass}
+              aria-label="Edit education"
+              title="Edit education"
             >
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-            </svg>
-          </span>
-          Education
-        </h2>
+              <Pencil className="h-4 w-4" />
+            </button>
+          }
+        />
         
-        <div className="max-h-[170px] space-y-4 overflow-y-auto pr-1">
+        <div className="relative min-h-0 flex-1 pt-4">
+        <div
+          className="credential-scrollbar h-full space-y-4 overflow-x-hidden overflow-y-auto pr-1"
+          onScroll={(event) => setEducationAtTop(event.currentTarget.scrollTop <= 2)}
+        >
           {education.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-slate-400 mb-4">No education information added yet</p>
@@ -208,12 +180,8 @@ export default function Education() {
               <motion.div
                 key={edu.id || index}
                 {...{
-                  className: "bg-slate-700/30 rounded-lg p-4 border border-slate-600/50 relative",
-                  onMouseEnter: () => setHoveredIndex(index),
-                  onMouseLeave: () => setHoveredIndex(null)
+                  className: "min-h-[162px] bg-slate-700/30 rounded-lg p-4 border border-slate-600/50 relative transition-colors hover:border-slate-500/70 hover:bg-slate-700/40"
                 }}
-                whileHover={{ x: 5 }}
-                transition={{ duration: 0.2 }}
               >
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="font-semibold text-slate-200 text-lg">
@@ -228,6 +196,12 @@ export default function Education() {
               </motion.div>
             ))
           )}
+        </div>
+        {educationAtTop && education.length > 1 && (
+          <span className="pointer-events-none absolute bottom-2 right-3 rounded-full border border-white/10 bg-zinc-950/90 px-2.5 py-1 text-xs font-semibold text-zinc-300 shadow-lg">
+            +{education.length - 1}
+          </span>
+        )}
         </div>
       </motion.div>
 

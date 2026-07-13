@@ -14,7 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
-import { FileUp, Check, X } from "lucide-react";
+import { FileUp, Check, Pencil, X } from "lucide-react";
+import { credentialEditButtonClass } from "./CredentialCardHeader";
 
 interface FormValues {
   title: string;
@@ -30,8 +31,10 @@ interface Card {
 
 export default function EditCertifications({
   onAddCard,
+  compact = false,
 }: {
   onAddCard: (card: Card) => void;
+  compact?: boolean;
 }) {
   const {
     register,
@@ -129,10 +132,21 @@ export default function EditCertifications({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-zinc-600 hover:bg-zinc-700 text-white px-5 py-2.5 rounded-md transition-colors flex items-center gap-2">
-          <FileUp className="h-4 w-4" />
-          Add Certificates
-        </Button>
+        {compact ? (
+          <button
+            type="button"
+            className={credentialEditButtonClass}
+            aria-label="Add certification"
+            title="Add certification"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+        ) : (
+          <Button className="bg-zinc-600 hover:bg-zinc-700 text-white px-5 py-2.5 rounded-md transition-colors flex items-center gap-2">
+            <FileUp className="h-4 w-4" />
+            Add Certificates
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-full sm:max-w-[600px] bg-slate-900 text-slate-100 z-[60] rounded-xl border border-slate-800 shadow-xl">
         <form onSubmit={handleSubmit(onSubmit)}>

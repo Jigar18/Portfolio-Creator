@@ -7,6 +7,7 @@ import CertificateList from "../components/CertificateList";
 import EditCertifications from "../components/EditCertifications";
 import CertificateModal from "../components/CertificateModal";
 import DeleteCertificateModal from "../components/DeleteCertificateModal";
+import CredentialCardHeader from "../components/CredentialCardHeader";
 
 interface Card {
   id: string;
@@ -32,6 +33,7 @@ export default function Certifications({
   const [certificateToDelete, setCertificateToDelete] = useState<Card | null>(
     null
   );
+  const [certificatesAtTop, setCertificatesAtTop] = useState(true);
 
   useEffect(() => {
     fetchCertificates();
@@ -101,27 +103,20 @@ export default function Certifications({
     setIsModalOpen(false);
   };
 
-  const canAddMore = cards.length < 3;
-
   if (loading) {
     return (
       <motion.div
         {...{
           className:
-            "bg-slate-800/50 rounded-xl border border-slate-700 p-4 shadow-md backdrop-blur-sm",
+            "h-[390px] bg-slate-800/50 rounded-xl border border-slate-700 p-5 shadow-md backdrop-blur-sm",
         }}
         whileHover={{ y: -5 }}
         transition={{ duration: 0.3 }}
       >
-        <h2 className="text-xl font-bold text-slate-100 mb-4 border-b border-slate-700 pb-2 flex items-center gap-3">
-          <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
-            <Award className="h-5 w-5" />
-          </span>
-          Certifications
-        </h2>
-        <div className="animate-pulse space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 bg-slate-700/30 rounded-lg"></div>
+        <CredentialCardHeader title="Certifications" icon={<Award className="h-5 w-5" />} />
+        <div className="animate-pulse space-y-3 pt-4">
+          {[1, 2].map((i) => (
+            <div key={i} className="h-[126px] bg-slate-700/30 rounded-lg"></div>
           ))}
         </div>
       </motion.div>
@@ -132,42 +127,40 @@ export default function Certifications({
     <motion.div
       {...{
         className:
-          "bg-slate-800/50 rounded-xl border border-slate-700 p-4 shadow-md backdrop-blur-sm",
+          "group flex h-[390px] flex-col bg-slate-800/50 rounded-xl border border-slate-700 p-5 shadow-md backdrop-blur-sm",
       }}
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
     >
-      <h2 className="text-xl font-bold text-slate-100 mb-4 border-b border-slate-700 pb-2 flex items-center gap-3">
-        <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
-          <Award className="h-5 w-5" />
-        </span>
-        Certifications
-      </h2>
+      <CredentialCardHeader
+        title="Certifications"
+        icon={<Award className="h-5 w-5" />}
+        action={<EditCertifications onAddCard={handleAddCard} compact />}
+      />
 
-      {cards.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-slate-400 mb-4">No certificates added yet.</p>
-          {canAddMore && <EditCertifications onAddCard={handleAddCard} />}
-        </div>
-      ) : (
-        <>
+      <div className="relative min-h-0 flex-1 pt-4">
+        <div
+          className="credential-scrollbar h-full overflow-x-hidden overflow-y-auto pr-1"
+          onScroll={(event) => setCertificatesAtTop(event.currentTarget.scrollTop <= 2)}
+        >
+          {cards.length === 0 ? (
+            <div className="flex h-full items-center justify-center text-center">
+              <p className="text-sm text-slate-400">No certificates added yet.</p>
+            </div>
+          ) : (
           <CertificateList
             cards={cards}
             onOpenCertificate={handleOpenCertificate}
             onDeleteCard={handleDeleteCard}
           />
-
-          {canAddMore ? (
-            <EditCertifications onAddCard={handleAddCard} />
-          ) : (
-            <div className="mt-4 text-center">
-              <p className="text-slate-400 text-sm italic">
-                You can add maximum three certificates.
-              </p>
-            </div>
           )}
-        </>
-      )}
+        </div>
+        {certificatesAtTop && cards.length > 2 && (
+          <span className="pointer-events-none absolute bottom-2 right-3 rounded-full border border-white/10 bg-zinc-950/90 px-2.5 py-1 text-xs font-semibold text-zinc-300 shadow-lg">
+            +{cards.length - 2}
+          </span>
+        )}
+      </div>
 
       {/* Delete confirmation modal */}
       <DeleteCertificateModal

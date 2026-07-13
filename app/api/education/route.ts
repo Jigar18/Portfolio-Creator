@@ -37,6 +37,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const educationCount = await db.education.count({ where: { userId } });
+    if (educationCount >= 2) {
+      return NextResponse.json(
+        { success: false, error: "You can add up to two education entries" },
+        { status: 409 }
+      );
+    }
+
     const education = await db.education.create({
       data: {
         school,

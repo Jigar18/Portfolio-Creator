@@ -41,6 +41,7 @@ export default function EducationModal({
   }, [isOpen, education]);
 
   const addNewEducation = () => {
+    if (editingEducation.length >= 2) return;
     const newEducation: EducationItem = {
       school: "",
       degree: "",
@@ -277,15 +278,19 @@ export default function EducationModal({
                   </motion.div>
                 ))}
 
-                <div className="flex justify-center">
+                <div className="flex flex-col items-center gap-2">
                   <Button
                     onClick={addNewEducation}
                     variant="outline"
+                    disabled={editingEducation.length >= 2}
                     className="border-slate-600 text-slate-300 hover:bg-slate-700"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Another Education
                   </Button>
+                  {editingEducation.length >= 2 && (
+                    <p className="text-xs text-slate-500">You can add up to two education entries.</p>
+                  )}
                 </div>
               </>
             )}

@@ -3,7 +3,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { X, Edit3, Search } from "lucide-react";
+import { X, Pencil, Search, Sparkles } from "lucide-react";
+import CredentialCardHeader, { credentialEditButtonClass } from "./CredentialCardHeader";
 
 interface UserSkills {
   skills: string[];
@@ -23,6 +24,19 @@ export default function Skills() {
   const [saving, setSaving] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const skillsViewportRef = useRef<HTMLDivElement>(null);
+  const [hiddenSkillCount, setHiddenSkillCount] = useState(0);
+  const [skillsAtTop, setSkillsAtTop] = useState(true);
+
+  const measureHiddenSkills = useCallback(() => {
+    const viewport = skillsViewportRef.current;
+    if (!viewport) return;
+
+    const hidden = Array.from(
+      viewport.querySelectorAll<HTMLElement>("[data-skill]")
+    ).filter((item) => item.offsetTop + item.offsetHeight > viewport.clientHeight + 1);
+    setHiddenSkillCount(hidden.length);
+  }, []);
 
   const fetchUserSkills = useCallback(async () => {
     try {
@@ -42,6 +56,19 @@ export default function Skills() {
     setMounted(true);
     fetchUserSkills();
   }, [fetchUserSkills]);
+
+  useEffect(() => {
+    const viewport = skillsViewportRef.current;
+    if (!viewport) return;
+
+    const frame = requestAnimationFrame(measureHiddenSkills);
+    const observer = new ResizeObserver(measureHiddenSkills);
+    observer.observe(viewport);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [skills, measureHiddenSkills]);
 
   useEffect(() => {
     if (skillInput.length < 2) {
@@ -118,16 +145,14 @@ export default function Skills() {
       <motion.div
         {...{
           className:
-            "min-h-[220px] rounded-lg border border-slate-700 bg-slate-800/50 backdrop-blur-sm p-6",
+            "h-[390px] rounded-xl border border-slate-700 bg-slate-800/50 p-5 shadow-md backdrop-blur-sm",
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-slate-200">Skills</h3>
-        </div>
-        <div className="animate-pulse space-y-2">
+        <CredentialCardHeader title="Skills" icon={<Sparkles className="h-5 w-5" />} />
+        <div className="animate-pulse space-y-2 pt-5">
           <div className="flex flex-wrap gap-2">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="h-6 bg-slate-700 rounded-full w-16"></div>
@@ -143,27 +168,42 @@ export default function Skills() {
       <motion.div
         {...{
           className:
-            "min-h-[220px] rounded-lg border border-slate-700 bg-slate-800/50 backdrop-blur-sm p-6 group hover:border-slate-600 transition-all duration-300",
+            "group flex h-[390px] flex-col rounded-xl border border-slate-700 bg-slate-800/50 p-5 shadow-md backdrop-blur-sm transition-all duration-300 hover:border-slate-600",
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-slate-200">Skills</h3>
+        <CredentialCardHeader
+          title="Skills"
+          icon={<Sparkles className="h-5 w-5" />}
+          action={
           <button
             onClick={handleEditClick}
-            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-slate-200"
+            className={credentialEditButtonClass}
+            aria-label="Edit skills"
+            title="Edit skills"
           >
-            <Edit3 className="h-4 w-4" />
+            <Pencil className="h-4 w-4" />
           </button>
-        </div>
+          }
+        />
 
-        <AnimatePresence>
-          <motion.div {...{ className: "flex max-h-[145px] flex-wrap gap-2 overflow-y-auto pr-1" }}>
+        <div className="relative min-h-0 flex-1 pt-4">
+          <motion.div
+            ref={skillsViewportRef}
+            {...{
+              className: "credential-scrollbar h-full overflow-x-hidden overflow-y-auto pr-1",
+              onScroll: (event: React.UIEvent<HTMLDivElement>) =>
+                setSkillsAtTop(event.currentTarget.scrollTop <= 2),
+            }}
+          >
+          <AnimatePresence>
+            <motion.div {...{ className: "flex min-h-full flex-wrap content-center items-center gap-2 py-1" }}>
             {skills.map((skill) => (
               <motion.span
                 key={skill}
+                data-skill
                 variants={skillVariants}
                 initial="hidden"
                 animate="visible"
@@ -176,12 +216,19 @@ export default function Skills() {
                 {skill}
               </motion.span>
             ))}
-          </motion.div>
-        </AnimatePresence>
+            </motion.div>
+          </AnimatePresence>
 
-        {skills.length === 0 && (
-          <p className="text-slate-400 text-sm">No skills added yet.</p>
-        )}
+          {skills.length === 0 && (
+            <p className="flex h-full items-center justify-center text-sm text-slate-400">No skills added yet.</p>
+          )}
+          </motion.div>
+          {skillsAtTop && hiddenSkillCount > 0 && (
+            <span className="pointer-events-none absolute bottom-2 right-3 rounded-full border border-white/10 bg-zinc-950/90 px-2.5 py-1 text-xs font-semibold text-zinc-300 shadow-lg">
+              +{hiddenSkillCount}
+            </span>
+          )}
+        </div>
       </motion.div>
 
       {mounted &&
@@ -193,7 +240,7 @@ export default function Skills() {
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-slate-200 flex items-center gap-2">
                     <span className="p-2 bg-zinc-600/20 rounded-lg">
-                      <Edit3 className="h-5 w-5" />
+                      <Pencil className="h-5 w-5" />
                     </span>
                     Edit Skills
                   </h2>

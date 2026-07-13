@@ -113,13 +113,13 @@ export default function ProjectCard({
           {project.tags.slice(0, 3).map((tech) => (
             <span
               key={tech}
-              className="text-xs bg-zinc-900/50 text-zinc-300 px-2 py-1 rounded"
+              className="rounded-md border border-white/10 bg-white/[0.10] px-2 py-1 text-xs text-zinc-200 shadow-sm"
             >
               {tech}
             </span>
           ))}
           {project.tags.length > 3 && (
-            <span className="text-xs bg-slate-700/70 text-slate-300 px-2 py-1 rounded">
+            <span className="rounded-md border border-white/10 bg-white/[0.10] px-2 py-1 text-xs text-zinc-200 shadow-sm">
               +{project.tags.length - 3} more
             </span>
           )}
