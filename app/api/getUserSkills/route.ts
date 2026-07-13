@@ -26,10 +26,18 @@ export async function GET(req: NextRequest) {
 
     // Extract skills array from the first record (if exists)
     const skills = userSkills.length > 0 ? userSkills[0].skills : [];
+    const storedIconMap = userSkills.length > 0 ? userSkills[0].iconMap : null;
+    const iconMap =
+      storedIconMap &&
+      typeof storedIconMap === "object" &&
+      !Array.isArray(storedIconMap)
+        ? storedIconMap
+        : {};
 
     return NextResponse.json({
       success: true,
       skills: skills,
+      iconMap,
     });
   } catch (error) {
     console.error("Error fetching user skills:", error);

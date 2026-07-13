@@ -1,0 +1,1 @@
+ALTER TABLE "Skill" ADD COLUMN "iconMap" JSONB;

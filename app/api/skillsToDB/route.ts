@@ -13,6 +13,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Skills must be a list of names" }, { status: 400 });
     }
 
+    const requestedIconMap =
+      !Array.isArray(body) && body.iconMap && typeof body.iconMap === "object"
+        ? body.iconMap
+        : {};
+    const iconMap: Record<string, string | null> = {};
+    selectedSkills.forEach((skill) => {
+      const icon = requestedIconMap[skill];
+      if (icon === null) {
+        iconMap[skill] = null;
+      } else if (
+        typeof icon === "string" &&
+        /^[a-z0-9-]+:[a-z0-9-]+$/.test(icon) &&
+        icon.length <= 120
+      ) {
+        iconMap[skill] = icon;
+      }
+    });
+
     const token = req.cookies.get("id&Uname")?.value;
 
     if (!token) {
@@ -41,12 +59,14 @@ export async function POST(req: NextRequest) {
         },
         data: {
           skills: selectedSkills,
+          iconMap,
         },
       });
     } else {
       await db.skill.create({
         data: {
           skills: selectedSkills,
+          iconMap,
           userId: userId,
         },
       });

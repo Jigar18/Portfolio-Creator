@@ -50,10 +50,11 @@ model Details {
 }
 
 model Skill {
-  id     String   @id @default(uuid())
-  skills String[]
-  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
+  id      String   @id @default(uuid())
+  skills  String[]
+  iconMap Json?
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  String
 }
 
 model Experience {

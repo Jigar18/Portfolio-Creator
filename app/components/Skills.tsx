@@ -4,13 +4,41 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { X, Edit3, Pencil, Search, Sparkles } from "lucide-react";
+import { Icon } from "@iconify/react";
 import CredentialCardHeader, { credentialEditButtonClass } from "./CredentialCardHeader";
+
+type SkillIconMap = Record<string, string | null>;
 
 interface UserSkills {
   skills: string[];
+  iconMap?: SkillIconMap;
 }
 
 const capitalizeFirst = (skill: string) => skill ? skill.charAt(0).toUpperCase() + skill.slice(1) : skill;
+
+const defaultSkillIcons: Record<string, string> = {
+  react: "devicon:react",
+  reactjs: "devicon:react",
+  nextjs: "devicon:nextjs",
+  typescript: "devicon:typescript",
+  javascript: "devicon:javascript",
+  java: "devicon:java",
+  spring: "devicon:spring",
+  springboot: "devicon:spring",
+  springsecurity: "devicon:spring",
+  git: "devicon:git",
+  github: "devicon:github",
+  docker: "devicon:docker",
+  postgresql: "devicon:postgresql",
+  sqlserver: "devicon:microsoftsqlserver",
+};
+
+const normaliseSkill = (skill: string) => skill.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+const getSkillIcon = (skill: string, iconMap: SkillIconMap) => {
+  if (iconMap[skill] === null) return undefined;
+  return iconMap[skill] || defaultSkillIcons[normaliseSkill(skill)];
+};
 
 export default function Skills() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -19,6 +47,11 @@ export default function Skills() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [tempSkills, setTempSkills] = useState<string[]>([]);
+  const [skillIcons, setSkillIcons] = useState<SkillIconMap>({});
+  const [tempSkillIcons, setTempSkillIcons] = useState<SkillIconMap>({});
+  const [iconPickerSkill, setIconPickerSkill] = useState<string | null>(null);
+  const [iconChoices, setIconChoices] = useState<string[]>([]);
+  const [isSearchingIcons, setIsSearchingIcons] = useState(false);
   const [loading, setLoading] = useState(true);
   const [skills, setSkills] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
@@ -44,6 +77,7 @@ export default function Skills() {
       if (response.ok) {
         const data: UserSkills = await response.json();
         setSkills((data.skills || []).map(capitalizeFirst));
+        setSkillIcons(data.iconMap || {});
       }
     } catch (error) {
       console.error("Error fetching user skills:", error);
@@ -97,7 +131,35 @@ export default function Skills() {
 
   const handleEditClick = () => {
     setTempSkills([...skills]);
+    setTempSkillIcons({ ...skillIcons });
+    setIconPickerSkill(null);
+    setIconChoices([]);
     setIsEditModalOpen(true);
+  };
+
+  const loadIconChoices = async (skill: string, autoSelect: boolean) => {
+    setIconPickerSkill(skill);
+    setIconChoices([]);
+    setIsSearchingIcons(true);
+
+    try {
+      const response = await fetch(
+        `/api/skill-icons?skill=${encodeURIComponent(skill)}`
+      );
+      const data = (await response.json()) as { icons?: string[] };
+      const icons = data.icons || [];
+      setIconChoices(icons);
+      if (autoSelect && icons[0]) {
+        setTempSkillIcons((current) =>
+          current[skill] === undefined ? { ...current, [skill]: icons[0] } : current
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching skill icons:", error);
+      setIconChoices([]);
+    } finally {
+      setIsSearchingIcons(false);
+    }
   };
 
   const addSkill = (skill: string) => {
@@ -107,11 +169,21 @@ export default function Skills() {
       setSkillInput("");
       setSuggestions([]);
       setShowSuggestions(false);
+      void loadIconChoices(formattedSkill, true);
     }
   };
 
   const removeSkill = (skillToRemove: string) => {
     setTempSkills(tempSkills.filter((skill) => skill !== skillToRemove));
+    setTempSkillIcons((current) => {
+      const updated = { ...current };
+      delete updated[skillToRemove];
+      return updated;
+    });
+    if (iconPickerSkill === skillToRemove) {
+      setIconPickerSkill(null);
+      setIconChoices([]);
+    }
   };
 
   const handleSaveSkills = async () => {
@@ -120,11 +192,12 @@ export default function Skills() {
       const response = await fetch("/api/skillsToDB", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ skills: tempSkills }),
+        body: JSON.stringify({ skills: tempSkills, iconMap: tempSkillIcons }),
       });
 
       if (response.ok) {
         setSkills([...tempSkills]);
+        setSkillIcons({ ...tempSkillIcons });
         setIsEditModalOpen(false);
       }
     } catch (error) {
@@ -210,9 +283,16 @@ export default function Skills() {
                 exit="exit"
                 {...{
                   className:
-                    "px-3 py-1 bg-zinc-600/20 text-zinc-300 rounded-full text-sm font-medium border border-zinc-600/30 hover:bg-zinc-600/30 transition-colors",
+                    "inline-flex items-center gap-2 px-3 py-1 bg-zinc-600/20 text-zinc-300 rounded-full text-sm font-medium border border-zinc-600/30 hover:bg-zinc-600/30 transition-colors",
                 }}
               >
+                {getSkillIcon(skill, skillIcons) && (
+                  <Icon
+                    icon={getSkillIcon(skill, skillIcons)!}
+                    className="h-4 w-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                )}
                 {skill}
               </motion.span>
             ))}
@@ -302,6 +382,90 @@ export default function Skills() {
                   </div>
                 </div>
 
+                {iconPickerSkill && (
+                  <div className="mb-6 rounded-xl border border-slate-700 bg-slate-900/45 p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-slate-200">
+                          Choose a logo for {iconPickerSkill}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          Icons load from Iconify and are not stored as project assets.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIconPickerSkill(null);
+                          setIconChoices([]);
+                        }}
+                        className="rounded-md p-1 text-slate-500 transition-colors hover:bg-slate-700 hover:text-slate-200"
+                        aria-label="Close icon picker"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {isSearchingIcons ? (
+                        <div className="flex h-12 items-center gap-2 px-2 text-sm text-slate-400">
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-600 border-t-slate-200" />
+                          Finding logos...
+                        </div>
+                      ) : (
+                        <>
+                          {iconChoices.map((iconName) => {
+                            const selected = tempSkillIcons[iconPickerSkill] === iconName;
+                            return (
+                              <button
+                                key={iconName}
+                                type="button"
+                                onClick={() =>
+                                  setTempSkillIcons((current) => ({
+                                    ...current,
+                                    [iconPickerSkill]: iconName,
+                                  }))
+                                }
+                                className={`grid h-12 w-12 place-items-center rounded-xl border transition-all hover:-translate-y-0.5 ${
+                                  selected
+                                    ? "border-white/50 bg-white/15 ring-2 ring-white/15"
+                                    : "border-slate-700 bg-slate-800 hover:border-slate-500"
+                                }`}
+                                title={iconName}
+                                aria-label={`Use ${iconName} for ${iconPickerSkill}`}
+                              >
+                                <Icon icon={iconName} className="h-7 w-7" aria-hidden="true" />
+                              </button>
+                            );
+                          })}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setTempSkillIcons((current) => ({
+                                ...current,
+                                [iconPickerSkill]: null,
+                              }))
+                            }
+                            className={`h-12 rounded-xl border px-3 text-xs font-medium transition-all hover:-translate-y-0.5 ${
+                              tempSkillIcons[iconPickerSkill] === null
+                                ? "border-white/50 bg-white/15 text-white ring-2 ring-white/15"
+                                : "border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-500 hover:text-slate-200"
+                            }`}
+                          >
+                            No icon
+                          </button>
+                        </>
+                      )}
+                    </div>
+
+                    {!isSearchingIcons && iconChoices.length === 0 && (
+                      <p className="mt-3 text-xs text-slate-500">
+                        No matching logo was found. This skill will remain text-only.
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-slate-300 mb-3">
                     Current Skills ({tempSkills.length})
@@ -322,13 +486,29 @@ export default function Skills() {
                             exit="exit"
                             {...{
                               className:
-                                "inline-flex items-center gap-1 px-3 py-1 bg-zinc-600/20 text-zinc-300 rounded-full text-sm font-medium border border-zinc-600/30",
+                                "inline-flex items-center gap-1 px-2.5 py-1 bg-zinc-600/20 text-zinc-300 rounded-full text-sm font-medium border border-zinc-600/30",
                             }}
                           >
-                            {skill}
                             <button
+                              type="button"
+                              onClick={() => void loadIconChoices(skill, false)}
+                              className="inline-flex items-center gap-1.5 rounded-full px-0.5 transition-colors hover:text-white"
+                              title={`Choose an icon for ${skill}`}
+                            >
+                              {getSkillIcon(skill, tempSkillIcons) && (
+                                <Icon
+                                  icon={getSkillIcon(skill, tempSkillIcons)!}
+                                  className="h-4 w-4 shrink-0"
+                                  aria-hidden="true"
+                                />
+                              )}
+                              {skill}
+                            </button>
+                            <button
+                              type="button"
                               onClick={() => removeSkill(skill)}
                               className="ml-1 hover:text-zinc-400 transition-colors"
+                              aria-label={`Remove ${skill}`}
                             >
                               <X className="h-3 w-3" />
                             </button>
