@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useUser } from "../context/UserContext";
+import DeleteExperienceModal from "../components/DeleteExperienceModal";
 
 interface ExperienceItem {
   level: number;
@@ -49,6 +50,53 @@ interface DatabaseExperience {
   contributions: string[];
 }
 
+const monthOrder = new Map(
+  [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ].map((month, index) => [month, index])
+);
+
+const dateValue = (year?: string, month?: string) => {
+  const numericYear = Number(year);
+  return (
+    (Number.isFinite(numericYear) ? numericYear : 0) * 12 +
+    (monthOrder.get(month ?? "") ?? -1)
+  );
+};
+
+const compareExperienceDates = (
+  first: DatabaseExperience,
+  second: DatabaseExperience
+) => {
+  if (first.isCurrentRole !== second.isCurrentRole) {
+    return first.isCurrentRole ? -1 : 1;
+  }
+
+  const firstEnd = first.isCurrentRole
+    ? Number.POSITIVE_INFINITY
+    : dateValue(first.endYear, first.endMonth);
+  const secondEnd = second.isCurrentRole
+    ? Number.POSITIVE_INFINITY
+    : dateValue(second.endYear, second.endMonth);
+
+  return (
+    secondEnd - firstEnd ||
+    dateValue(second.startYear, second.startMonth) -
+      dateValue(first.startYear, first.startMonth)
+  );
+};
+
 export default function Experience() {
   const { isOwner, portfolioApiUrl } = useUser();
   const ref = useRef<HTMLDivElement>(null);
@@ -71,6 +119,8 @@ export default function Experience() {
   const [tempContributions, setTempContributions] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [experienceToDelete, setExperienceToDelete] =
+    useState<ExperienceItem | null>(null);
 
   const fetchExperiences = useCallback(async () => {
     try {
@@ -80,8 +130,11 @@ export default function Experience() {
         const data = await response.json();
         if (data.success && data.experiences) {
           // Transform database data to component format
-          const transformedExperiences = data.experiences.map(
-            (exp: DatabaseExperience, index: number) => ({
+          const transformedExperiences = (
+            data.experiences as DatabaseExperience[]
+          )
+            .sort(compareExperienceDates)
+            .map((exp: DatabaseExperience, index: number) => ({
               level: index + 1,
               company: exp.company,
               position: exp.position,
@@ -95,8 +148,7 @@ export default function Experience() {
                 })
               ),
               id: exp.id, // Store database ID for updates
-            })
-          );
+            }));
           setExperience(transformedExperiences);
         } else {
           // If no experiences found, set empty array
@@ -280,9 +332,9 @@ export default function Experience() {
     }
   };
 
-  const handleDeleteExperience = async (index: number) => {
-    const exp = experience[index];
-    if (!exp.id) return;
+  const handleDeleteExperience = async () => {
+    const exp = experienceToDelete;
+    if (!exp?.id) return;
 
     try {
       setSaving(true);
@@ -296,6 +348,8 @@ export default function Experience() {
 
       // Refresh the experiences from the database
       await fetchExperiences();
+      setExperienceToDelete(null);
+      handleCloseModal();
     } catch (error) {
       console.error("Error deleting experience:", error);
     } finally {
@@ -360,7 +414,7 @@ export default function Experience() {
             ) : (
               experience.map((level, index) => (
                 <motion.div
-                  key={level.level}
+                  key={level.id ?? level.level}
                   {...{ className: "relative" }}
                   initial={{ opacity: 0, x: -20 }}
                   animate={
@@ -370,10 +424,10 @@ export default function Experience() {
                 >
                   <div className="flex flex-col md:flex-row gap-6">
                     {/* Timeline dot and line */}
-                    <div className="hidden md:flex flex-col items-center">
-                      <div className="w-4 h-4 rounded-full bg-zinc-600 z-10"></div>
+                    <div className="relative hidden w-4 flex-shrink-0 flex-col items-center md:flex">
+                      <div className="z-10 h-4 w-4 rounded-full bg-zinc-600"></div>
                       {index < experience.length - 1 && (
-                        <div className="w-0.5 bg-slate-600 h-full absolute top-4 left-[7px] -z-10"></div>
+                        <div className="absolute -bottom-8 left-[7px] top-4 w-0.5 bg-slate-600"></div>
                       )}
                     </div>
 
@@ -672,12 +726,9 @@ export default function Experience() {
                     {editingIndex !== null && (
                       <Button
                         variant="outline"
-                        onClick={() => {
-                          if (editingIndex !== null) {
-                            handleDeleteExperience(editingIndex);
-                            handleCloseModal();
-                          }
-                        }}
+                        onClick={() =>
+                          setExperienceToDelete(experience[editingIndex])
+                        }
                         className="bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300 hover:text-zinc-200"
                         disabled={saving}
                       >
@@ -711,6 +762,15 @@ export default function Experience() {
           </div>,
           document.body
         )}
+
+      {mounted && isOwner && (
+        <DeleteExperienceModal
+          experience={experienceToDelete}
+          isDeleting={saving}
+          onClose={() => setExperienceToDelete(null)}
+          onConfirm={handleDeleteExperience}
+        />
+      )}
     </>
   );
 }
