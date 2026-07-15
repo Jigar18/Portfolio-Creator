@@ -11,8 +11,11 @@ import InfoCard from "../../sections/InfoCard";
 import Projects from "../../sections/Projects";
 import ProjectModal from "../../components/ProjectModal";
 import CertificateModal from "../../components/CertificateModal";
-import { UserProvider } from "../../context/UserContext";
+import { UserProvider, useUser } from "../../context/UserContext";
 import { ArrowUp } from "lucide-react";
+import PortfolioViewCount from "../../components/PortfolioViewCount";
+import GitHubHeatmap from "../../components/GitHubHeatmap";
+import NotFoundState from "../../components/NotFoundState";
 
 interface Card {
   id: string;
@@ -31,6 +34,20 @@ interface Project {
   githubUrl?: string;
   liveUrl?: string;
   image?: string;
+}
+
+function PortfolioRouteGate({ children }: { children: React.ReactNode }) {
+  const { loading, userDetails } = useUser();
+
+  if (loading) {
+    return (
+      <main className="grid min-h-screen place-items-center bg-zinc-950 text-zinc-500">
+        <span className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-700 border-t-sky-300" />
+      </main>
+    );
+  }
+  if (!userDetails) return <NotFoundState kind="portfolio" />;
+  return children;
 }
 
 export default function Home() {
@@ -93,10 +110,12 @@ export default function Home() {
 
   return (
     <UserProvider>
+      <PortfolioRouteGate>
       <div ref={topRef} className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-200">
         <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_76%_8%,rgba(255,255,255,0.08),transparent_28rem),radial-gradient(circle_at_5%_55%,rgba(255,255,255,0.04),transparent_24rem)]" />
         <div className="pointer-events-none fixed inset-0 opacity-[0.025] [background-image:linear-gradient(rgba(255,255,255,.7)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.7)_1px,transparent_1px)] [background-size:72px_72px]" />
         <main className="relative mx-auto w-full max-w-7xl px-5 py-6 sm:px-8 sm:py-9 lg:px-10 lg:py-12">
+          <PortfolioViewCount />
           <div className="space-y-16 lg:space-y-24">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -126,6 +145,8 @@ export default function Home() {
             >
               <Projects onOpenProject={handleOpenProject} />
             </motion.div>
+
+            <GitHubHeatmap />
           </div>
 
           <motion.div custom={3} initial="hidden" animate="visible" variants={sectionVariants}>
@@ -194,6 +215,7 @@ export default function Home() {
           certificates={allCertificates}
         />
       </div>
+      </PortfolioRouteGate>
     </UserProvider>
   );
 }

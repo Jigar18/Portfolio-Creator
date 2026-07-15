@@ -1,0 +1,2 @@
+ALTER TABLE "User"
+ADD COLUMN "showGitHubHeatmap" BOOLEAN NOT NULL DEFAULT true;

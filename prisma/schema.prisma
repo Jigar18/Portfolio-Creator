@@ -21,6 +21,7 @@ model User {
   installationId             String?             @unique
   accessToken                String?
   githubAccessTokenUpdatedAt DateTime?
+  showGitHubHeatmap          Boolean             @default(true)
   createdAt                  DateTime            @default(now())
   updatedAt                  DateTime            @updatedAt
   skills                     Skill[]
@@ -30,7 +31,20 @@ model User {
   certifications             Certifications[]
   education                  Education[]
   projects                   Project[]
+  portfolioViews             PortfolioView[]
   githubInstallation         GitHubInstallation? @relation(fields: [installationId], references: [id], onDelete: SetNull)
+}
+
+model PortfolioView {
+  id              String   @id @default(uuid())
+  portfolioUser   User     @relation(fields: [portfolioUserId], references: [id], onDelete: Cascade)
+  portfolioUserId String
+  visitorKeyHash  String
+  firstViewedAt   DateTime @default(now())
+  lastViewedAt    DateTime @updatedAt
+
+  @@unique([portfolioUserId, visitorKeyHash])
+  @@index([portfolioUserId])
 }
 
 model Details {
