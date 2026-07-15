@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useUser } from "../context/UserContext";
 
 interface ExperienceItem {
   level: number;
@@ -49,6 +50,7 @@ interface DatabaseExperience {
 }
 
 export default function Experience() {
+  const { isOwner, portfolioApiUrl } = useUser();
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref as React.RefObject<HTMLElement>, {
     once: true,
@@ -73,7 +75,7 @@ export default function Experience() {
   const fetchExperiences = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/getUserExperience");
+      const response = await fetch(portfolioApiUrl("/api/getUserExperience"));
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.experiences) {
@@ -110,7 +112,7 @@ export default function Experience() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [portfolioApiUrl]);
 
   useEffect(() => {
     setMounted(true);
@@ -321,13 +323,13 @@ export default function Experience() {
           animate={isInView ? { y: 0, opacity: 1 } : { y: 50, opacity: 0 }}
         >
           {/* Edit Button */}
-          <button
+          {isOwner && <button
             className="absolute top-4 right-4 p-2 rounded-lg bg-slate-700/80 hover:bg-slate-600 text-slate-300 hover:text-white border border-slate-600 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-105"
             onClick={() => handleOpenModal()}
             type="button"
           >
             <Edit3 className="h-4 w-4" />
-          </button>
+          </button>}
 
           <h2 className="mb-10 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.22em] text-zinc-400">
             <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
@@ -348,12 +350,12 @@ export default function Experience() {
               <div className="text-center py-12">
                 <Briefcase className="h-12 w-12 text-slate-500 mx-auto mb-4" />
                 <p className="text-slate-400 mb-4">No experiences added yet</p>
-                <Button
+                {isOwner && <Button
                   onClick={() => handleOpenModal()}
                   className="bg-zinc-600 hover:bg-zinc-700 text-white"
                 >
                   Add Your First Experience
-                </Button>
+                </Button>}
               </div>
             ) : (
               experience.map((level, index) => (
@@ -379,13 +381,13 @@ export default function Experience() {
                     <div className="flex-1 flex flex-col md:flex-row gap-4 group">
                       <div className="bg-slate-700/50 rounded-lg p-4 md:w-64 flex-shrink-0 relative">
                         {/* Individual edit button for each experience */}
-                        <button
+                        {isOwner && <button
                           className="absolute top-2 right-2 p-1 rounded bg-slate-600/80 hover:bg-slate-500 text-slate-300 hover:text-white opacity-0 group-hover:opacity-100 transition-all duration-200"
                           onClick={() => handleOpenModal(index)}
                           type="button"
                         >
                           <Edit3 className="h-3 w-3" />
-                        </button>
+                        </button>}
 
                         <h3 className="text-xl font-bold text-slate-100">
                           {level.company}
@@ -466,6 +468,7 @@ export default function Experience() {
 
       {/* Edit Modal */}
       {mounted &&
+        isOwner &&
         isEditModalOpen &&
         createPortal(
           <div

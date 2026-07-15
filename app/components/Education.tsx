@@ -23,11 +23,11 @@ export default function Education() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [educationAtTop, setEducationAtTop] = useState(true);
-  const { userDetails } = useUser();
+  const { isOwner, portfolioApiUrl } = useUser();
 
   const fetchEducation = async () => {
     try {
-      const response = await fetch("/api/getEducation");
+      const response = await fetch(portfolioApiUrl("/api/getEducation"));
       const data = await response.json();
       
       if (data.success) {
@@ -46,7 +46,7 @@ export default function Education() {
 
   useEffect(() => {
     fetchEducation();
-  }, []);
+  }, [portfolioApiUrl]);
 
   const handleSaveEducation = async (updatedEducation: EducationItem[]) => {
     try {
@@ -148,7 +148,7 @@ export default function Education() {
         <CredentialCardHeader
           title="Education"
           icon={<BookOpen className="h-5 w-5" />}
-          action={
+          action={isOwner ?
             <button
               onClick={() => setIsModalOpen(true)}
               className={credentialEditButtonClass}
@@ -157,7 +157,7 @@ export default function Education() {
             >
               <Edit3 className="h-4 w-4" />
             </button>
-          }
+          : undefined}
         />
         
         <div className="relative min-h-0 flex-1 pt-3">
@@ -168,12 +168,12 @@ export default function Education() {
           {education.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-slate-400 mb-4">No education information added yet</p>
-              <button
+              {isOwner && <button
                 onClick={() => setIsModalOpen(true)}
                 className="px-4 py-2 bg-zinc-600 text-white rounded-lg hover:bg-zinc-700 transition-colors"
               >
                 Add Education
-              </button>
+              </button>}
             </div>
           ) : (
             education.map((edu, index) => (
@@ -206,12 +206,12 @@ export default function Education() {
       </motion.div>
 
       {/* Education Modal */}
-      <EducationModal
+      {isOwner && <EducationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         education={education}
         onSave={handleSaveEducation}
-      />
+      />}
     </>
   );
 }

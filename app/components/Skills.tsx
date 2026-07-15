@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { X, Edit3, Pencil, Search, Sparkles } from "lucide-react";
 import { Icon } from "@iconify/react";
 import CredentialCardHeader, { credentialEditButtonClass } from "./CredentialCardHeader";
+import { useUser } from "../context/UserContext";
 
 type SkillIconMap = Record<string, string | null>;
 
@@ -41,6 +42,7 @@ const getSkillIcon = (skill: string, iconMap: SkillIconMap) => {
 };
 
 export default function Skills() {
+  const { isOwner, portfolioApiUrl } = useUser();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [skillInput, setSkillInput] = useState("");
@@ -73,7 +75,7 @@ export default function Skills() {
 
   const fetchUserSkills = useCallback(async () => {
     try {
-      const response = await fetch("/api/getUserSkills");
+      const response = await fetch(portfolioApiUrl("/api/getUserSkills"));
       if (response.ok) {
         const data: UserSkills = await response.json();
         setSkills((data.skills || []).map(capitalizeFirst));
@@ -84,7 +86,7 @@ export default function Skills() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [portfolioApiUrl]);
 
   useEffect(() => {
     setMounted(true);
@@ -252,7 +254,7 @@ export default function Skills() {
         <CredentialCardHeader
           title="Skills"
           icon={<Sparkles className="h-5 w-5" />}
-          action={
+          action={isOwner ?
           <button
             onClick={handleEditClick}
             className={credentialEditButtonClass}
@@ -261,7 +263,7 @@ export default function Skills() {
           >
             <Edit3 className="h-4 w-4" />
           </button>
-          }
+          : undefined}
         />
 
         <div className="relative min-h-0 flex-1 pt-3">
@@ -314,6 +316,7 @@ export default function Skills() {
       </motion.div>
 
       {mounted &&
+        isOwner &&
         isEditModalOpen &&
         createPortal(
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { db } from "@/lib/db";
+import { portfolioLookupStatus, resolvePortfolioUser } from "@/lib/publicPortfolio";
 
 type ProjectInput = {
   id?: string;
@@ -33,9 +34,9 @@ function parseProject(body: ProjectInput) {
 
 export async function GET(request: NextRequest) {
   try {
-    const userId = await getUserId(request);
-    if (!userId) return NextResponse.json({ success: false, error: "Authentication token is missing" }, { status: 401 });
-    const projects = await db.project.findMany({ where: { userId }, orderBy: { createdAt: "desc" } });
+    const user = await resolvePortfolioUser(request);
+    if (!user) return NextResponse.json({ success: false, error: "Portfolio not found" }, { status: portfolioLookupStatus(request) });
+    const projects = await db.project.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" } });
     return NextResponse.json({ success: true, projects });
   } catch {
     return NextResponse.json({ success: false, error: "Unable to load projects" }, { status: 500 });

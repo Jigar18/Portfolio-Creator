@@ -1,26 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
 import { db } from "@/lib/db";
+import { portfolioLookupStatus, resolvePortfolioUser } from "@/lib/publicPortfolio";
 
 export async function GET(req: NextRequest) {
   try {
-    const token = req.cookies.get("id&Uname")?.value;
-
-    if (!token) {
+    const user = await resolvePortfolioUser(req);
+    if (!user) {
       return NextResponse.json(
-        { success: false, error: "Authentication token is missing" },
-        { status: 401 }
+        { success: false, error: "Portfolio not found" },
+        { status: portfolioLookupStatus(req) }
       );
     }
 
-    const { payload } = await jwtVerify(
-      token,
-      new TextEncoder().encode(process.env.JWT_SECRET!)
-    );
-    const userId = payload.userId as string;
-
     const education = await db.education.findMany({
-      where: { userId: userId },
+      where: { userId: user.id },
     });
 
     const sortedEducation = education.sort((a, b) => {
@@ -39,10 +32,24 @@ export async function GET(req: NextRequest) {
 
     if (education.length === 0) {
       const userDetails = await db.details.findUnique({
-        where: { userId: userId },
+        where: { userId: user.id },
       });
 
       if (userDetails?.college) {
+        if (!user.isOwner) {
+          return NextResponse.json({
+            success: true,
+            education: [{
+              school: userDetails.college,
+              degree: "Bachelor of Technology",
+              field: "Computer Science",
+              startYear: userDetails.startYear,
+              endYear: userDetails.endYear,
+              isCurrently: userDetails.endYear > new Date().getFullYear(),
+            }],
+          });
+        }
+
         const defaultEducation = await db.education.create({
           data: {
             school: userDetails.college,
@@ -51,7 +58,7 @@ export async function GET(req: NextRequest) {
             startYear: userDetails.startYear,
             endYear: userDetails.endYear,
             isCurrently: userDetails.endYear > new Date().getFullYear(),
-            userId: userId,
+            userId: user.id,
           },
         });
 

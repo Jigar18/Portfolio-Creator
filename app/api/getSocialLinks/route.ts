@@ -1,27 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
 import { db } from "../../../lib/db";
+import { portfolioLookupStatus, resolvePortfolioUser } from "@/lib/publicPortfolio";
 
 export async function GET(req: NextRequest) {
   try {
-    const token = req.cookies.get("id&Uname")?.value;
-
-    if (!token) {
+    const user = await resolvePortfolioUser(req);
+    if (!user) {
       return NextResponse.json(
-        { success: false, error: "Authentication token is missing" },
-        { status: 401 }
+        { success: false, error: "Portfolio not found" },
+        { status: portfolioLookupStatus(req) }
       );
     }
 
-    const { payload } = await jwtVerify(
-      token,
-      new TextEncoder().encode(process.env.JWT_SECRET!)
-    );
-    const userId = payload.userId as string;
-
     // Get user's social links
     const socialLinks = await db.socialLink.findUnique({
-      where: { userId: userId },
+      where: { userId: user.id },
     });
 
     return NextResponse.json({

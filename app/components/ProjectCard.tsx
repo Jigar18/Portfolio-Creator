@@ -61,20 +61,20 @@ export default function ProjectCard({
       animate={{ opacity: 1, y: 0 }}
     >
       {/* Project actions appear without competing with the content. */}
-      <button
+      {onEditProject && <button
         onClick={handleEdit}
         className="absolute top-2 right-9 z-10 rounded-full bg-zinc-800/90 p-1.5 text-white opacity-0 transition-opacity duration-200 hover:bg-zinc-700 group-hover:opacity-100"
         title="Edit project"
       >
         <Pencil className="h-3 w-3" />
-      </button>
-      <button
+      </button>}
+      {onDeleteProject && <button
         onClick={handleDelete}
         className="absolute top-2 right-2 p-1 bg-zinc-600/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-zinc-500 z-10"
         title="Delete project"
       >
         <X className="h-3 w-3" />
-      </button>
+      </button>}
 
       <div
         className="relative h-48 w-full group cursor-pointer"

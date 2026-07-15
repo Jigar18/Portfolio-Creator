@@ -14,12 +14,16 @@ interface CertificateListProps {
   cards: Card[];
   onOpenCertificate: (certificate: Card) => void;
   onDeleteCard: (certificate: Card) => void;
+  canEdit?: boolean;
+  portfolioUsername: string;
 }
 
 export default function CertificateList({
   cards,
   onOpenCertificate,
   onDeleteCard,
+  canEdit = false,
+  portfolioUsername,
 }: CertificateListProps) {
   return (
     <div className="space-y-3">
@@ -36,7 +40,7 @@ export default function CertificateList({
           transition={{ duration: 0.3, delay: cards.indexOf(card) * 0.2 }}
           whileHover={{ y: -2, backgroundColor: "rgba(39, 39, 42, 0.7)" }}
         >
-          <button
+          {canEdit && <button
             onClick={(e) => {
               e.stopPropagation();
               onDeleteCard(card);
@@ -45,7 +49,7 @@ export default function CertificateList({
             title="Delete certificate"
           >
             <X className="h-2 w-2" />
-          </button>
+          </button>}
 
           <div className="flex items-start gap-3">
             <div className="bg-slate-700 p-2 rounded-md text-zinc-400 flex-shrink-0 mt-1">
@@ -58,7 +62,7 @@ export default function CertificateList({
               </p>
               <div className="mt-2 flex gap-4">
                 <a
-                  href={`/api/download-certificate?id=${card.id}`}
+                  href={`/api/download-certificate?id=${card.id}&username=${encodeURIComponent(portfolioUsername)}`}
                   className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-300 transition-colors"
                   onClick={(e) => e.stopPropagation()}
                   download

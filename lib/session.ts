@@ -8,11 +8,6 @@ export type Session = {
   username: string;
 };
 
-/**
- * Verifies the application session once at the edge of an API route. Keeping
- * this in one place prevents the routes from accidentally trusting a decoded
- * (but unverified) cookie.
- */
 export async function getSession(req: NextRequest): Promise<Session | null> {
   const token = req.cookies.get(SESSION_COOKIE)?.value;
   const secret = process.env.JWT_SECRET;

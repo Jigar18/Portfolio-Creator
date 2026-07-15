@@ -24,7 +24,7 @@ import ProfileImageModal from "../components/ProfileImageModal";
 import { useUser } from "../context/UserContext";
 
 function InfoCard() {
-  const { userDetails, updateUserDetails, refreshUserDetails } = useUser();
+  const { userDetails, isOwner, updateUserDetails, refreshUserDetails } = useUser();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -155,14 +155,14 @@ function InfoCard() {
         transition={{ type: "spring", stiffness: 100, damping: 15 }}
       >
         {/* Edit Button */}
-        <button
+        {isOwner && <button
           className="absolute top-4 right-4 p-2 rounded-lg bg-slate-700/80 hover:bg-slate-600 text-slate-300 hover:text-white border border-slate-600 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-105"
           onClick={handleOpenModal}
           type="button"
           title="Edit profile information"
         >
           <Edit3 className="h-4 w-4" />
-        </button>
+        </button>}
 
         <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
           <div className="flex flex-col sm:flex-row items-center gap-6">
@@ -175,6 +175,7 @@ function InfoCard() {
 
       {/* Edit Modal */}
       {typeof window !== "undefined" &&
+        isOwner &&
         isEditModalOpen &&
         createPortal(
           <div

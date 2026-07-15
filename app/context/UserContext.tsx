@@ -8,6 +8,7 @@ import {
   useCallback,
   ReactNode,
 } from "react";
+import { useParams } from "next/navigation";
 
 interface UserDetails {
   firstName: string;
@@ -23,6 +24,9 @@ interface UserDetails {
 interface UserContextType {
   userDetails: UserDetails | null;
   loading: boolean;
+  isOwner: boolean;
+  portfolioUsername: string;
+  portfolioApiUrl: (path: string) => string;
   updateUserDetails: (details: Partial<UserDetails>) => void;
   refreshUserDetails: () => Promise<void>;
 }
@@ -42,19 +46,32 @@ interface UserProviderProps {
 }
 
 export const UserProvider = ({ children }: UserProviderProps) => {
+  const params = useParams<{ userpage?: string | string[] }>();
+  const routeUsername = Array.isArray(params?.userpage)
+    ? params.userpage[0]
+    : params?.userpage;
+  const portfolioUsername = routeUsername ? decodeURIComponent(routeUsername) : "";
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
+
+  const portfolioApiUrl = useCallback((path: string) => {
+    if (!portfolioUsername) return path;
+    const separator = path.includes("?") ? "&" : "?";
+    return `${path}${separator}username=${encodeURIComponent(portfolioUsername)}`;
+  }, [portfolioUsername]);
 
   const fetchUserDetails = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/getUserDetails", {
+      const response = await fetch(portfolioApiUrl("/api/getUserDetails"), {
         credentials: "include",
       });
 
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.details) {
+          setIsOwner(Boolean(data.isOwner));
           setUserDetails({
             firstName: data.details.firstName || "",
             lastName: data.details.lastName || "",
@@ -66,13 +83,16 @@ export const UserProvider = ({ children }: UserProviderProps) => {
             about: data.details.about || "",
           });
         }
+      } else {
+        setUserDetails(null);
+        setIsOwner(false);
       }
     } catch (error) {
       console.error("Error fetching user details:", error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [portfolioApiUrl]);
 
   const updateUserDetails = useCallback((details: Partial<UserDetails>) => {
     setUserDetails((prev) => (prev ? { ...prev, ...details } : null));
@@ -84,11 +104,14 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   useEffect(() => {
     fetchUserDetails();
-  }, []);
+  }, [fetchUserDetails]);
 
   const value: UserContextType = {
     userDetails,
     loading,
+    isOwner,
+    portfolioUsername,
+    portfolioApiUrl,
     updateUserDetails,
     refreshUserDetails,
   };

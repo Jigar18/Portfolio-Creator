@@ -18,7 +18,7 @@ export default function About() {
   const [tempAboutText, setTempAboutText] = useState(aboutText);
   const [mounted, setMounted] = useState(false);
   const [saving, setSaving] = useState(false);
-  const { userDetails, loading: userLoading, updateUserDetails } = useUser();
+  const { userDetails, loading: userLoading, isOwner, updateUserDetails } = useUser();
 
   useEffect(() => {
     setMounted(true);
@@ -83,13 +83,13 @@ export default function About() {
           }}
         >
           {/* Edit Button */}
-          <button
+          {isOwner && <button
             className="absolute top-4 right-4 p-2 rounded-lg bg-slate-700/80 hover:bg-slate-600 text-slate-300 hover:text-white border border-slate-600 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-105"
             onClick={handleOpenModal}
             type="button"
           >
             <Edit3 className="h-4 w-4" />
-          </button>
+          </button>}
 
           <h2 className="mb-6 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.22em] text-zinc-400">
             <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
@@ -122,8 +122,9 @@ export default function About() {
             </div>
           ) : (
             <div className="text-slate-300 leading-relaxed whitespace-pre-wrap">
-              {aboutText ||
-                "Click the edit button to add information about yourself..."}
+              {aboutText || (isOwner
+                ? "Click the edit button to add information about yourself..."
+                : "No about information has been added yet.")}
             </div>
           )}
         </motion.div>
@@ -131,6 +132,7 @@ export default function About() {
 
       {/* Edit Modal */}
       {mounted &&
+        isOwner &&
         isEditModalOpen &&
         createPortal(
           <div

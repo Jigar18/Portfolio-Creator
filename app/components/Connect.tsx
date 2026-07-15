@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { X, Edit3, Copy, Check, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CredentialCardHeader, { credentialEditButtonClass } from "./CredentialCardHeader";
+import { useUser } from "../context/UserContext";
 
 interface SocialLink {
   name: string;
@@ -43,6 +44,7 @@ const arrangeSocialLinks = (links: SocialLink[]) => {
 };
 
 export default function Connect() {
+  const { isOwner, portfolioApiUrl } = useUser();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [tempSocialLinks, setTempSocialLinks] = useState<{
@@ -70,7 +72,7 @@ export default function Connect() {
 
   const fetchSocialLinks = useCallback(async () => {
     try {
-      const response = await fetch("/api/getSocialLinks");
+      const response = await fetch(portfolioApiUrl("/api/getSocialLinks"));
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -101,7 +103,7 @@ export default function Connect() {
       console.error("Error fetching social links:", error);
       setSocialLinks([]);
     }
-  }, []);
+  }, [portfolioApiUrl]);
 
   useEffect(() => {
     setMounted(true);
@@ -370,7 +372,7 @@ export default function Connect() {
           <CredentialCardHeader
             title="Connect"
             icon={<Share2 className="h-5 w-5" />}
-            action={
+            action={isOwner ?
               <button
                 className={credentialEditButtonClass}
                 onClick={handleOpenModal}
@@ -380,7 +382,7 @@ export default function Connect() {
               >
                 <Edit3 className="h-4 w-4" />
               </button>
-            }
+            : undefined}
           />
 
           <div className="credential-scrollbar min-h-0 flex-1 overflow-x-hidden overflow-y-auto pt-3 pr-1">
@@ -406,6 +408,7 @@ export default function Connect() {
 
       {/* Edit Modal */}
       {mounted &&
+        isOwner &&
         isEditModalOpen &&
         createPortal(
           <div

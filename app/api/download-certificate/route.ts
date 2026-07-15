@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
 import { db } from "@/lib/db";
+import { resolvePortfolioUser } from "@/lib/publicPortfolio";
 
 export async function GET(req: NextRequest) {
   try {
@@ -14,26 +14,16 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const token = req.cookies.get("id&Uname")?.value;
-
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: "Authentication token is missing" },
-        { status: 401 }
-      );
+    const user = await resolvePortfolioUser(req);
+    if (!user) {
+      return NextResponse.json({ error: "Portfolio not found" }, { status: 404 });
     }
-
-    const { payload } = await jwtVerify(
-      token,
-      new TextEncoder().encode(process.env.JWT_SECRET!)
-    );
-    const userId = payload.userId as string;
 
     // Get the certificate from database
     const certificate = await db.certifications.findFirst({
       where: {
         id: certificateId,
-        userId: userId,
+        userId: user.id,
       },
     });
 

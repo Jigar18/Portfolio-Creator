@@ -9,7 +9,7 @@ import { useUser } from "../context/UserContext";
 export default function ProfileImage() {
   const [isHovering, setIsHovering] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { userDetails, refreshUserDetails, updateUserDetails } = useUser();
+  const { userDetails, isOwner, refreshUserDetails, updateUserDetails } = useUser();
 
   const handleImageChange = async (newImageUrl: string) => {
     updateUserDetails({ imageUrl: newImageUrl });
@@ -38,7 +38,7 @@ export default function ProfileImage() {
         <div className="absolute inset-0 rounded-full blur-xl "></div>
 
         {/* Edit button that appears on hover */}
-        <motion.button
+        {isOwner && <motion.button
           {...{
             className:
               "absolute bottom-0 right-0 bg-zinc-600 hover:bg-zinc-700 text-white p-2 rounded-full z-20 shadow-lg border-2 border-slate-700 cursor-pointer",
@@ -53,16 +53,16 @@ export default function ProfileImage() {
           aria-label="Edit profile picture"
         >
           <Camera size={16} />
-        </motion.button>
+        </motion.button>}
       </motion.div>
 
       {/* Profile Image Modal */}
-      <ProfileImageModal
+      {isOwner && <ProfileImageModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onImageChange={handleImageChange}
         currentImage={userDetails?.imageUrl || ""}
-      />
+      />}
     </>
   );
 }

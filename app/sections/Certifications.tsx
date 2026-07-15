@@ -8,6 +8,7 @@ import EditCertifications from "../components/EditCertifications";
 import CertificateModal from "../components/CertificateModal";
 import DeleteCertificateModal from "../components/DeleteCertificateModal";
 import CredentialCardHeader from "../components/CredentialCardHeader";
+import { useUser } from "../context/UserContext";
 
 interface Card {
   id: string;
@@ -23,6 +24,7 @@ interface CertificationsProps {
 export default function Certifications({
   onOpenCertificate,
 }: CertificationsProps) {
+  const { isOwner, portfolioUsername, portfolioApiUrl } = useUser();
   const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCertificate, setSelectedCertificate] = useState<Card | null>(
@@ -37,12 +39,12 @@ export default function Certifications({
 
   useEffect(() => {
     fetchCertificates();
-  }, []);
+  }, [portfolioApiUrl]);
 
   const fetchCertificates = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/getCertificates");
+      const response = await fetch(portfolioApiUrl("/api/getCertificates"));
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -135,7 +137,7 @@ export default function Certifications({
       <CredentialCardHeader
         title="Certifications"
         icon={<Award className="h-5 w-5" />}
-        action={<EditCertifications onAddCard={handleAddCard} compact />}
+        action={isOwner ? <EditCertifications onAddCard={handleAddCard} compact /> : undefined}
       />
 
       <div className="relative min-h-0 flex-1 pt-3">
@@ -152,6 +154,8 @@ export default function Certifications({
             cards={cards}
             onOpenCertificate={handleOpenCertificate}
             onDeleteCard={handleDeleteCard}
+            canEdit={isOwner}
+            portfolioUsername={portfolioUsername}
           />
           )}
         </div>
@@ -163,7 +167,7 @@ export default function Certifications({
       </div>
 
       {/* Delete confirmation modal */}
-      <DeleteCertificateModal
+      {isOwner && <DeleteCertificateModal
         isOpen={deleteModalOpen}
         onClose={() => {
           setDeleteModalOpen(false);
@@ -171,7 +175,7 @@ export default function Certifications({
         }}
         onConfirm={confirmDelete}
         certificate={certificateToDelete}
-      />
+      />}
 
       {!onOpenCertificate && (
         <CertificateModal

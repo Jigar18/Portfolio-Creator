@@ -1,54 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import jwt from "jsonwebtoken";
+import { portfolioLookupStatus, resolvePortfolioUser } from "@/lib/publicPortfolio";
 
 export async function GET(req: NextRequest) {
   try {
-    const getCookie = (name: string) => {
-      const cookieHeader = req.headers.get("cookie");
-      if (!cookieHeader) return null;
-
-      const cookies = cookieHeader.split(";").reduce((acc, cookie) => {
-        const [key, value] = cookie.trim().split("=");
-        acc[key] = value;
-        return acc;
-      }, {} as Record<string, string>);
-
-      return cookies[name];
-    };
-
-    const token = getCookie("id&Uname");
-
-    if (!token) {
+    const user = await resolvePortfolioUser(req);
+    if (!user) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Authentication token is missing",
-        },
-        { status: 401 }
-      );
-    }
-
-    // Decode the JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: string;
-      username: string;
-    };
-
-    if (!decoded.userId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid token",
-        },
-        { status: 401 }
+        { success: false, error: "Portfolio not found" },
+        { status: portfolioLookupStatus(req) }
       );
     }
 
     // Fetch user experiences from database
     const experiences = await db.experience.findMany({
       where: {
-        userId: decoded.userId,
+        userId: user.id,
       },
       orderBy: {
         createdAt: "desc",
