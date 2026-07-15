@@ -22,16 +22,51 @@ function clearOAuthCookies(response: NextResponse) {
   }
 }
 
+function hasCompletedPortfolioSetup(user: {
+  details: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    location: string;
+    jobTitle: string;
+    college: string;
+    startYear: number;
+    endYear: number;
+    imageUrl: string | null;
+  } | null;
+  skills: Array<{ skills: string[] }>;
+}) {
+  const details = user.details;
+  if (!details) return false;
+
+  const requiredDetails = [
+    details.firstName,
+    details.lastName,
+    details.email,
+    details.location,
+    details.jobTitle,
+    details.college,
+    details.imageUrl,
+  ];
+  const hasRequiredDetails = requiredDetails.every(
+    (value) => typeof value === "string" && value.trim().length > 0
+  );
+  const hasEducationYears =
+    Number.isInteger(details.startYear) && Number.isInteger(details.endYear);
+  const hasSkills = user.skills.some((record) =>
+    record.skills.some((skill) => skill.trim().length > 0)
+  );
+
+  return hasRequiredDetails && hasEducationYears && hasSkills;
+}
+
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
   const state = req.nextUrl.searchParams.get("state");
   const oauthError = req.nextUrl.searchParams.get("error");
   const installationId = req.nextUrl.searchParams.get("installation_id");
   const setupAction = req.nextUrl.searchParams.get("setup_action");
-
-  // GitHub App setup callbacks may include a setup `code`, but they do not
-  // include the OAuth state cookie. Authenticate with our existing session and
-  // verify the exact installation through GitHub before linking it.
+  
   if (installationId) {
     const session = await getSession(req);
     if (!session) return NextResponse.json({ error: "Sign in before installing the GitHub App" }, { status: 401 });
@@ -131,6 +166,24 @@ export async function GET(req: NextRequest) {
         accessToken,
         githubAccessTokenUpdatedAt: new Date(),
       },
+      select: {
+        id: true,
+        username: true,
+        details: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+            location: true,
+            jobTitle: true,
+            college: true,
+            startYear: true,
+            endYear: true,
+            imageUrl: true,
+          },
+        },
+        skills: { select: { skills: true } },
+      },
     });
 
     const session = await new SignJWT({ userId: userDB.id, username: userDB.username })
@@ -140,7 +193,12 @@ export async function GET(req: NextRequest) {
       .sign(new TextEncoder().encode(secret));
 
     const returnTo = req.cookies.get("oauth_return_to")?.value;
-    const target = returnTo?.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/app-install";
+    const requestedTarget =
+      returnTo?.startsWith("/") && !returnTo.startsWith("//") ? returnTo : null;
+    const target = requestedTarget ??
+      (hasCompletedPortfolioSetup(userDB)
+        ? `/user/${encodeURIComponent(userDB.username)}`
+        : "/app-install");
     const response = NextResponse.redirect(new URL(target, req.url));
     response.cookies.set(SESSION_COOKIE, session, {
       httpOnly: true,

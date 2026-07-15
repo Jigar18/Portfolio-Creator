@@ -10,7 +10,7 @@ const COOKIE_OPTIONS = {
 };
 
 function safeReturnPath(value: string | null) {
-  return value?.startsWith("/") && !value.startsWith("//") ? value : "/app-install";
+  return value?.startsWith("/") && !value.startsWith("//") ? value : null;
 }
 
 export async function GET(req: NextRequest) {
@@ -28,6 +28,11 @@ export async function GET(req: NextRequest) {
 
   const response = NextResponse.redirect(oauthUrl);
   response.cookies.set("github_oauth_state", state, COOKIE_OPTIONS);
-  response.cookies.set("oauth_return_to", safeReturnPath(req.nextUrl.searchParams.get("return_to")), COOKIE_OPTIONS);
+  const returnTo = safeReturnPath(req.nextUrl.searchParams.get("return_to"));
+  if (returnTo) {
+    response.cookies.set("oauth_return_to", returnTo, COOKIE_OPTIONS);
+  } else {
+    response.cookies.set("oauth_return_to", "", { expires: new Date(0), path: "/" });
+  }
   return response;
 }

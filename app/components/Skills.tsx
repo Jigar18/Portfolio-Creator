@@ -222,7 +222,8 @@ export default function Skills() {
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
+        whileHover={{ y: -5 }}
+        transition={{ duration: 0.3 }}
       >
         <CredentialCardHeader title="Skills" icon={<Sparkles className="h-5 w-5" />} />
         <div className="animate-pulse space-y-2 pt-5">
@@ -245,7 +246,8 @@ export default function Skills() {
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
+        whileHover={{ y: -5 }}
+        transition={{ duration: 0.3 }}
       >
         <CredentialCardHeader
           title="Skills"
