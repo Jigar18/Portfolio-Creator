@@ -244,7 +244,7 @@ export default function Skills() {
       <motion.div
         {...{
           className:
-            "group flex h-[336px] flex-col rounded-xl border border-slate-700 bg-slate-800/50 p-5 shadow-md backdrop-blur-sm transition-all duration-300 hover:border-slate-600",
+            "group flex h-[336px] flex-col rounded-xl border border-slate-700 bg-slate-800/50 p-5 shadow-md backdrop-blur-sm hover:border-slate-600",
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -112,10 +112,10 @@ export default function Home() {
     <UserProvider>
       <PortfolioRouteGate>
       <div ref={topRef} className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-200">
+        <PortfolioViewCount />
         <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_76%_8%,rgba(255,255,255,0.08),transparent_28rem),radial-gradient(circle_at_5%_55%,rgba(255,255,255,0.04),transparent_24rem)]" />
         <div className="pointer-events-none fixed inset-0 opacity-[0.025] [background-image:linear-gradient(rgba(255,255,255,.7)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.7)_1px,transparent_1px)] [background-size:72px_72px]" />
-        <main className="relative mx-auto w-full max-w-7xl px-5 py-6 sm:px-8 sm:py-9 lg:px-10 lg:py-12">
-          <PortfolioViewCount />
+        <main className="relative mx-auto w-full max-w-7xl px-5 pb-6 pt-16 sm:px-8 sm:pb-9 sm:pt-20 lg:px-10 lg:pb-12 lg:pt-20">
           <div className="space-y-16 lg:space-y-24">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
