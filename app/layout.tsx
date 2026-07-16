@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import AppControls from "./components/AppControls";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,31 +18,16 @@ export const metadata: Metadata = {
   icons: "/tab-icon.png",
 };
 
-const themeScript = `
-  (() => {
-    const saved = localStorage.getItem("portfolio-theme");
-    const theme = saved === "light" || saved === "dark"
-      ? saved
-      : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    document.documentElement.style.colorScheme = theme;
-  })();
-`;
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
+    <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AppControls />
         {children}
       </body>
     </html>
