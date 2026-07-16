@@ -4,6 +4,31 @@ import { NextRequest } from "next/server";
 import { getGitHubAppJwt } from "@/lib/github";
 import { getSession } from "@/lib/session";
 
+export async function getInstallationAccessTokenById(installationId: string) {
+  const jwtToken = getGitHubAppJwt();
+
+  const tokenResponse = await axios.post(
+    `https://api.github.com/app/installations/${installationId}/access_tokens`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+        Accept: "application/vnd.github+json",
+        "Content-Type": "application/json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+      timeout: 10_000,
+    }
+  );
+
+  const accessToken = tokenResponse.data.token as string | undefined;
+  if (!accessToken) {
+    throw new Error("No access token returned from GitHub API");
+  }
+
+  return accessToken;
+}
+
 // Function to get installation token for repositories and other GitHub App scopes
 // this function access token scope is to get the details that app has of account like repos, pr's etc.,
 export async function getInstallationAccessToken(req: NextRequest) {
@@ -22,27 +47,7 @@ export async function getInstallationAccessToken(req: NextRequest) {
       throw new Error("User installation ID not found");
     }
 
-    const jwtToken = getGitHubAppJwt();
-
-    const tokenResponse = await axios.post(
-      `https://api.github.com/app/installations/${userInfo.installationId}/access_tokens`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${jwtToken}`,
-          Accept: "application/vnd.github.v3+json",
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    const accessToken = tokenResponse.data.token;
-
-    if (!accessToken) {
-      throw new Error("No access token returned from GitHub API");
-    }
-
-    return accessToken;
+    return await getInstallationAccessTokenById(userInfo.installationId);
   } catch (error) {
     console.error("Error getting installation access token:", error);
     if (axios.isAxiosError(error) && error.response) {

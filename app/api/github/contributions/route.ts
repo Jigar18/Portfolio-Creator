@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getInstallationAccessTokenById } from "@/lib/accessToken";
 import { resolvePortfolioUser } from "@/lib/publicPortfolio";
 import { getSession } from "@/lib/session";
 
@@ -53,7 +54,12 @@ export async function GET(request: NextRequest) {
 
     const user = await db.user.findUnique({
       where: { id: portfolioUser.id },
-      select: { username: true, accessToken: true, showGitHubHeatmap: true },
+      select: {
+        username: true,
+        installationId: true,
+        accessToken: true,
+        showGitHubHeatmap: true,
+      },
     });
     if (!user) {
       return NextResponse.json({ success: false, error: "Portfolio not found" }, { status: 404 });
@@ -61,7 +67,19 @@ export async function GET(request: NextRequest) {
     if (!portfolioUser.isOwner && !user.showGitHubHeatmap) {
       return NextResponse.json({ success: true, visible: false });
     }
-    if (!user.accessToken) {
+    let githubAccessToken = user.accessToken;
+    if (user.installationId) {
+      try {
+        githubAccessToken = await getInstallationAccessTokenById(user.installationId);
+      } catch (error) {
+        console.error(
+          "Unable to create GitHub installation token for contributions",
+          error instanceof Error ? error.message : "Unknown error"
+        );
+      }
+    }
+
+    if (!githubAccessToken) {
       return NextResponse.json({ success: true, visible: user.showGitHubHeatmap, available: false });
     }
 
@@ -69,7 +87,7 @@ export async function GET(request: NextRequest) {
       method: "POST",
       headers: {
         Accept: "application/vnd.github+json",
-        Authorization: `Bearer ${user.accessToken}`,
+        Authorization: `Bearer ${githubAccessToken}`,
         "Content-Type": "application/json",
         "User-Agent": "portfolio-creator",
         "X-GitHub-Api-Version": "2022-11-28",
