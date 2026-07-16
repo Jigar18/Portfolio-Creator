@@ -1,6 +1,22 @@
 import type { Config } from "tailwindcss";
 import daisyui from "daisyui"
-import colors from "tailwindcss/colors";
+
+const themedScale = (name: string) =>
+  `rgb(var(--color-${name}) / <alpha-value>)`;
+
+const neutralColors = {
+  50: themedScale("zinc-50"),
+  100: themedScale("zinc-100"),
+  200: themedScale("zinc-200"),
+  300: themedScale("zinc-300"),
+  400: themedScale("zinc-400"),
+  500: themedScale("zinc-500"),
+  600: themedScale("zinc-600"),
+  700: themedScale("zinc-700"),
+  800: themedScale("zinc-800"),
+  900: themedScale("zinc-900"),
+  950: themedScale("zinc-950"),
+};
 
 export default {
     darkMode: ["class"],
@@ -10,11 +26,11 @@ export default {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-  	extend: {
-  		colors: {
-			// The old UI used Tailwind's blue-tinted slate scale extensively.
-			// Pointing it at neutral zinc makes every authenticated surface truly monochrome.
-			slate: colors.zinc,
+		extend: {
+			colors: {
+			zinc: neutralColors,
+			slate: neutralColors,
+			white: themedScale("white"),
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

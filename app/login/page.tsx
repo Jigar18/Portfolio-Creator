@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 export default function Login() {
   return (
     <main className="relative grid min-h-screen place-items-center overflow-hidden bg-zinc-950 px-6 text-zinc-100">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.13),transparent_36rem)]" />
+      <div className="login-ambient absolute inset-0" />
       <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} {...{ className: "relative w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-center shadow-2xl backdrop-blur-xl" }}>
         <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-400">Portfolio creator</p>
         <h1 className="mt-4 text-3xl font-semibold tracking-tight">Build from your real work.</h1>

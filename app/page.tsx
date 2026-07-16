@@ -13,8 +13,8 @@ const steps = [
 export default function Home() {
   return (
     <main className="min-h-screen overflow-hidden bg-zinc-950 text-zinc-50 selection:bg-white selection:text-zinc-950">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_58%_20%,rgba(255,255,255,0.13),transparent_25rem),radial-gradient(circle_at_10%_90%,rgba(255,255,255,0.07),transparent_30rem)]" />
-      <nav className="relative mx-auto flex h-20 max-w-6xl items-center justify-between px-6">
+      <div className="page-ambient pointer-events-none absolute inset-0" />
+      <nav className="relative mx-auto flex h-20 max-w-6xl items-center justify-between pl-6 pr-32">
         <Link href="/" className="flex items-center gap-2 text-sm font-semibold tracking-tight"><span className="grid h-8 w-8 place-items-center rounded-lg border border-white/15 bg-white/10"><Layers3 className="h-4 w-4" /></span> Portfolio</Link>
         <Link href="/login" className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-300 transition hover:border-white/35 hover:bg-white/10 hover:text-white">Sign in</Link>
       </nav>
@@ -33,7 +33,7 @@ export default function Home() {
         <motion.div initial={{ opacity: 0, scale: 0.93 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.9, delay: 0.12, ease: [0.16, 1, 0.3, 1] }} {...{ className: "relative min-w-0" }}>
           <div className="absolute inset-10 rounded-full bg-white/10 blur-3xl" />
           <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/80 p-3 shadow-2xl">
-            <div className="min-h-[27rem] rounded-2xl border border-white/10 bg-[linear-gradient(145deg,#27272a_0%,#18181b_52%,#09090b_100%)] p-5 sm:p-7">
+            <div className="hero-preview-surface min-h-[27rem] rounded-2xl border border-white/10 p-5 sm:p-7">
               <div className="flex items-center justify-between border-b border-white/10 pb-5"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl border border-white/15 bg-white/[0.08]"><Terminal className="h-4 w-4 text-zinc-200" /></span><div><p className="text-sm font-medium text-white">Your portfolio</p><p className="mt-0.5 text-xs text-zinc-500">Focused. Personal. Live.</p></div></div><span className="h-2.5 w-2.5 rounded-full bg-zinc-200 shadow-[0_0_18px_rgba(255,255,255,0.7)]" /></div>
               <div className="mt-8 grid gap-4 sm:grid-cols-[1.15fr_0.85fr]"><div className="rounded-2xl border border-white/10 bg-zinc-950/45 p-5"><div className="h-2 w-20 rounded-full bg-zinc-700" /><div className="mt-4 h-8 w-4/5 rounded-lg bg-zinc-100/90" /><div className="mt-2 h-3 w-3/5 rounded-full bg-zinc-700" /><div className="mt-8 flex flex-wrap gap-2">{["React", "Systems", "Design"].map((label) => <span key={label} className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[11px] text-zinc-300">{label}</span>)}</div></div><div className="rounded-2xl border border-white/10 bg-white/[0.045] p-5"><p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Projects</p><div className="mt-5 space-y-3">{["Interface systems", "Product builds", "Open source"].map((label, index) => <div key={label} className="flex items-center gap-3"><span className="grid h-7 w-7 place-items-center rounded-lg bg-zinc-800 text-xs text-zinc-400">0{index + 1}</span><span className="text-sm text-zinc-200">{label}</span></div>)}</div></div></div>
               <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.045] p-4"><p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Portfolio, made personal</p><p className="mt-2 text-sm font-medium text-zinc-100">A live identity for your best work.</p></div>
