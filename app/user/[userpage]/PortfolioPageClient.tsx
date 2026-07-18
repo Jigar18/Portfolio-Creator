@@ -9,30 +9,18 @@ import Credentials from "../../sections/Credentials";
 import Experience from "../../sections/Experience";
 import InfoCard from "../../sections/InfoCard";
 import Projects from "../../sections/Projects";
-import ProjectModal from "../../components/ProjectModal";
 import CertificateModal from "../../components/CertificateModal";
 import { UserProvider, useUser } from "../../context/UserContext";
 import PortfolioViewCount from "../../components/PortfolioViewCount";
 import GitHubHeatmap from "../../components/GitHubHeatmap";
 import NotFoundState from "../../components/NotFoundState";
+import { LogOut } from "lucide-react";
 
 interface Card {
   id: string;
   title: string;
   pdfUrl: string;
   description: string;
-}
-
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  longDescription?: string;
-  techStack: string[];
-  videoUrl?: string;
-  githubUrl?: string;
-  liveUrl?: string;
-  image?: string;
 }
 
 function PortfolioRouteGate({ children }: { children: React.ReactNode }) {
@@ -49,6 +37,45 @@ function PortfolioRouteGate({ children }: { children: React.ReactNode }) {
   return children;
 }
 
+function LogoutButton() {
+  const { isOwner } = useUser();
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutFailed, setLogoutFailed] = useState(false);
+
+  if (!isOwner) return null;
+
+  const logout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    setLogoutFailed(false);
+
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Logout failed");
+      window.location.replace("/");
+    } catch {
+      setLogoutFailed(true);
+      setLoggingOut(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={logout}
+      disabled={loggingOut}
+      className="fixed right-5 top-5 z-40 inline-flex items-center gap-2 rounded-xl border border-white/15 bg-zinc-900/90 px-4 py-2.5 text-sm font-medium text-zinc-200 shadow-xl shadow-black/25 backdrop-blur-sm transition hover:border-white/30 hover:bg-zinc-800 hover:text-white disabled:cursor-wait disabled:opacity-60 sm:right-8 sm:top-8"
+      aria-label="Log out"
+    >
+      <LogOut className="h-4 w-4" />
+      {loggingOut ? "Logging out…" : logoutFailed ? "Try again" : "Log out"}
+    </button>
+  );
+}
+
 export default function Home() {
   // Certificate modal state
   const [selectedCertificate, setSelectedCertificate] = useState<Card | null>(
@@ -56,11 +83,6 @@ export default function Home() {
   );
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [allCertificates, setAllCertificates] = useState<Card[]>([]);
-
-  // Project modal state
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
-  const [allProjects, setAllProjects] = useState<Project[]>([]);
 
   // Certificate handlers
   const handleOpenCertificate = (certificate: Card, certificates: Card[]) => {
@@ -71,17 +93,6 @@ export default function Home() {
 
   const handleCloseCertificateModal = () => {
     setIsCertificateModalOpen(false);
-  };
-
-  // Project handlers
-  const handleOpenProject = (project: Project, projects: Project[]) => {
-    setSelectedProject(project);
-    setAllProjects(projects);
-    setIsProjectModalOpen(true);
-  };
-
-  const handleCloseProjectModal = () => {
-    setIsProjectModalOpen(false);
   };
 
   const sectionVariants = {
@@ -101,6 +112,7 @@ export default function Home() {
     <UserProvider>
       <PortfolioRouteGate>
       <div className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-200">
+        <LogoutButton />
         <PortfolioViewCount />
         <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_76%_8%,rgba(255,255,255,0.08),transparent_28rem),radial-gradient(circle_at_5%_55%,rgba(255,255,255,0.04),transparent_24rem)]" />
         <div className="pointer-events-none fixed inset-0 opacity-[0.025] [background-image:linear-gradient(rgba(255,255,255,.7)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.7)_1px,transparent_1px)] [background-size:72px_72px]" />
@@ -132,7 +144,7 @@ export default function Home() {
               animate="visible"
               variants={sectionVariants}
             >
-              <Projects onOpenProject={handleOpenProject} />
+              <Projects />
             </motion.div>
 
             <GitHubHeatmap />
@@ -166,14 +178,6 @@ export default function Home() {
           </motion.footer>
           </div>
         </main>
-
-        {/* Project Modal */}
-        <ProjectModal
-          isOpen={isProjectModalOpen}
-          onClose={handleCloseProjectModal}
-          project={selectedProject}
-          projects={allProjects}
-        />
 
         {/* Certificate Modal */}
         <CertificateModal

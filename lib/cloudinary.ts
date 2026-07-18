@@ -1,0 +1,126 @@
+import { createHash } from "crypto";
+
+export const PROJECT_VIDEO_MAX_BYTES = 20 * 1024 * 1024;
+export const PROJECT_VIDEO_MAX_DURATION = 120;
+export const PROJECT_VIDEO_FORMATS = ["mp4", "webm"] as const;
+
+function getCloudinaryConfig() {
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+  const uploadPreset = process.env.CLOUDINARY_VIDEO_UPLOAD_PRESET;
+
+  if (!cloudName || !apiKey || !apiSecret || !uploadPreset) {
+    throw new Error("Cloudinary video uploads are not configured");
+  }
+
+  return { cloudName, apiKey, apiSecret, uploadPreset };
+}
+
+function signCloudinaryParams(params: Record<string, string | number | boolean>, apiSecret: string) {
+  const serialized = Object.entries(params)
+    .filter(([, value]) => value !== "")
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([key, value]) => `${key}=${value}`)
+    .join("&");
+
+  return createHash("sha1").update(`${serialized}${apiSecret}`).digest("hex");
+}
+
+export function createProjectVideoUploadSignature(userId: string) {
+  const config = getCloudinaryConfig();
+  const timestamp = Math.floor(Date.now() / 1000);
+  const folder = `portfolio-videos/${userId}`;
+  const params = { folder, timestamp, upload_preset: config.uploadPreset };
+
+  return {
+    apiKey: config.apiKey,
+    cloudName: config.cloudName,
+    folder,
+    timestamp,
+    uploadPreset: config.uploadPreset,
+    signature: signCloudinaryParams(params, config.apiSecret),
+  };
+}
+
+export function isOwnedProjectVideo(publicId: string, userId: string) {
+  return publicId.startsWith(`portfolio-videos/${userId}/`);
+}
+
+export function isCloudinaryVideoUrl(url: string) {
+  const { cloudName } = getCloudinaryConfig();
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" && parsed.hostname === "res.cloudinary.com" && parsed.pathname.startsWith(`/${cloudName}/video/upload/`);
+  } catch {
+    return false;
+  }
+}
+
+export async function deleteProjectVideo(publicId: string) {
+  const { cloudName, apiKey, apiSecret } = getCloudinaryConfig();
+  const timestamp = Math.floor(Date.now() / 1000);
+  const params = { invalidate: true, public_id: publicId, timestamp };
+  const body = new URLSearchParams({
+    api_key: apiKey,
+    invalidate: "true",
+    public_id: publicId,
+    signature: signCloudinaryParams(params, apiSecret),
+    timestamp: String(timestamp),
+  });
+
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/destroy`, {
+    method: "POST",
+    body,
+  });
+  if (!response.ok) throw new Error("Unable to remove the Cloudinary video");
+
+  const result = (await response.json()) as { result?: string };
+  if (result.result !== "ok" && result.result !== "not found") {
+    throw new Error("Unable to remove the Cloudinary video");
+  }
+}
+
+export async function getVerifiedProjectVideo(publicId: string, userId: string) {
+  const { cloudName, apiKey, apiSecret } = getCloudinaryConfig();
+  if (!isOwnedProjectVideo(publicId, userId)) throw new Error("Project video not found");
+
+  const authorization = Buffer.from(`${apiKey}:${apiSecret}`).toString("base64");
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/resources/video/upload/${encodeURIComponent(publicId)}`, {
+    headers: { Authorization: `Basic ${authorization}` },
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error("Cloudinary could not verify the project video");
+
+  const asset = (await response.json()) as {
+    bytes?: number;
+    duration?: number;
+    format?: string;
+    public_id?: string;
+    secure_url?: string;
+  };
+  const format = asset.format?.toLowerCase();
+  if (
+    asset.public_id !== publicId ||
+    !asset.secure_url ||
+    !isCloudinaryVideoUrl(asset.secure_url) ||
+    !Number.isInteger(asset.bytes) ||
+    !asset.bytes ||
+    asset.bytes > PROJECT_VIDEO_MAX_BYTES ||
+    !Number.isFinite(asset.duration) ||
+    !asset.duration ||
+    asset.duration > PROJECT_VIDEO_MAX_DURATION ||
+    !format ||
+    !PROJECT_VIDEO_FORMATS.includes(format as (typeof PROJECT_VIDEO_FORMATS)[number])
+  ) {
+    throw new Error("The project demo must be an MP4 or WebM video up to 2 minutes and 20 MB");
+  }
+
+  return {
+    videoUrl: asset.secure_url,
+    videoPublicId: publicId,
+    videoDuration: asset.duration,
+    videoBytes: asset.bytes,
+    videoFormat: format,
+  };
+}

@@ -131,16 +131,21 @@ model Education {
 }
 
 model Project {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  techStack   String[]
-  githubUrl   String?
-  liveUrl     String?
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(uuid())
+  title         String
+  description   String
+  techStack     String[]
+  githubUrl     String?
+  liveUrl       String?
+  videoUrl      String?
+  videoPublicId String?  @unique
+  videoDuration Float?
+  videoBytes    Int?
+  videoFormat   String?
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([userId])
 }

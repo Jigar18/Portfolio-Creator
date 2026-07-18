@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Github, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import ProjectVideoDropzone, { ProjectVideo } from "./ProjectVideoDropzone";
 
 interface Project {
   id: string;
@@ -12,7 +12,11 @@ interface Project {
   description: string;
   longDescription?: string;
   techStack: string[];
-  videoUrl?: string;
+  videoUrl?: string | null;
+  videoPublicId?: string | null;
+  videoDuration?: number | null;
+  videoBytes?: number | null;
+  videoFormat?: string | null;
   githubUrl?: string;
   liveUrl?: string;
   image?: string;
@@ -23,6 +27,8 @@ interface ProjectModalProps {
   onClose: () => void;
   project: Project | null;
   projects: Project[];
+  isOwner?: boolean;
+  onVideoUploaded?: (projectId: string, video: ProjectVideo) => Promise<void>;
 }
 
 export default function ProjectModal({
@@ -30,6 +36,8 @@ export default function ProjectModal({
   onClose,
   project,
   projects,
+  isOwner = false,
+  onVideoUploaded,
 }: ProjectModalProps) {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
@@ -243,8 +251,8 @@ export default function ProjectModal({
 
                 </div>
 
-                {/* 3. Demo video/image with appropriate height */}
-                <div className="mb-8">
+                {/* Visitors only see this section when a demo exists. */}
+                {(currentProject.videoUrl || isOwner) && <div className="mb-8">
                   <h4 className="text-lg font-medium text-slate-100 mb-3 flex items-center gap-2">
                     <span className="inline-flex p-1.5 rounded-md bg-zinc-900/20 text-zinc-400 shadow-md shadow-zinc-500/20 border border-zinc-800/30">
                       <svg
@@ -264,30 +272,14 @@ export default function ProjectModal({
                     </span>
                     Project Demo
                   </h4>
-                  <div className="w-full overflow-hidden rounded-lg border border-slate-700/50 shadow-lg">
-                    {currentProject.videoUrl ? (
-                      <div
-                        className="relative w-full"
-                        style={{ height: "350px" }}
-                      >
-                        <iframe
-                          src={currentProject.videoUrl}
-                          className="w-full h-full"
-                          title={currentProject.title}
-                          allowFullScreen
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-full" style={{ height: "350px" }}>
-                        <Image
-                          src={currentProject.image || "/placeholder.svg"}
-                          alt={currentProject.title}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
+                  {currentProject.videoUrl ? (
+                    <div className="w-full overflow-hidden rounded-xl border border-white/10 bg-black shadow-lg">
+                      <video src={currentProject.videoUrl} controls preload="metadata" playsInline className="aspect-video w-full bg-black object-contain" />
+                    </div>
+                  ) : onVideoUploaded ? (
+                    <ProjectVideoDropzone onUploaded={(video) => onVideoUploaded(currentProject.id, video)} />
+                  ) : null}
+                </div>}
 
                 {/* 4. Project links */}
                 <div className="mt-4 flex justify-end gap-3">

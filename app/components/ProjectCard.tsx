@@ -14,7 +14,11 @@ interface Project {
   github: string;
   githubUrl: string;
   liveUrl: string;
-  videoUrl?: string;
+  videoUrl: string | null;
+  videoPublicId: string | null;
+  videoDuration: number | null;
+  videoBytes: number | null;
+  videoFormat: string | null;
   longDescription?: string;
 }
 
