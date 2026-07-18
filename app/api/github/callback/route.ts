@@ -7,6 +7,7 @@ import {
   GitHubInstallationData,
   persistGitHubInstallation,
 } from "@/lib/githubInstallation";
+import { hasCompletedPortfolioSetup } from "@/lib/portfolioSetup";
 import { getSession, SESSION_COOKIE } from "@/lib/session";
 
 function statesMatch(expected: string | undefined, actual: string | null) {
@@ -20,44 +21,6 @@ function clearOAuthCookies(response: NextResponse) {
   for (const name of ["github_oauth_state", "oauth_return_to"]) {
     response.cookies.set(name, "", { expires: new Date(0), path: "/" });
   }
-}
-
-function hasCompletedPortfolioSetup(user: {
-  details: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    location: string;
-    jobTitle: string;
-    college: string;
-    startYear: number;
-    endYear: number;
-    imageUrl: string | null;
-  } | null;
-  skills: Array<{ skills: string[] }>;
-}) {
-  const details = user.details;
-  if (!details) return false;
-
-  const requiredDetails = [
-    details.firstName,
-    details.lastName,
-    details.email,
-    details.location,
-    details.jobTitle,
-    details.college,
-    details.imageUrl,
-  ];
-  const hasRequiredDetails = requiredDetails.every(
-    (value) => typeof value === "string" && value.trim().length > 0
-  );
-  const hasEducationYears =
-    Number.isInteger(details.startYear) && Number.isInteger(details.endYear);
-  const hasSkills = user.skills.some((record) =>
-    record.skills.some((skill) => skill.trim().length > 0)
-  );
-
-  return hasRequiredDetails && hasEducationYears && hasSkills;
 }
 
 export async function GET(req: NextRequest) {

@@ -8,8 +8,7 @@ export type Session = {
   username: string;
 };
 
-export async function getSession(req: NextRequest): Promise<Session | null> {
-  const token = req.cookies.get(SESSION_COOKIE)?.value;
+export async function verifySessionToken(token: string | undefined): Promise<Session | null> {
   const secret = process.env.JWT_SECRET;
 
   if (!token || !secret) {
@@ -29,4 +28,8 @@ export async function getSession(req: NextRequest): Promise<Session | null> {
   } catch {
     return null;
   }
+}
+
+export async function getSession(req: NextRequest): Promise<Session | null> {
+  return verifySessionToken(req.cookies.get(SESSION_COOKIE)?.value);
 }

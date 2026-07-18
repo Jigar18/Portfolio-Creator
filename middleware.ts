@@ -1,27 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify } from "jose";
+import { getSession } from "@/lib/session";
+
+function isPublicPage(pathname: string) {
+  return pathname === "/" || pathname === "/login" || pathname.startsWith("/user/");
+}
 
 export async function middleware(req: NextRequest) {
-  // const token = req.cookies.get("id&Uname")?.value;
+  if (isPublicPage(req.nextUrl.pathname)) return NextResponse.next();
 
-  // if (!token) {
-  //   return NextResponse.redirect(new URL("/login", req.url));
-  // }
+  const session = await getSession(req);
+  if (session) return NextResponse.next();
 
-  // try {
-  //   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-    
-  //   await jwtVerify(token, secret);
-    
-  //   return NextResponse.next();
-  // } catch (err) {
-  //   console.error("Token verification failed:", err);
-  //   return NextResponse.redirect(new URL("/login", req.url));
-  // }
+  return NextResponse.redirect(new URL("/login", req.url));
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*",]
-  // matcher: ["/details", "/dashboard/:path*", "/user/:path*", "/skills", "/api/*"]
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };
