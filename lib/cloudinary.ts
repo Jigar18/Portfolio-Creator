@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
 
-export const PROJECT_VIDEO_MAX_BYTES = 20 * 1024 * 1024;
+export const PROJECT_VIDEO_MAX_BYTES = 30 * 1024 * 1024;
 export const PROJECT_VIDEO_MAX_DURATION = 120;
 export const PROJECT_VIDEO_FORMATS = ["mp4", "webm"] as const;
 
@@ -113,7 +113,7 @@ export async function getVerifiedProjectVideo(publicId: string, userId: string) 
     !format ||
     !PROJECT_VIDEO_FORMATS.includes(format as (typeof PROJECT_VIDEO_FORMATS)[number])
   ) {
-    throw new Error("The project demo must be an MP4 or WebM video up to 2 minutes and 20 MB");
+    throw new Error("The project demo must be an MP4 or WebM video up to 2 minutes and 30 MB");
   }
 
   return {

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AlertCircle, CheckCircle2, Film, LoaderCircle, UploadCloud, X } from "lucide-react";
+import { compressProjectVideo } from "@/lib/compressProjectVideo";
 
 export interface ProjectVideo {
   videoUrl: string;
@@ -18,7 +19,8 @@ interface ProjectVideoDropzoneProps {
   disabled?: boolean;
 }
 
-const MAX_VIDEO_BYTES = 20 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 30 * 1024 * 1024;
+const MAX_SOURCE_VIDEO_BYTES = 500 * 1024 * 1024;
 const MAX_VIDEO_DURATION = 120;
 
 export async function removeUnsavedProjectVideo(publicId: string) {
@@ -52,6 +54,7 @@ export default function ProjectVideoDropzone({ video, onUploaded, onRemove, disa
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [optimizingProgress, setOptimizingProgress] = useState<number | null>(null);
   const [toast, setToast] = useState<{ message: string; success: boolean } | null>(null);
 
   useEffect(() => () => { if (toastTimer.current) clearTimeout(toastTimer.current); }, []);
@@ -64,8 +67,8 @@ export default function ProjectVideoDropzone({ video, onUploaded, onRemove, disa
 
   const uploadFile = async (file?: File) => {
     if (!file || uploading || disabled) return;
-    if (file.size > MAX_VIDEO_BYTES) {
-      showToast("The video file size should not be greater than 20 MB.");
+    if (file.size > MAX_SOURCE_VIDEO_BYTES) {
+      showToast("The original video file should not be greater than 500 MB.");
       return;
     }
 
@@ -80,12 +83,22 @@ export default function ProjectVideoDropzone({ video, onUploaded, onRemove, disa
       const duration = await readDuration(file);
       if (duration > MAX_VIDEO_DURATION) throw new Error("The project demo should not be longer than 2 minutes.");
 
+      let uploadFile = file;
+      if (file.size > MAX_VIDEO_BYTES) {
+        setOptimizingProgress(0);
+        uploadFile = await compressProjectVideo(file, duration, setOptimizingProgress);
+        if (uploadFile.size > MAX_VIDEO_BYTES) {
+          throw new Error("The optimized video is still above 30 MB. Please choose a shorter video.");
+        }
+        setOptimizingProgress(null);
+      }
+
       const signatureResponse = await fetch("/api/cloudinary/video-signature", { method: "POST", credentials: "include" });
       const signatureData = await signatureResponse.json();
       if (!signatureResponse.ok) throw new Error(signatureData.error || "Unable to prepare the video upload");
 
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", uploadFile);
       formData.append("api_key", signatureData.apiKey);
       formData.append("folder", signatureData.folder);
       formData.append("timestamp", String(signatureData.timestamp));
@@ -113,7 +126,7 @@ export default function ProjectVideoDropzone({ video, onUploaded, onRemove, disa
         !["mp4", "webm"].includes(uploadedVideo.videoFormat)
       ) {
         await removeUnsavedProjectVideo(uploadedVideo.videoPublicId);
-        throw new Error("The project demo must be an MP4 or WebM video up to 2 minutes and 20 MB.");
+        throw new Error("The project demo must be an MP4 or WebM video up to 2 minutes and 30 MB.");
       }
 
       await onUploaded(uploadedVideo);
@@ -121,6 +134,7 @@ export default function ProjectVideoDropzone({ video, onUploaded, onRemove, disa
     } catch (error) {
       showToast(error instanceof Error ? error.message : "The video could not be uploaded.");
     } finally {
+      setOptimizingProgress(null);
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
     }
@@ -161,8 +175,13 @@ export default function ProjectVideoDropzone({ video, onUploaded, onRemove, disa
           <span className={`mx-auto grid h-11 w-11 place-items-center rounded-xl border ${isDragging ? "border-sky-200/40 bg-sky-300/15 text-sky-100" : "border-white/10 bg-white/[0.06] text-zinc-300"}`}>
             {uploading ? <LoaderCircle className="h-5 w-5 animate-spin" /> : isDragging ? <Film className="h-5 w-5" /> : <UploadCloud className="h-5 w-5" />}
           </span>
-          <p className={`mt-3 text-sm font-medium ${isDragging ? "text-sky-100" : "text-zinc-200"}`}>{uploading ? "Uploading project demo…" : isDragging ? "Drop the video here" : video ? "Replace the demo video" : "Drag and drop the demo video"}</p>
-          <p className="mt-1 text-xs leading-5 text-zinc-500">or click to browse · MP4 or WebM · up to 2 minutes and 20 MB</p>
+          <p className={`mt-3 text-sm font-medium ${isDragging ? "text-sky-100" : "text-zinc-200"}`}>{optimizingProgress !== null ? `Optimizing video… ${optimizingProgress}%` : uploading ? "Uploading project demo…" : isDragging ? "Drop the video here" : video ? "Replace the demo video" : "Drag and drop the demo video"}</p>
+          <p className="mt-1 text-xs leading-5 text-zinc-500">or click to browse · MP4 or WebM · up to 2 minutes · optimized to 30 MB</p>
+          {optimizingProgress !== null && (
+            <div className="mx-auto mt-3 h-1.5 w-48 overflow-hidden rounded-full bg-white/10">
+              <div className="h-full rounded-full bg-sky-400 transition-[width]" style={{ width: `${optimizingProgress}%` }} />
+            </div>
+          )}
         </div>
       </div>
     </div>
