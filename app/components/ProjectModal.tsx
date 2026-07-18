@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Github, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, Github, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
@@ -88,29 +88,6 @@ export default function ProjectModal({
 
   const currentProject = projects[currentIndex];
 
-  const demoTechStack = [
-    "React",
-    "Next.js",
-    "TypeScript",
-    "Tailwind CSS",
-    "Node.js",
-    "Express",
-    "MongoDB",
-    "PostgreSQL",
-    "GraphQL",
-    "Redux",
-    "Framer Motion",
-    "Jest",
-    "Cypress",
-    "Docker",
-    "AWS",
-    "Firebase",
-    "Vercel",
-  ];
-
-  const additionalTechStack = demoTechStack
-    .filter((tech) => !currentProject.techStack?.includes(tech))
-    .slice(0, 5); //
   return (
     <AnimatePresence>
       {isOpen && currentProject && (
@@ -264,30 +241,6 @@ export default function ProjectModal({
                       </div>
                     )}
 
-                  {/* Additional tech stack examples */}
-                  {additionalTechStack.length > 0 && (
-                    <div>
-                      <p className="text-slate-400 text-sm mb-3">
-                        Other technologies you might like:
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {additionalTechStack.map((tech, index) => (
-                          <motion.span
-                            key={tech}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{
-                              duration: 0.3,
-                              delay: index * 0.05 + 0.3,
-                            }}
-                            {...{className:"bg-slate-800/50 text-slate-400 px-3 py-1.5 rounded-md text-sm border border-slate-700/30 hover:border-slate-600/50 transition-colors"}}
-                          >
-                            {tech}
-                          </motion.span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* 3. Demo video/image with appropriate height */}
@@ -336,18 +289,32 @@ export default function ProjectModal({
                   </div>
                 </div>
 
-                {/* 4. GitHub button centered at bottom */}
-                <div className="flex justify-center mt-4">
+                {/* 4. Project links */}
+                <div className="mt-4 flex justify-end gap-3">
                   {currentProject.githubUrl && (
                     <a
                       href={currentProject.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 px-6 rounded-lg transition-colors border border-slate-700 hover:border-slate-600"
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-700 bg-slate-800 text-slate-200 transition-colors hover:border-slate-600 hover:bg-slate-700 hover:text-white"
                       onClick={(e) => e.stopPropagation()}
+                      aria-label="Open project on GitHub"
+                      title="Open project on GitHub"
                     >
-                      <Github className="h-4 w-4" />
-                      <span>View on GitHub</span>
+                      <Github className="h-5 w-5" />
+                    </a>
+                  )}
+                  {currentProject.liveUrl && (
+                    <a
+                      href={currentProject.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-700 bg-slate-800 text-slate-200 transition-colors hover:border-slate-600 hover:bg-slate-700 hover:text-white"
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label="Open live project"
+                      title="Open live project"
+                    >
+                      <ExternalLink className="h-5 w-5" />
                     </a>
                   )}
                 </div>

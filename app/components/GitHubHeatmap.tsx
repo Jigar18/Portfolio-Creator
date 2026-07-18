@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Github, LoaderCircle } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useUser } from "../context/UserContext";
 
 type ContributionDay = {
@@ -24,13 +24,7 @@ type ContributionResponse = {
   calendar?: ContributionCalendar;
 };
 
-const LEGEND_COLORS = [
-  "rgba(255,255,255,0.045)",
-  "#0e4429",
-  "#006d32",
-  "#26a641",
-  "#39d353",
-];
+const EMPTY_DAY_COLOR = "rgba(255,255,255,0.045)";
 
 export default function GitHubHeatmap() {
   const { isOwner, portfolioApiUrl } = useUser();
@@ -39,6 +33,28 @@ export default function GitHubHeatmap() {
   const [calendar, setCalendar] = useState<ContributionCalendar | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const legendColors = useMemo(() => {
+    if (!calendar) return [EMPTY_DAY_COLOR];
+
+    const colorsByIntensity = new Map<string, number>();
+    calendar.weeks.forEach(({ contributionDays }) => {
+      contributionDays.forEach(({ color, contributionCount }) => {
+        if (contributionCount === 0) return;
+        const currentMinimum = colorsByIntensity.get(color);
+        if (currentMinimum === undefined || contributionCount < currentMinimum) {
+          colorsByIntensity.set(color, contributionCount);
+        }
+      });
+    });
+
+    return [
+      EMPTY_DAY_COLOR,
+      ...Array.from(colorsByIntensity.entries())
+        .sort(([, firstCount], [, secondCount]) => firstCount - secondCount)
+        .map(([color]) => color),
+    ];
+  }, [calendar]);
 
   const loadContributions = useCallback(async () => {
     try {
@@ -137,8 +153,8 @@ export default function GitHubHeatmap() {
           </div>
         ) : (
           <>
-            <div className="mt-8 overflow-x-auto pb-2">
-              <div className="flex w-full min-w-[760px] gap-2">
+            <div className="mt-8 overflow-x-auto">
+              <div className="flex w-full min-w-[760px] gap-2 px-1.5 py-2">
                 <div className="grid grid-rows-7 gap-1 pr-1 text-[9px] text-zinc-600">
                   {["", "Mon", "", "Wed", "", "Fri", ""].map((label, index) => (
                     <span key={`${label}-${index}`} className="flex w-5 items-center justify-end">
@@ -155,10 +171,10 @@ export default function GitHubHeatmap() {
                       {week.contributionDays.map((day) => (
                         <span
                           key={day.date}
-                          className="aspect-square w-full rounded-[3px] border border-white/[0.05] transition-transform duration-150 hover:scale-125"
+                          className="relative aspect-square w-full rounded-[3px] border border-white/[0.05] transition-transform duration-150 hover:z-10 hover:scale-125"
                           style={{
                             backgroundColor: day.contributionCount === 0
-                              ? LEGEND_COLORS[0]
+                              ? EMPTY_DAY_COLOR
                               : day.color,
                           }}
                           title={`${day.contributionCount} contributions on ${day.date}`}
@@ -175,7 +191,7 @@ export default function GitHubHeatmap() {
               <div className="flex items-center gap-2" aria-label="Contribution intensity from less to more">
                 <span>Less</span>
                 <span className="flex gap-1">
-                  {LEGEND_COLORS.map((color) => (
+                  {legendColors.map((color) => (
                     <span
                       key={color}
                       className="h-3 w-3 rounded-[3px] border border-white/[0.06]"
