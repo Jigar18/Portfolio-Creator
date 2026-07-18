@@ -118,7 +118,7 @@ export default function ProjectModal({
               <X className="h-5 w-5" />
             </Button>
 
-            <div className="flex flex-col h-[85vh] max-h-[85vh] overflow-y-auto">
+            <div className="flex max-h-[85vh] flex-col overflow-y-auto">
               {/* Header section with title and navigation */}
               <div className="p-8 border-b border-slate-700/50 bg-slate-800/20 backdrop-blur-sm">
                 <div className="flex justify-between items-center mb-2">

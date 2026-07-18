@@ -2,8 +2,8 @@
 
 import type React from "react";
 
-import { motion, AnimatePresence, useInView } from "framer-motion";
-import { useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { useState } from "react";
 import About from "../../sections/AboutSection";
 import Credentials from "../../sections/Credentials";
 import Experience from "../../sections/Experience";
@@ -12,7 +12,6 @@ import Projects from "../../sections/Projects";
 import ProjectModal from "../../components/ProjectModal";
 import CertificateModal from "../../components/CertificateModal";
 import { UserProvider, useUser } from "../../context/UserContext";
-import { ArrowUp } from "lucide-react";
 import PortfolioViewCount from "../../components/PortfolioViewCount";
 import GitHubHeatmap from "../../components/GitHubHeatmap";
 import NotFoundState from "../../components/NotFoundState";
@@ -51,12 +50,6 @@ function PortfolioRouteGate({ children }: { children: React.ReactNode }) {
 }
 
 export default function Home() {
-  const topRef = useRef<HTMLDivElement>(null);
-  const footerRef = useRef<HTMLDivElement>(null);
-  const footerInView = useInView(footerRef as React.RefObject<HTMLElement>, {
-    once: false,
-  });
-
   // Certificate modal state
   const [selectedCertificate, setSelectedCertificate] = useState<Card | null>(
     null
@@ -68,10 +61,6 @@ export default function Home() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [allProjects, setAllProjects] = useState<Project[]>([]);
-
-  const scrollToTop = () => {
-    topRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
 
   // Certificate handlers
   const handleOpenCertificate = (certificate: Card, certificates: Card[]) => {
@@ -111,7 +100,7 @@ export default function Home() {
   return (
     <UserProvider>
       <PortfolioRouteGate>
-      <div ref={topRef} className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-200">
+      <div className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-200">
         <PortfolioViewCount />
         <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_76%_8%,rgba(255,255,255,0.08),transparent_28rem),radial-gradient(circle_at_5%_55%,rgba(255,255,255,0.04),transparent_24rem)]" />
         <div className="pointer-events-none fixed inset-0 opacity-[0.025] [background-image:linear-gradient(rgba(255,255,255,.7)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.7)_1px,transparent_1px)] [background-size:72px_72px]" />
@@ -163,7 +152,6 @@ export default function Home() {
           </motion.div>
 
           <motion.footer
-            ref={footerRef}
             {...{ className: "py-8 border-t border-slate-800 mt-10" }}
             custom={6}
             initial="hidden"
@@ -178,26 +166,6 @@ export default function Home() {
           </motion.footer>
           </div>
         </main>
-
-        <AnimatePresence>
-          {!footerInView && (
-            <motion.button
-              {...{
-                onClick: scrollToTop,
-                className:
-                  "fixed bottom-6 right-6 grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-zinc-100 text-zinc-950 shadow-2xl transition-colors hover:bg-white z-40",
-              }}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.95 }}
-              aria-label="Scroll to top"
-            >
-              <ArrowUp className="h-5 w-5" />
-            </motion.button>
-          )}
-        </AnimatePresence>
 
         {/* Project Modal */}
         <ProjectModal

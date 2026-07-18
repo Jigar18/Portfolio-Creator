@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Github, Eye, Pencil, X } from "lucide-react";
+import { ExternalLink, Github, Eye, Pencil, X } from "lucide-react";
 import { useRandomImage } from "@/utils/randomImageSelect";
 
 interface Project {
@@ -125,7 +125,7 @@ export default function ProjectCard({
           )}
         </div>
 
-        <div className="flex justify-end mt-4">
+        <div className="mt-4 flex justify-end gap-3">
           {project.githubUrl && (
             <a
               href={project.githubUrl}
@@ -133,8 +133,23 @@ export default function ProjectCard({
               rel="noopener noreferrer"
               className="text-slate-300 hover:text-zinc-400 transition-colors"
               onClick={(e) => e.stopPropagation()}
+              aria-label="Open project on GitHub"
+              title="Open project on GitHub"
             >
               <Github size={18} />
+            </a>
+          )}
+          {project.liveUrl && (
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-300 transition-colors hover:text-zinc-400"
+              onClick={(e) => e.stopPropagation()}
+              aria-label="Open live project"
+              title="Open live project"
+            >
+              <ExternalLink size={18} />
             </a>
           )}
         </div>
