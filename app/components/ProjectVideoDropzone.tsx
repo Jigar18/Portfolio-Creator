@@ -22,6 +22,76 @@ interface ProjectVideoDropzoneProps {
 const MAX_VIDEO_BYTES = 30 * 1024 * 1024;
 const MAX_SOURCE_VIDEO_BYTES = 500 * 1024 * 1024;
 const MAX_VIDEO_DURATION = 120;
+const UPLOAD_CHUNK_BYTES = 6 * 1024 * 1024;
+
+type CloudinarySignature = {
+  apiKey: string;
+  cloudName: string;
+  folder: string;
+  timestamp: number;
+  uploadPreset: string;
+  signature: string;
+};
+
+type CloudinaryUploadResult = {
+  secure_url: string;
+  public_id: string;
+  duration: number;
+  bytes: number;
+  format: string;
+  resource_type: string;
+  error?: { message?: string };
+};
+
+const wait = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+async function uploadVideoToCloudinary(file: File, signature: CloudinarySignature) {
+  const uploadUrl = `https://api.cloudinary.com/v1_1/${signature.cloudName}/video/upload`;
+  const uploadId = crypto.randomUUID();
+  let result: CloudinaryUploadResult | null = null;
+
+  for (let start = 0; start < file.size; start += UPLOAD_CHUNK_BYTES) {
+    const end = Math.min(start + UPLOAD_CHUNK_BYTES, file.size);
+    const formData = new FormData();
+    formData.append("file", file.slice(start, end, file.type), file.name);
+    formData.append("api_key", signature.apiKey);
+    formData.append("folder", signature.folder);
+    formData.append("timestamp", String(signature.timestamp));
+    formData.append("upload_preset", signature.uploadPreset);
+    formData.append("signature", signature.signature);
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      let response: Response;
+      try {
+        response = await fetch(uploadUrl, {
+          method: "POST",
+          headers: {
+            "Content-Range": `bytes ${start}-${end - 1}/${file.size}`,
+            "X-Unique-Upload-Id": uploadId,
+          },
+          body: formData,
+        });
+      } catch (error) {
+        if (attempt === 2) throw error;
+        await wait(750 * 2 ** attempt);
+        continue;
+      }
+
+      const data = await response.json().catch(() => null) as CloudinaryUploadResult | null;
+      if (response.ok) {
+        result = data;
+        break;
+      }
+      if (attempt === 2 || (response.status !== 429 && response.status < 500)) {
+        throw new Error(data?.error?.message || "Cloudinary could not upload the video");
+      }
+      await wait(750 * 2 ** attempt);
+    }
+  }
+
+  if (!result?.secure_url) throw new Error("Cloudinary did not finish processing the video");
+  return result;
+}
 
 export async function removeUnsavedProjectVideo(publicId: string) {
   await fetch("/api/cloudinary/video", {
@@ -94,23 +164,10 @@ export default function ProjectVideoDropzone({ video, onUploaded, onRemove, disa
       }
 
       const signatureResponse = await fetch("/api/cloudinary/video-signature", { method: "POST", credentials: "include" });
-      const signatureData = await signatureResponse.json();
+      const signatureData = await signatureResponse.json() as CloudinarySignature & { error?: string };
       if (!signatureResponse.ok) throw new Error(signatureData.error || "Unable to prepare the video upload");
 
-      const formData = new FormData();
-      formData.append("file", uploadFile);
-      formData.append("api_key", signatureData.apiKey);
-      formData.append("folder", signatureData.folder);
-      formData.append("timestamp", String(signatureData.timestamp));
-      formData.append("upload_preset", signatureData.uploadPreset);
-      formData.append("signature", signatureData.signature);
-
-      const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${signatureData.cloudName}/video/upload`, {
-        method: "POST",
-        body: formData,
-      });
-      const result = await uploadResponse.json();
-      if (!uploadResponse.ok) throw new Error(result.error?.message || "Cloudinary could not upload the video");
+      const result = await uploadVideoToCloudinary(uploadFile, signatureData);
 
       const uploadedVideo: ProjectVideo = {
         videoUrl: result.secure_url,
