@@ -72,7 +72,12 @@ export async function compressProjectVideo(file: File, duration: number, onProgr
     const initialBitrate = getVideoBitrate(duration);
 
     for (const profile of OUTPUT_PROFILES) {
-      const encode = async (bitrate: number, progressStart: number, progressRange: number) => {
+      const encode = async (
+        bitrate: number,
+        progressStart: number,
+        progressRange: number,
+        hardwareAcceleration: "prefer-hardware" | "prefer-software",
+      ) => {
         const target = new BufferTarget();
         const output = new Output({
           format: profile.extension === "mp4" ? new Mp4OutputFormat({ fastStart: "in-memory" }) : new WebMOutputFormat(),
@@ -89,7 +94,7 @@ export async function compressProjectVideo(file: File, duration: number, onProgr
             bitrate,
             frameRate: 20,
             forceTranscode: true,
-            hardwareAcceleration: "prefer-hardware",
+            hardwareAcceleration,
             keyFrameInterval: 4,
           },
           audio: {
@@ -111,25 +116,27 @@ export async function compressProjectVideo(file: File, duration: number, onProgr
         return new File([target.buffer], outputName(file.name, profile.extension), { type: profile.mimeType });
       };
 
-      const firstPass = await encode(initialBitrate, 0, 75);
-      if (!firstPass) continue;
-      if (firstPass.size <= MAX_VIDEO_BYTES) {
-        onProgress(100);
-        return firstPass;
-      }
+      for (const acceleration of ["prefer-hardware", "prefer-software"] as const) {
+        const firstPass = await encode(initialBitrate, 0, 75, acceleration);
+        if (!firstPass) continue;
+        if (firstPass.size <= MAX_VIDEO_BYTES) {
+          onProgress(100);
+          return firstPass;
+        }
 
-      const retryBitrate = correctedBitrate(initialBitrate, firstPass.size);
-      const secondPass = retryBitrate !== initialBitrate ? await encode(retryBitrate, 75, 24) : null;
-      const candidates = [firstPass, secondPass]
-        .filter((candidate): candidate is File => Boolean(candidate) && candidate!.size <= MAX_VIDEO_BYTES)
-        .sort((left, right) => right.size - left.size);
-      if (candidates[0]) {
-        onProgress(100);
-        return candidates[0];
+        const retryBitrate = correctedBitrate(initialBitrate, firstPass.size);
+        const secondPass = retryBitrate !== initialBitrate ? await encode(retryBitrate, 75, 24, acceleration) : null;
+        const candidates = [firstPass, secondPass]
+          .filter((candidate): candidate is File => Boolean(candidate) && candidate!.size <= MAX_VIDEO_BYTES)
+          .sort((left, right) => right.size - left.size);
+        if (candidates[0]) {
+          onProgress(100);
+          return candidates[0];
+        }
       }
     }
 
-    throw new Error("This browser cannot encode the selected video. Please use the latest Chrome or Edge.");
+    throw new Error("This video could not be optimized on this device. Try closing other apps and upload it again.");
   } finally {
     input.dispose();
   }
