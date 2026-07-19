@@ -1,6 +1,8 @@
-const TARGET_VIDEO_BYTES = 28 * 1024 * 1024;
-const AUDIO_BITRATE = 96_000;
-const MAX_VIDEO_BITRATE = 4_000_000;
+const TARGET_VIDEO_BYTES = 27 * 1024 * 1024;
+const MIN_QUALITY_BYTES = 22 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 30 * 1024 * 1024;
+const AUDIO_BITRATE = 80_000;
+const MAX_VIDEO_BITRATE = 12_000_000;
 const MIN_VIDEO_BITRATE = 500_000;
 
 type OutputProfile = {
@@ -11,12 +13,12 @@ type OutputProfile = {
 };
 
 const OUTPUT_PROFILES: OutputProfile[] = [
-  { extension: "mp4", mimeType: "video/mp4", videoCodec: "avc", audioCodec: "aac" },
   { extension: "webm", mimeType: "video/webm", videoCodec: "vp9", audioCodec: "opus" },
+  { extension: "mp4", mimeType: "video/mp4", videoCodec: "avc", audioCodec: "aac" },
 ];
 
 function getOutputDimensions(width: number, height: number) {
-  const scale = Math.min(1, 1280 / width, 720 / height);
+  const scale = Math.min(1, 1920 / width, 1080 / height);
   return {
     width: Math.max(2, Math.floor((width * scale) / 2) * 2),
     height: Math.max(2, Math.floor((height * scale) / 2) * 2),
@@ -24,8 +26,13 @@ function getOutputDimensions(width: number, height: number) {
 }
 
 function getVideoBitrate(duration: number) {
-  const availableBitrate = (TARGET_VIDEO_BYTES * 8 * 0.96) / duration - AUDIO_BITRATE;
+  const availableBitrate = (TARGET_VIDEO_BYTES * 8 * 0.94) / duration - AUDIO_BITRATE;
   return Math.round(Math.min(MAX_VIDEO_BITRATE, Math.max(MIN_VIDEO_BITRATE, availableBitrate)));
+}
+
+function correctedBitrate(currentBitrate: number, outputBytes: number) {
+  const correction = (TARGET_VIDEO_BYTES / outputBytes) * 0.95;
+  return Math.round(Math.min(MAX_VIDEO_BITRATE, Math.max(MIN_VIDEO_BITRATE, currentBitrate * correction)));
 }
 
 function outputName(sourceName: string, extension: OutputProfile["extension"]) {
@@ -62,49 +69,64 @@ export async function compressProjectVideo(file: File, duration: number, onProgr
       videoTrack.getDisplayHeight(),
     ]);
     const dimensions = getOutputDimensions(sourceWidth, sourceHeight);
-    const bitrate = getVideoBitrate(duration);
+    const initialBitrate = getVideoBitrate(duration);
 
     for (const profile of OUTPUT_PROFILES) {
-      const target = new BufferTarget();
-      const output = new Output({
-        format: profile.extension === "mp4" ? new Mp4OutputFormat({ fastStart: "in-memory" }) : new WebMOutputFormat(),
-        target,
-      });
-      const conversion = await Conversion.init({
-        input,
-        output,
-        tracks: "primary",
-        video: {
-          ...dimensions,
-          fit: "contain",
-          codec: profile.videoCodec,
-          bitrate,
-          frameRate: 30,
-          forceTranscode: true,
-          hardwareAcceleration: "prefer-hardware",
-          keyFrameInterval: 4,
-        },
-        audio: {
-          codec: profile.audioCodec,
-          bitrate: AUDIO_BITRATE,
-          forceTranscode: true,
-        },
-        tags: {},
-      });
+      const encode = async (bitrate: number, progressStart: number, progressRange: number) => {
+        const target = new BufferTarget();
+        const output = new Output({
+          format: profile.extension === "mp4" ? new Mp4OutputFormat({ fastStart: "in-memory" }) : new WebMOutputFormat(),
+          target,
+        });
+        const conversion = await Conversion.init({
+          input,
+          output,
+          tracks: "primary",
+          video: {
+            ...dimensions,
+            fit: "contain",
+            codec: profile.videoCodec,
+            bitrate,
+            frameRate: 24,
+            forceTranscode: true,
+            hardwareAcceleration: "prefer-software",
+            keyFrameInterval: 4,
+          },
+          audio: {
+            codec: profile.audioCodec,
+            bitrate: AUDIO_BITRATE,
+            forceTranscode: true,
+          },
+          tags: {},
+        });
 
-      if (!conversion.isValid || (audioTrack && !conversion.utilizedTracks.includes(audioTrack))) continue;
+        if (!conversion.isValid || (audioTrack && !conversion.utilizedTracks.includes(audioTrack))) return null;
+        conversion.onProgress = (progress) => onProgress(Math.min(99, Math.round(progressStart + progress * progressRange)));
+        try {
+          await conversion.execute();
+        } catch {
+          return null;
+        }
+        if (!target.buffer) return null;
+        return new File([target.buffer], outputName(file.name, profile.extension), { type: profile.mimeType });
+      };
 
-      conversion.onProgress = (progress) => onProgress(Math.min(99, Math.round(progress * 100)));
-      try {
-        await conversion.execute();
-      } catch {
-        onProgress(0);
-        continue;
+      const firstPass = await encode(initialBitrate, 0, 50);
+      if (!firstPass) continue;
+      if (firstPass.size >= MIN_QUALITY_BYTES && firstPass.size <= MAX_VIDEO_BYTES) {
+        onProgress(100);
+        return firstPass;
       }
-      if (!target.buffer) throw new Error("The optimized video could not be created.");
 
-      onProgress(100);
-      return new File([target.buffer], outputName(file.name, profile.extension), { type: profile.mimeType });
+      const retryBitrate = correctedBitrate(initialBitrate, firstPass.size);
+      const secondPass = retryBitrate !== initialBitrate ? await encode(retryBitrate, 50, 49) : null;
+      const candidates = [firstPass, secondPass]
+        .filter((candidate): candidate is File => Boolean(candidate) && candidate!.size <= MAX_VIDEO_BYTES)
+        .sort((left, right) => right.size - left.size);
+      if (candidates[0]) {
+        onProgress(100);
+        return candidates[0];
+      }
     }
 
     throw new Error("This browser cannot encode the selected video. Please use the latest Chrome or Edge.");
