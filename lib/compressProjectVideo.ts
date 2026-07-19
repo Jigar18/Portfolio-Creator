@@ -1,9 +1,9 @@
 const TARGET_VIDEO_BYTES = 27 * 1024 * 1024;
-const MIN_QUALITY_BYTES = 22 * 1024 * 1024;
 const MAX_VIDEO_BYTES = 30 * 1024 * 1024;
 const AUDIO_BITRATE = 80_000;
 const MAX_VIDEO_BITRATE = 12_000_000;
 const MIN_VIDEO_BITRATE = 500_000;
+const FIRST_PASS_BITRATE_BOOST = 5;
 
 type OutputProfile = {
   extension: "mp4" | "webm";
@@ -27,7 +27,7 @@ function getOutputDimensions(width: number, height: number) {
 
 function getVideoBitrate(duration: number) {
   const availableBitrate = (TARGET_VIDEO_BYTES * 8 * 0.94) / duration - AUDIO_BITRATE;
-  return Math.round(Math.min(MAX_VIDEO_BITRATE, Math.max(MIN_VIDEO_BITRATE, availableBitrate)));
+  return Math.round(Math.min(MAX_VIDEO_BITRATE, Math.max(MIN_VIDEO_BITRATE, availableBitrate * FIRST_PASS_BITRATE_BOOST)));
 }
 
 function correctedBitrate(currentBitrate: number, outputBytes: number) {
@@ -89,7 +89,7 @@ export async function compressProjectVideo(file: File, duration: number, onProgr
             bitrate,
             frameRate: 24,
             forceTranscode: true,
-            hardwareAcceleration: "prefer-software",
+            hardwareAcceleration: "prefer-hardware",
             keyFrameInterval: 4,
           },
           audio: {
@@ -111,15 +111,15 @@ export async function compressProjectVideo(file: File, duration: number, onProgr
         return new File([target.buffer], outputName(file.name, profile.extension), { type: profile.mimeType });
       };
 
-      const firstPass = await encode(initialBitrate, 0, 50);
+      const firstPass = await encode(initialBitrate, 0, 75);
       if (!firstPass) continue;
-      if (firstPass.size >= MIN_QUALITY_BYTES && firstPass.size <= MAX_VIDEO_BYTES) {
+      if (firstPass.size <= MAX_VIDEO_BYTES) {
         onProgress(100);
         return firstPass;
       }
 
       const retryBitrate = correctedBitrate(initialBitrate, firstPass.size);
-      const secondPass = retryBitrate !== initialBitrate ? await encode(retryBitrate, 50, 49) : null;
+      const secondPass = retryBitrate !== initialBitrate ? await encode(retryBitrate, 75, 24) : null;
       const candidates = [firstPass, secondPass]
         .filter((candidate): candidate is File => Boolean(candidate) && candidate!.size <= MAX_VIDEO_BYTES)
         .sort((left, right) => right.size - left.size);
