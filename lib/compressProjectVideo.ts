@@ -3,7 +3,7 @@ const MAX_VIDEO_BYTES = 30 * 1024 * 1024;
 const AUDIO_BITRATE = 80_000;
 const MAX_VIDEO_BITRATE = 12_000_000;
 const MIN_VIDEO_BITRATE = 500_000;
-const FIRST_PASS_BITRATE_BOOST = 5;
+const FIRST_PASS_BITRATE_BOOST = 6;
 
 type OutputProfile = {
   extension: "mp4" | "webm";
@@ -18,7 +18,7 @@ const OUTPUT_PROFILES: OutputProfile[] = [
 ];
 
 function getOutputDimensions(width: number, height: number) {
-  const scale = Math.min(1, 1920 / width, 1080 / height);
+  const scale = Math.min(1, 1920 / width, 1200 / height);
   return {
     width: Math.max(2, Math.floor((width * scale) / 2) * 2),
     height: Math.max(2, Math.floor((height * scale) / 2) * 2),
@@ -87,7 +87,7 @@ export async function compressProjectVideo(file: File, duration: number, onProgr
             fit: "contain",
             codec: profile.videoCodec,
             bitrate,
-            frameRate: 24,
+            frameRate: 20,
             forceTranscode: true,
             hardwareAcceleration: "prefer-hardware",
             keyFrameInterval: 4,
