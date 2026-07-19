@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { ExternalLink, Github, Eye, Pencil, X } from "lucide-react";
 import { useRandomImage } from "@/utils/randomImageSelect";
+import SkillIcon, { SkillIconMap } from "./SkillIcon";
 
 interface Project {
   id: string;
@@ -28,6 +29,7 @@ interface ProjectProps {
   onOpenProject?: (project: Project) => void;
   onEditProject?: (project: Project) => void;
   onDeleteProject?: (project: Project) => void;
+  skillIcons?: SkillIconMap;
 }
 
 export default function ProjectCard({
@@ -35,6 +37,7 @@ export default function ProjectCard({
   onOpenProject,
   onEditProject,
   onDeleteProject,
+  skillIcons = {},
 }: ProjectProps) {
   const handleClick = () => {
     if (onOpenProject) {
@@ -117,8 +120,9 @@ export default function ProjectCard({
           {project.tags.slice(0, 3).map((tech) => (
             <span
               key={tech}
-              className="rounded-md border border-white/10 bg-white/[0.10] px-2 py-1 text-xs text-zinc-200 shadow-sm"
+              className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.10] px-2 py-1 text-xs text-zinc-200 shadow-sm"
             >
+              <SkillIcon skill={tech} iconMap={skillIcons} className="h-3.5 w-3.5 shrink-0" />
               {tech}
             </span>
           ))}

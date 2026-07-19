@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { X, Edit3, Copy, Check, Share2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, primaryActionButtonClass, secondaryActionButtonClass } from "@/components/ui/button";
 import CredentialCardHeader, { credentialEditButtonClass } from "./CredentialCardHeader";
 import { useUser } from "../context/UserContext";
 
@@ -463,13 +463,13 @@ export default function Connect() {
                   <Button
                     variant="outline"
                     onClick={handleCloseModal}
-                    className="bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300"
+                    className={secondaryActionButtonClass}
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleSaveChanges}
-                    className="bg-zinc-600 hover:bg-zinc-700 text-white flex items-center gap-2"
+                    className={primaryActionButtonClass}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"

@@ -4,7 +4,7 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, Edit3, Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, primaryActionButtonClass, secondaryActionButtonClass } from "@/components/ui/button";
 import { useUser } from "../context/UserContext";
 
 export default function About() {
@@ -192,14 +192,14 @@ export default function About() {
                   <Button
                     variant="outline"
                     onClick={handleCloseModal}
-                    className="bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300"
+                    className={secondaryActionButtonClass}
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleSaveChanges}
                     disabled={saving}
-                    className="bg-zinc-600 hover:bg-zinc-700 text-white flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={primaryActionButtonClass}
                   >
                     <Save className="h-4 w-4" />
                     {saving ? "Saving..." : "Save Changes"}

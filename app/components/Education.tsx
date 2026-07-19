@@ -6,6 +6,7 @@ import { useUser } from "../context/UserContext";
 import EducationModal from "./EducationModal";
 import { BookOpen, Edit3 } from "lucide-react";
 import CredentialCardHeader, { credentialEditButtonClass } from "./CredentialCardHeader";
+import { primaryActionButtonClass } from "@/components/ui/button";
 
 interface EducationItem {
   id?: string;
@@ -170,7 +171,7 @@ export default function Education() {
               <p className="text-slate-400 mb-4">No education information added yet</p>
               {isOwner && <button
                 onClick={() => setIsModalOpen(true)}
-                className="px-4 py-2 bg-zinc-600 text-white rounded-lg hover:bg-zinc-700 transition-colors"
+                className={primaryActionButtonClass}
               >
                 Add Education
               </button>}

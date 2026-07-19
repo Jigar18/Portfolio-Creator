@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import { uploadFile } from "@/utils/uploadFiles";
+import { removeStoredFile, uploadFile } from "@/utils/uploadFiles";
 import { UploadResponse } from "@/types/api";
 import { db } from "@/lib/db";
 
@@ -44,6 +44,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const previousDetails = await db.details.findUnique({
+      where: { userId },
+      select: { imageUrl: true },
+    });
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
@@ -62,10 +67,23 @@ export async function POST(req: NextRequest) {
       throw new Error("Authenticated user was not found");
     }
 
-    await db.details.update({
-      where: { userId },
-      data: { imageUrl },
-    });
+    try {
+      await db.details.update({
+        where: { userId },
+        data: { imageUrl },
+      });
+    } catch (error) {
+      await removeStoredFile(imageUrl, "profile-picture", `user-image/${userId}-`).catch((cleanupError) =>
+        console.error("Unable to clean up the new profile image:", cleanupError)
+      );
+      throw error;
+    }
+
+    if (previousDetails?.imageUrl && previousDetails.imageUrl !== imageUrl) {
+      await removeStoredFile(previousDetails.imageUrl, "profile-picture", `user-image/${userId}-`).catch((cleanupError) =>
+        console.error("Unable to clean up the previous profile image:", cleanupError)
+      );
+    }
 
     const response: UploadResponse = {
       success: true,

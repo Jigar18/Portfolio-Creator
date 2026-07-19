@@ -17,7 +17,7 @@ import {
   Building,
   Camera,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, primaryActionButtonClass, secondaryActionButtonClass } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ProfileImageModal from "../components/ProfileImageModal";
@@ -410,7 +410,7 @@ function InfoCard() {
                   <Button
                     variant="outline"
                     onClick={handleCloseModal}
-                    className="bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300"
+                    className={secondaryActionButtonClass}
                   >
                     Cancel
                   </Button>
@@ -422,7 +422,7 @@ function InfoCard() {
                       !tempDetails.lastName ||
                       validationErrors.length > 0
                     }
-                    className="bg-zinc-600 hover:bg-zinc-700 text-white flex items-center gap-2"
+                    className={primaryActionButtonClass}
                   >
                     <Save className="h-4 w-4" />
                     {saving ? "Saving..." : "Save Changes"}

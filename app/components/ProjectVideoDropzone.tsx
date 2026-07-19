@@ -94,12 +94,16 @@ async function uploadVideoToCloudinary(file: File, signature: CloudinarySignatur
 }
 
 export async function removeUnsavedProjectVideo(publicId: string) {
-  await fetch("/api/cloudinary/video", {
+  const response = await fetch("/api/cloudinary/video", {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify({ publicId }),
   });
+  if (!response.ok) {
+    const data = await response.json().catch(() => null) as { error?: string } | null;
+    throw new Error(data?.error || "Unable to remove the project demo");
+  }
 }
 
 function readDuration(file: File) {

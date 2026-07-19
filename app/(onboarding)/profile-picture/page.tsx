@@ -11,6 +11,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import { UploadResponse } from "@/types/api";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { primaryActionButtonClass, secondaryActionButtonClass } from "@/components/ui/button";
 
 const globalStyles = `
   input:-webkit-autofill,
@@ -308,13 +309,13 @@ export default function ProfilePicturePage() {
                           <div className="crop-buttons flex space-x-4">
                             <button
                               onClick={handleCancel}
-                              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md transition-colors font-medium"
+                              className={secondaryActionButtonClass}
                             >
                               Cancel
                             </button>
                             <button
                               onClick={handleDone}
-                              className="px-4 py-2 bg-zinc-600 hover:bg-zinc-700 text-white rounded-md transition-colors font-medium"
+                              className={primaryActionButtonClass}
                             >
                               Done
                             </button>
@@ -335,18 +336,14 @@ export default function ProfilePicturePage() {
                         <div className="mt-6 flex justify-center space-x-4">
                           <button
                             onClick={handleRecrop}
-                            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md transition-colors"
+                            className={secondaryActionButtonClass}
                           >
                             Crop Image
                           </button>
                           <button
                             onClick={handleSubmit}
                             disabled={isUploading || uploadSuccess}
-                            className={`px-6 py-2.5 rounded-md transition-colors flex items-center ${
-                              isUploading || uploadSuccess
-                                ? "bg-slate-700 text-slate-400 cursor-not-allowed"
-                                : "bg-zinc-600 hover:bg-zinc-700 text-white"
-                            }`}
+                            className={primaryActionButtonClass}
                           >
                             {isUploading ? (
                               <>

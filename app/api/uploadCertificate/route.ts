@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import { uploadPdfFile } from "@/utils/uploadFiles";
+import { removeStoredFile, uploadPdfFile } from "@/utils/uploadFiles";
 import { PdfUploadRResponse } from "@/types/api";
+import { db } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,14 +20,26 @@ export async function POST(req: NextRequest) {
       new TextEncoder().encode(process.env.JWT_SECRET!)
     );
     const userId = payload.userId as string;
+    if (!userId) {
+      return NextResponse.json({ success: false, error: "Authentication token is invalid" }, { status: 401 });
+    }
 
     const formData = await req.formData();
     const file = formData.get("pdf") as File | null;
+    const title = String(formData.get("title") || "").trim();
+    const description = String(formData.get("description") || "").trim();
 
     if (!file) {
       console.log("No file provided in request");
       return NextResponse.json(
         { success: false, error: "No pdf file provided" },
+        { status: 400 }
+      );
+    }
+
+    if (!title || !description) {
+      return NextResponse.json(
+        { success: false, error: "Certificate title and description are required" },
         { status: 400 }
       );
     }
@@ -57,9 +70,23 @@ export async function POST(req: NextRequest) {
       userId
     );
 
-    console.log(`Generated PDF URL: ${pdfUrl}`);
+    let certificate;
+    try {
+      certificate = await db.certifications.create({
+        data: { userId, title, description, pdfUrl },
+      });
+    } catch (error) {
+      await removeStoredFile(pdfUrl, "certificates", `certifications/${userId}-`).catch((cleanupError) =>
+        console.error("Unable to clean up the unsaved certificate file:", cleanupError)
+      );
+      throw error;
+    }
 
-    const response: PdfUploadRResponse = { success: true, pdfUrl };
+    const response: PdfUploadRResponse & { certificate: typeof certificate } = {
+      success: true,
+      pdfUrl,
+      certificate,
+    };
     return NextResponse.json(response);
   } catch (error) {
     console.error("Error uploading certificate:", error);

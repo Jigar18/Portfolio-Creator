@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button, primaryActionButtonClass, secondaryActionButtonClass } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -287,7 +287,7 @@ export default function Details() {
                   <div className="mt-6 flex justify-end">
                     <Button
                       onClick={nextStep}
-                      className="bg-zinc-600 hover:bg-zinc-700 text-white px-6"
+                      className={primaryActionButtonClass}
                       disabled={!formData.firstName || !formData.lastName}
                     >
                       Continue
@@ -365,14 +365,14 @@ export default function Details() {
                       <Button
                         onClick={prevStep}
                         variant="outline"
-                        className="text-slate-300 border-slate-600 hover:bg-slate-800 hover:text-slate-100"
+                        className={secondaryActionButtonClass}
                       >
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back
                       </Button>
                       <Button
                         onClick={nextStep}
-                        className="bg-zinc-600 hover:bg-zinc-700 text-white px-6"
+                        className={primaryActionButtonClass}
                         disabled={!formData.email}
                       >
                         Continue
@@ -473,14 +473,14 @@ export default function Details() {
                       <Button
                         onClick={prevStep}
                         variant="outline"
-                        className="text-slate-300 border-slate-600 hover:bg-slate-800 hover:text-slate-100"
+                        className={secondaryActionButtonClass}
                       >
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back
                       </Button>
                       <Button
                         onClick={nextStep}
-                        className="bg-zinc-600 hover:bg-zinc-700 text-white px-6"
+                        className={primaryActionButtonClass}
                         disabled={!formData.location}
                       >
                         Continue
@@ -558,14 +558,14 @@ export default function Details() {
                       <Button
                         onClick={prevStep}
                         variant="outline"
-                        className="text-slate-300 border-slate-600 hover:bg-slate-800 hover:text-slate-100"
+                        className={secondaryActionButtonClass}
                       >
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back
                       </Button>
                       <Button
                         onClick={nextStep}
-                        className="bg-zinc-600 hover:bg-zinc-700 text-white px-6"
+                        className={primaryActionButtonClass}
                         disabled={!formData.jobTitle}
                       >
                         Continue
@@ -666,13 +666,13 @@ export default function Details() {
                       <Button
                         onClick={prevStep}
                         variant="outline"
-                        className="text-slate-300 border-slate-600 hover:bg-slate-800 hover:text-slate-100"
+                        className={secondaryActionButtonClass}
                       >
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back
                       </Button>
                       <Button
-                        className="bg-zinc-600 hover:bg-zinc-700 text-white px-6"
+                        className={primaryActionButtonClass}
                         disabled={!formData.school || !formData.startYear}
                         onClick={async () => {
                           const response = await fetch("/api/detailsToDB", {

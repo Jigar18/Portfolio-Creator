@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, BookOpen } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, primaryActionButtonClass, secondaryActionButtonClass } from "@/components/ui/button";
 import { createPortal } from "react-dom";
 
 interface EducationItem {
@@ -131,7 +131,7 @@ export default function EducationModal({
                 </p>
                 <Button
                   onClick={addNewEducation}
-                  className="bg-zinc-600 hover:bg-zinc-700"
+                  className={primaryActionButtonClass}
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Education
@@ -302,13 +302,13 @@ export default function EducationModal({
               <Button
                 onClick={onClose}
                 variant="ghost"
-                className="text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                className={secondaryActionButtonClass}
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSave}
-                className="bg-zinc-600 hover:bg-zinc-700"
+                className={primaryActionButtonClass}
               >
                 Save Changes
               </Button>

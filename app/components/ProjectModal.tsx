@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Github, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProjectVideoDropzone, { ProjectVideo } from "./ProjectVideoDropzone";
+import SkillIcon, { SkillIconMap } from "./SkillIcon";
 
 interface Project {
   id: string;
@@ -29,6 +30,7 @@ interface ProjectModalProps {
   projects: Project[];
   isOwner?: boolean;
   onVideoUploaded?: (projectId: string, video: ProjectVideo) => Promise<void>;
+  skillIcons?: SkillIconMap;
 }
 
 export default function ProjectModal({
@@ -38,6 +40,7 @@ export default function ProjectModal({
   projects,
   isOwner = false,
   onVideoUploaded,
+  skillIcons = {},
 }: ProjectModalProps) {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
@@ -240,8 +243,9 @@ export default function ProjectModal({
                                 duration: 0.3,
                                 delay: index * 0.05,
                               }}
-                              {...{className:"bg-gradient-to-r from-zinc-600/20 to-zinc-500/20 text-zinc-300 px-3 py-1.5 rounded-md text-sm border border-zinc-500/30 shadow-sm"}}
+                              {...{className:"inline-flex items-center gap-1.5 bg-gradient-to-r from-zinc-600/20 to-zinc-500/20 text-zinc-300 px-3 py-1.5 rounded-md text-sm border border-zinc-500/30 shadow-sm"}}
                             >
+                              <SkillIcon skill={tech} iconMap={skillIcons} />
                               {tech}
                             </motion.span>
                           ))}

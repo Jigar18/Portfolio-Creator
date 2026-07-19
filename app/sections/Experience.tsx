@@ -19,7 +19,7 @@ import {
   Building,
   Trash2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, primaryActionButtonClass, secondaryActionButtonClass } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -406,7 +406,7 @@ export default function Experience() {
                 <p className="text-slate-400 mb-4">No experiences added yet</p>
                 {isOwner && <Button
                   onClick={() => handleOpenModal()}
-                  className="bg-zinc-600 hover:bg-zinc-700 text-white"
+                  className={primaryActionButtonClass}
                 >
                   Add Your First Experience
                 </Button>}
@@ -719,7 +719,7 @@ export default function Experience() {
                     <Button
                       variant="outline"
                       onClick={handleCloseModal}
-                      className="bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300"
+                      className={secondaryActionButtonClass}
                     >
                       Cancel
                     </Button>
@@ -739,7 +739,7 @@ export default function Experience() {
                   </div>
                   <Button
                     onClick={handleSaveChanges}
-                    className="bg-zinc-600 hover:bg-zinc-700 text-white flex items-center gap-2"
+                    className={primaryActionButtonClass}
                     disabled={
                       saving ||
                       !tempOrganization ||

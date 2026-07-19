@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, primaryActionButtonClass, secondaryActionButtonClass } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import {
   Dialog,
@@ -75,30 +75,8 @@ export default function EditCertifications({
       }
 
       const responseData = await response.json();
-
-      const newCard = {
-        title: data.title,
-        description: data.description,
-        pdfUrl: responseData.pdfUrl,
-      };
-
-      const apiResponse = await fetch("/api/certificateToDB", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ card: newCard }),
-      });
-
-      if (!apiResponse.ok) {
-        const errorData = await apiResponse
-          .json()
-          .catch(() => ({ error: `HTTP ${apiResponse.status}` }));
-        throw new Error(
-          errorData.error ||
-            `Database save failed with status ${apiResponse.status}`
-        );
-      }
-
-      console.log("Certificate saved to database successfully");
+      const newCard = responseData.certificate;
+      if (!newCard) throw new Error("Certificate was uploaded but could not be saved");
 
       // Add the new card using the callback
       onAddCard(newCard);
@@ -142,7 +120,7 @@ export default function EditCertifications({
             <Edit3 className="h-4 w-4" />
           </button>
         ) : (
-          <Button className="bg-zinc-600 hover:bg-zinc-700 text-white px-5 py-2.5 rounded-md transition-colors flex items-center gap-2">
+          <Button className={primaryActionButtonClass}>
             <FileUp className="h-4 w-4" />
             Add Certificates
           </Button>
@@ -274,13 +252,13 @@ export default function EditCertifications({
             <Button
               type="button"
               onClick={() => setOpen(false)}
-              className="bg-transparent hover:bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-md transition-colors"
+              className={secondaryActionButtonClass}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="bg-zinc-600 hover:bg-zinc-700 text-white px-5 py-2.5 rounded-md transition-colors flex items-center gap-2"
+              className={primaryActionButtonClass}
               disabled={isUploading}
             >
               {isUploading ? (

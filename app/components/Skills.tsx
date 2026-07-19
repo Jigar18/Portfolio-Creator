@@ -7,8 +7,8 @@ import { X, Edit3, Pencil, Search, Sparkles } from "lucide-react";
 import { Icon } from "@iconify/react";
 import CredentialCardHeader, { credentialEditButtonClass } from "./CredentialCardHeader";
 import { useUser } from "../context/UserContext";
-
-type SkillIconMap = Record<string, string | null>;
+import SkillIcon, { SkillIconMap } from "./SkillIcon";
+import { primaryActionButtonClass, secondaryActionButtonClass } from "@/components/ui/button";
 
 interface UserSkills {
   skills: string[];
@@ -16,30 +16,6 @@ interface UserSkills {
 }
 
 const capitalizeFirst = (skill: string) => skill ? skill.charAt(0).toUpperCase() + skill.slice(1) : skill;
-
-const defaultSkillIcons: Record<string, string> = {
-  react: "devicon:react",
-  reactjs: "devicon:react",
-  nextjs: "devicon:nextjs",
-  typescript: "devicon:typescript",
-  javascript: "devicon:javascript",
-  java: "devicon:java",
-  spring: "devicon:spring",
-  springboot: "devicon:spring",
-  springsecurity: "devicon:spring",
-  git: "devicon:git",
-  github: "devicon:github",
-  docker: "devicon:docker",
-  postgresql: "devicon:postgresql",
-  sqlserver: "devicon:microsoftsqlserver",
-};
-
-const normaliseSkill = (skill: string) => skill.toLowerCase().replace(/[^a-z0-9]/g, "");
-
-const getSkillIcon = (skill: string, iconMap: SkillIconMap) => {
-  if (iconMap[skill] === null) return undefined;
-  return iconMap[skill] || defaultSkillIcons[normaliseSkill(skill)];
-};
 
 export default function Skills() {
   const { isOwner, portfolioApiUrl } = useUser();
@@ -290,13 +266,7 @@ export default function Skills() {
                     "inline-flex items-center gap-2 px-3 py-1 bg-zinc-600/20 text-zinc-300 rounded-full text-sm font-medium border border-zinc-600/30 hover:bg-zinc-600/30 transition-colors",
                 }}
               >
-                {getSkillIcon(skill, skillIcons) && (
-                  <Icon
-                    icon={getSkillIcon(skill, skillIcons)!}
-                    className="h-4 w-4 shrink-0"
-                    aria-hidden="true"
-                  />
-                )}
+                <SkillIcon skill={skill} iconMap={skillIcons} />
                 {skill}
               </motion.span>
             ))}
@@ -500,13 +470,7 @@ export default function Skills() {
                               className="inline-flex items-center gap-1.5 rounded-full px-0.5 transition-colors hover:text-white"
                               title={`Choose an icon for ${skill}`}
                             >
-                              {getSkillIcon(skill, tempSkillIcons) && (
-                                <Icon
-                                  icon={getSkillIcon(skill, tempSkillIcons)!}
-                                  className="h-4 w-4 shrink-0"
-                                  aria-hidden="true"
-                                />
-                              )}
+                              <SkillIcon skill={skill} iconMap={tempSkillIcons} />
                               {skill}
                             </button>
                             <button
@@ -527,14 +491,14 @@ export default function Skills() {
                 <div className="flex justify-end gap-3 pt-6 border-t border-slate-700">
                   <button
                     onClick={() => setIsEditModalOpen(false)}
-                    className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md text-sm font-medium transition-colors"
+                    className={secondaryActionButtonClass}
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSaveSkills}
                     disabled={saving}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-600 hover:bg-zinc-700 disabled:bg-zinc-800 text-white rounded-md text-sm font-medium transition-colors"
+                    className={primaryActionButtonClass}
                   >
                     {saving ? (
                       <>

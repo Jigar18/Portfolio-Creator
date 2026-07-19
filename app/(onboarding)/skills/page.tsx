@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button, primaryActionButtonClass } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { X, Plus, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import SkillIcon, { SkillIconMap } from "@/app/components/SkillIcon";
 
 const globalStyles = `
   input:-webkit-autofill,
@@ -27,6 +28,7 @@ export default function SkillsPage() {
   const [skillInput, setSkillInput] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [selectedSkillIcons, setSelectedSkillIcons] = useState<SkillIconMap>({});
   const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -60,10 +62,23 @@ export default function SkillsPage() {
 
   const formatSkill = (skill: string) => skill ? skill.charAt(0).toUpperCase() + skill.slice(1) : skill;
 
+  const findSkillIcon = async (skill: string) => {
+    try {
+      const response = await fetch(`/api/skill-icons?skill=${encodeURIComponent(skill)}`);
+      if (!response.ok) return;
+      const data = await response.json();
+      const icon = data.icons?.[0];
+      if (icon) setSelectedSkillIcons((current) => ({ ...current, [skill]: icon }));
+    } catch {
+      // Known skills still use the local fallback icon map.
+    }
+  };
+
   const handleSkillSelect = (skill: string) => {
     const formattedSkill = formatSkill(skill);
     if (!selectedSkills.includes(formattedSkill)) {
       setSelectedSkills([...selectedSkills, formattedSkill]);
+      void findSkillIcon(formattedSkill);
       setSkillInput("");
       setSuggestions([]);
       if (inputRef.current) {
@@ -74,12 +89,18 @@ export default function SkillsPage() {
 
   const handleRemoveSkill = (skill: string) => {
     setSelectedSkills(selectedSkills.filter((s) => s !== skill));
+    setSelectedSkillIcons((current) => {
+      const updated = { ...current };
+      delete updated[skill];
+      return updated;
+    });
   };
 
   const handleAddCustomSkill = () => {
     const formattedSkill = formatSkill(skillInput.trim());
     if (formattedSkill && !selectedSkills.includes(formattedSkill)) {
       setSelectedSkills([...selectedSkills, formattedSkill]);
+      void findSkillIcon(formattedSkill);
       setSkillInput("");
       setSuggestions([]);
     }
@@ -171,7 +192,10 @@ export default function SkillsPage() {
                               onClick: () => handleSkillSelect(skill),
                             }}
                           >
-                            <span className="flex-1">{skill}</span>
+                            <span className="flex flex-1 items-center gap-2">
+                              <SkillIcon skill={skill} />
+                              {skill}
+                            </span>
                             <span className="bg-slate-700/50 hover:bg-zinc-600/30 p-1 rounded-full text-zinc-400 transition-colors">
                               <Plus className="h-3.5 w-3.5" />
                             </span>
@@ -227,6 +251,7 @@ export default function SkillsPage() {
                             "bg-slate-800 border border-slate-700 rounded-full px-3.5 py-1.5 flex items-center gap-2 group hover:border-zinc-500/50 transition-colors",
                         }}
                       >
+                        <SkillIcon skill={skill} iconMap={selectedSkillIcons} />
                         <span className="text-slate-200 text-sm">{skill}</span>
                         <Button
                           variant="ghost"
@@ -246,18 +271,17 @@ export default function SkillsPage() {
               {/* Continue button */}
               <div className="mt-12 flex justify-end">
                 <Button
-                  className="bg-zinc-600 hover:bg-zinc-700 text-white px-6 py-2.5 rounded-md transition-colors"
+                  className={primaryActionButtonClass}
                   disabled={selectedSkills.length === 0}
                   onClick={async () => {
-                      router.push("/profile-picture");
-
-                      await fetch("/api/skillsToDB", {
+                      const response = await fetch("/api/skillsToDB", {
                         method: "POST",
                         headers: {
                           "Content-type": "application/json",
                         },
-                        body: JSON.stringify(selectedSkills),
+                        body: JSON.stringify({ skills: selectedSkills, iconMap: selectedSkillIcons }),
                       });
+                      if (response.ok) router.push("/profile-picture");
                     }
                   }
                 >

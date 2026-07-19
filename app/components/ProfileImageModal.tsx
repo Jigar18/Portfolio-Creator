@@ -4,7 +4,7 @@ import type { ChangeEvent, DragEvent } from "react";
 
 import { useState, useRef, useEffect } from "react";
 import { X, Upload, Camera, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, primaryActionButtonClass, secondaryActionButtonClass } from "@/components/ui/button";
 import { createPortal } from "react-dom";
 
 interface ProfileImageModalProps {
@@ -212,18 +212,14 @@ export default function ProfileImageModal({
               variant="outline"
               onClick={onClose}
               disabled={isUploading}
-              className="bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300"
+              className={secondaryActionButtonClass}
             >
               Cancel
             </Button>
             <Button
               onClick={handleSave}
               disabled={!selectedFile || isUploading}
-              className={`bg-zinc-600 hover:bg-zinc-700 text-white ${
-                !selectedFile || isUploading
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-              }`}
+              className={primaryActionButtonClass}
             >
               {isUploading ? (
                 <>

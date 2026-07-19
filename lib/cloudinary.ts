@@ -69,16 +69,21 @@ export async function deleteProjectVideo(publicId: string) {
     timestamp: String(timestamp),
   });
 
-  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/destroy`, {
-    method: "POST",
-    body,
-  });
-  if (!response.ok) throw new Error("Unable to remove the Cloudinary video");
-
-  const result = (await response.json()) as { result?: string };
-  if (result.result !== "ok" && result.result !== "not found") {
-    throw new Error("Unable to remove the Cloudinary video");
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/destroy`, {
+        method: "POST",
+        body,
+      });
+      const result = response.ok ? await response.json() as { result?: string } : null;
+      if (result?.result === "ok" || result?.result === "not found") return;
+    } catch (error) {
+      if (attempt === 2) throw error;
+    }
+    if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 500 * 2 ** attempt));
   }
+
+  throw new Error("Unable to remove the Cloudinary video");
 }
 
 export async function getVerifiedProjectVideo(publicId: string, userId: string) {

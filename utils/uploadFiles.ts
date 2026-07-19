@@ -9,6 +9,31 @@ function getSupabase() {
   return createClient(projectUrl, apiKey);
 }
 
+function getStoragePath(publicUrl: string, bucket: string) {
+  const projectUrl = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
+  if (!projectUrl) throw new Error("File storage is not configured");
+
+  try {
+    const asset = new URL(publicUrl);
+    const project = new URL(projectUrl);
+    const prefix = `/storage/v1/object/public/${bucket}/`;
+    if (asset.origin !== project.origin || !asset.pathname.startsWith(prefix)) return null;
+    return decodeURIComponent(asset.pathname.slice(prefix.length));
+  } catch {
+    return null;
+  }
+}
+
+export async function removeStoredFile(publicUrl: string, bucket: string, ownerPrefix: string) {
+  const filePath = getStoragePath(publicUrl, bucket);
+  if (!filePath) return false;
+  if (!filePath.startsWith(ownerPrefix)) throw new Error("Stored file does not belong to this user");
+
+  const { error } = await getSupabase().storage.from(bucket).remove([filePath]);
+  if (error) throw new Error(`Supabase file deletion failed: ${error.message}`);
+  return true;
+}
+
 // function for uploading images like in profile picture.
 export async function uploadFile(
   fileBuffer: Buffer,
@@ -37,7 +62,7 @@ export async function uploadFile(
 export async function uploadPdfFile(
   fileBuffer: Buffer,
   fileName: string,
-  userId: String
+  userId: string
 ) {
   const supabase = getSupabase();
   const filePath = `certifications/${userId}-${Date.now()}-${fileName}`;

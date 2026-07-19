@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { db } from "@/lib/db";
-import { createClient } from "@supabase/supabase-js";
+import { removeStoredFile } from "@/utils/uploadFiles";
 
 export async function DELETE(req: NextRequest) {
   try {
@@ -44,28 +44,11 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    const projectUrl = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
-    const apiKey = process.env.SUPABASE_API_KEY;
-    try {
-      if (!projectUrl || !apiKey) throw new Error("File storage is not configured");
-      const supabase = createClient(projectUrl, apiKey);
-      // Extract the file path from the URL
-      const url = new URL(certificate.pdfUrl);
-      const pathSegments = url.pathname.split("/");
-      const filePath = pathSegments.slice(-2).join("/");
-
-      const { error: storageError } = await supabase.storage
-        .from("certificates")
-        .remove([filePath]);
-
-      if (storageError) {
-        console.error("Error deleting file from storage:", storageError);
-      } else {
-        console.log("File deleted from storage successfully");
-      }
-    } catch (storageError) {
-      console.error("Error processing storage deletion:", storageError);
-    }
+    await removeStoredFile(
+      certificate.pdfUrl,
+      "certificates",
+      `certifications/${userId}-`
+    );
 
     await db.certifications.delete({
       where: {
