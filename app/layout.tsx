@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -16,6 +16,10 @@ export const metadata: Metadata = {
   title: "Portfolio Creator",
   description: "Build a portfolio that gives your work a clear, confident home.",
   icons: "/tab-icon.png",
+};
+
+export const viewport: Viewport = {
+  width: 1280,
 };
 
 export default function RootLayout({

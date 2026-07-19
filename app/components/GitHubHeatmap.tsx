@@ -154,7 +154,7 @@ export default function GitHubHeatmap() {
         ) : (
           <>
             <div className="mt-8 overflow-x-auto">
-              <div className="flex w-full min-w-[760px] gap-2 px-1.5 py-2">
+              <div className="flex w-full min-w-[940px] gap-2 px-1.5 py-2">
                 <div className="grid grid-rows-7 gap-1 pr-1 text-[9px] text-zinc-600">
                   {["", "Mon", "", "Wed", "", "Fri", ""].map((label, index) => (
                     <span key={`${label}-${index}`} className="flex w-5 items-center justify-end">
@@ -163,11 +163,11 @@ export default function GitHubHeatmap() {
                   ))}
                 </div>
                 <div
-                  className="grid min-w-0 flex-1 gap-1"
-                  style={{ gridTemplateColumns: `repeat(${calendar.weeks.length}, minmax(10px, 1fr))` }}
+                  className="grid min-w-0 flex-1 gap-1.5"
+                  style={{ gridTemplateColumns: `repeat(${calendar.weeks.length}, minmax(11px, 1fr))` }}
                 >
                   {calendar.weeks.map((week, weekIndex) => (
-                    <div key={weekIndex} className="grid grid-rows-7 gap-1">
+                    <div key={weekIndex} className="grid grid-rows-7 gap-1.5">
                       {week.contributionDays.map((day) => (
                         <span
                           key={day.date}
