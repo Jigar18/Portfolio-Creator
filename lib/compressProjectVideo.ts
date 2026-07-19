@@ -76,6 +76,7 @@ export async function compressProjectVideo(file: File, duration: number, onProgr
         tracks: "primary",
         video: {
           ...dimensions,
+          fit: "contain",
           codec: profile.videoCodec,
           bitrate,
           frameRate: 30,
