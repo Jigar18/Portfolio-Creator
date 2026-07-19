@@ -86,7 +86,7 @@ export async function getVerifiedProjectVideo(publicId: string, userId: string) 
   if (!isOwnedProjectVideo(publicId, userId)) throw new Error("Project video not found");
 
   const authorization = Buffer.from(`${apiKey}:${apiSecret}`).toString("base64");
-  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/resources/video/upload/${encodeURIComponent(publicId)}`, {
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/resources/video/upload/${encodeURIComponent(publicId)}?media_metadata=true`, {
     headers: { Authorization: `Basic ${authorization}` },
     cache: "no-store",
   });
