@@ -170,11 +170,6 @@ export default function Home() {
             animate="visible"
             variants={sectionVariants}
           >
-            <div className="container mx-auto flex md:flex-row justify-center items-center gap-4">
-              <p className="text-zinc-500 text-xs uppercase tracking-[0.16em]">
-                © {new Date().getFullYear()} · Built with care
-              </p>
-            </div>
           </motion.footer>
           </div>
         </main>
