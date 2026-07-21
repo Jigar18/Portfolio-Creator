@@ -392,7 +392,7 @@ export default function Experience() {
             Experience
           </h2>
 
-          <div className="space-y-8">
+          <div>
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-zinc-500"></div>
@@ -415,28 +415,27 @@ export default function Experience() {
               experience.map((level, index) => (
                 <motion.div
                   key={level.id ?? level.level}
-                  {...{ className: "relative" }}
+                  {...{ className: "relative border-b border-white/10 py-7 last:border-b-0" }}
                   initial={{ opacity: 0, x: -20 }}
                   animate={
                     isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }
                   }
                   transition={{ duration: 0.5, delay: index * 0.2 + 0.3 }}
                 >
-                  <div className="flex flex-col md:flex-row gap-6">
+                  <div className="flex flex-col gap-5 md:flex-row md:gap-6">
                     {/* Timeline dot and line */}
                     <div className="relative hidden w-4 flex-shrink-0 flex-col items-center md:flex">
                       <div className="z-10 h-4 w-4 rounded-full bg-zinc-600"></div>
                       {index < experience.length - 1 && (
-                        <div className="absolute -bottom-8 left-[7px] top-4 w-0.5 bg-slate-600"></div>
+                        <div className="absolute -bottom-7 left-[7px] top-4 w-px bg-slate-600"></div>
                       )}
                     </div>
 
-                    {/* Experience card */}
-                    <div className="flex-1 flex flex-col md:flex-row gap-4 group">
-                      <div className="bg-slate-700/50 rounded-lg p-4 md:w-64 flex-shrink-0 relative">
+                    <div className="group flex flex-1 flex-col gap-5 md:flex-row">
+                      <div className="relative flex-shrink-0 border-l border-zinc-600/70 pl-4 md:w-64 md:border-l-0 md:pl-0">
                         {/* Individual edit button for each experience */}
                         {isOwner && <button
-                          className="absolute top-2 right-2 p-1 rounded bg-slate-600/80 hover:bg-slate-500 text-slate-300 hover:text-white opacity-0 group-hover:opacity-100 transition-all duration-200"
+                          className="absolute right-0 top-0 rounded-md p-1.5 text-slate-400 opacity-0 transition-all duration-200 hover:bg-white/5 hover:text-white group-hover:opacity-100"
                           onClick={() => handleOpenModal(index)}
                           type="button"
                         >
@@ -454,14 +453,14 @@ export default function Experience() {
                         </p>
                       </div>
 
-                      <div className="bg-slate-700/30 rounded-lg p-4 flex-1">
+                      <div className="flex-1 md:border-l md:border-white/10 md:pl-6">
                         <div className="grid grid-cols-1 gap-3">
                           {level.description.map((item, idx) => (
                             <motion.div
                               key={idx}
                               {...{
                                 className:
-                                  "flex items-center gap-3 bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 hover:border-zinc-500/30 transition-colors",
+                                  "flex items-start gap-3 text-slate-300",
                               }}
                               initial={{ opacity: 0, y: 10 }}
                               animate={
@@ -473,12 +472,8 @@ export default function Experience() {
                                 duration: 0.3,
                                 delay: 0.1 + idx * 0.1 + index * 0.2,
                               }}
-                              whileHover={{
-                                y: -2,
-                                backgroundColor: "rgba(39, 39, 42, 0.7)",
-                              }}
                             >
-                              <div className="flex-shrink-0 bg-slate-700 p-1.5 rounded-md">
+                              <div className="mt-0.5 flex-shrink-0 text-zinc-500">
                                 {item.icon}
                               </div>
                               <span className="text-slate-300">

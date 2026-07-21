@@ -163,7 +163,7 @@ export default function Education() {
         
         <div className="relative min-h-0 flex-1 pt-3">
         <div
-          className="credential-scrollbar h-full space-y-4 overflow-x-hidden overflow-y-auto pr-1"
+          className="credential-scrollbar h-full divide-y divide-white/10 overflow-x-hidden overflow-y-auto pr-1"
           onScroll={(event) => setEducationAtTop(event.currentTarget.scrollTop <= 2)}
         >
           {education.length === 0 ? (
@@ -181,19 +181,21 @@ export default function Education() {
               <motion.div
                 key={edu.id || index}
                 {...{
-                  className: "min-h-[118px] bg-slate-700/30 rounded-lg px-4 py-3 border border-slate-600/50 relative transition-colors hover:border-slate-500/70 hover:bg-slate-700/40"
+                  className: "relative min-h-[118px] px-1 py-4 transition-colors hover:bg-white/[0.025]"
                 }}
               >
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-semibold text-slate-200 text-lg">
-                    {edu.school}
-                  </h3>
-                  <span className="text-sm text-slate-400 font-medium">
-                    {formatYears(edu.startYear, edu.endYear, edu.isCurrently)}
-                  </span>
+                <div className="border-l border-zinc-600/70 pl-4">
+                  <div className="mb-2 flex items-start justify-between gap-4">
+                    <h3 className="text-lg font-semibold text-slate-200">
+                      {edu.school}
+                    </h3>
+                    <span className="shrink-0 text-sm font-medium text-slate-400">
+                      {formatYears(edu.startYear, edu.endYear, edu.isCurrently)}
+                    </span>
+                  </div>
+                  <p className="mb-1 font-medium text-zinc-400">{edu.degree}</p>
+                  <p className="text-sm text-slate-300">{edu.field}</p>
                 </div>
-                <p className="text-zinc-400 font-medium mb-1">{edu.degree}</p>
-                <p className="text-slate-300 text-sm">{edu.field}</p>
               </motion.div>
             ))
           )}
