@@ -2,7 +2,13 @@
 
 import { motion, useInView } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Code2, FolderPlus } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Info,
+  Code2,
+  FolderPlus,
+} from "lucide-react";
 import ProjectCard from "../components/ProjectCard";
 import DeleteProjectModal from "../components/DeleteProjectModal";
 import AddProjectModal, {
@@ -26,6 +32,8 @@ type ModalProject = Omit<PortfolioProject, "githubUrl" | "liveUrl"> & {
   github: string;
   longDescription?: string;
 };
+
+const MAX_PROJECTS = 4;
 
 const toModalProject = (project: PortfolioProject): ModalProject => ({
   ...project,
@@ -57,6 +65,21 @@ export default function Projects() {
   const [selectedProject, setSelectedProject] = useState<ModalProject | null>(
     null,
   );
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+  const dragRef = useRef({ active: false, moved: false, startX: 0, scrollLeft: 0 });
+  const suppressClickRef = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateCarouselControls = useCallback(() => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    setCanScrollLeft(carousel.scrollLeft > 2);
+    setCanScrollRight(
+      carousel.scrollLeft + carousel.clientWidth < carousel.scrollWidth - 2,
+    );
+  }, []);
 
   const loadProjects = useCallback(async () => {
     try {
@@ -84,7 +107,19 @@ export default function Projects() {
     loadProjects();
   }, [loadProjects]);
 
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    updateCarouselControls();
+    const observer = new ResizeObserver(updateCarouselControls);
+    observer.observe(carousel);
+    return () => observer.disconnect();
+  }, [loading, projects.length, updateCarouselControls]);
+
   const saveProject = async (draft: Omit<PortfolioProject, "id">) => {
+    if (!editingProject && projects.length >= MAX_PROJECTS) {
+      throw new Error(`Only ${MAX_PROJECTS} projects are allowed`);
+    }
     const response = await fetch("/api/projects", {
       method: editingProject ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
@@ -142,10 +177,60 @@ export default function Projects() {
   };
 
   const openEditor = (project: PortfolioProject | null = null) => {
+    if (!project && projects.length >= MAX_PROJECTS) return;
     setEditingProject(project);
     setEditorOpen(true);
   };
+
+  const scrollProjects = (direction: -1 | 1) => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    carousel.scrollBy({
+      left: direction * carousel.clientWidth * 0.8,
+      behavior: "smooth",
+    });
+  };
+
+  const startDragging = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "mouse" || event.button !== 0) return;
+    dragRef.current = {
+      active: true,
+      moved: false,
+      startX: event.clientX,
+      scrollLeft: event.currentTarget.scrollLeft,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setIsDragging(true);
+  };
+
+  const dragProjects = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.active) return;
+    const distance = event.clientX - dragRef.current.startX;
+    if (Math.abs(distance) > 4) dragRef.current.moved = true;
+    event.currentTarget.scrollLeft = dragRef.current.scrollLeft - distance;
+    if (dragRef.current.moved) event.preventDefault();
+  };
+
+  const stopDragging = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.active) return;
+    suppressClickRef.current = dragRef.current.moved;
+    dragRef.current.active = false;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    setIsDragging(false);
+    updateCarouselControls();
+  };
+
+  const preventDraggedClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!suppressClickRef.current) return;
+    event.preventDefault();
+    event.stopPropagation();
+    suppressClickRef.current = false;
+  };
+
   const modalProjects = projects.map(toModalProject);
+  const projectLimitReached = projects.length >= MAX_PROJECTS;
 
   return (
     <motion.div
@@ -168,13 +253,34 @@ export default function Projects() {
           </p>
         </div>
         {isOwner && projects.length > 0 && (
-          <button
-            onClick={() => openEditor()}
-            className={primaryActionButtonClass}
-          >
-            <FolderPlus className="h-4 w-4" />
-            Add project
-          </button>
+          <div className="flex items-center gap-2">
+            {projectLimitReached && (
+              <span
+                className="group/limit relative inline-flex rounded-full p-1.5 text-zinc-500 outline-none transition-colors hover:bg-white/[0.06] hover:text-zinc-200 focus-visible:ring-2 focus-visible:ring-white/30"
+                tabIndex={0}
+                aria-label="A maximum of four projects can be uploaded"
+              >
+                <Info className="h-4 w-4" />
+                <span
+                  role="tooltip"
+                  className="pointer-events-none absolute bottom-full right-0 z-20 mb-2 w-max max-w-64 translate-y-1 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs font-normal normal-case tracking-normal text-zinc-300 opacity-0 shadow-xl transition-all group-hover/limit:translate-y-0 group-hover/limit:opacity-100 group-focus-visible/limit:translate-y-0 group-focus-visible/limit:opacity-100"
+                >
+                  A maximum of four projects can be uploaded.
+                </span>
+              </span>
+            )}
+            <button
+              onClick={() => openEditor()}
+              disabled={projectLimitReached}
+              className={cn(
+                primaryActionButtonClass,
+                "disabled:cursor-not-allowed disabled:opacity-45",
+              )}
+            >
+              <FolderPlus className="h-4 w-4" />
+              Add project
+            </button>
+          </div>
         )}
       </div>
       {loading ? (
@@ -202,9 +308,12 @@ export default function Projects() {
             <h3 className="mt-5 text-lg font-medium text-white">
               No projects added yet.
             </h3>
+            <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-zinc-500">
+              A maximum of four projects can be uploaded to this portfolio.
+            </p>
             {isOwner && (
               <>
-                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-400">
+                <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-400">
                   Start with the project that best represents your craft.
                 </p>
                 <button
@@ -218,20 +327,56 @@ export default function Projects() {
           </div>
         </motion.div>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 2xl:grid-cols-3">
-          {projects.map((project, index) => (
-            <ProjectCard
-              key={project.id}
-              project={toModalProject(project)}
-              index={index}
-              skillIcons={skillIcons}
-              onOpenProject={(selected) => setSelectedProject(selected)}
-              onEditProject={isOwner ? () => openEditor(project) : undefined}
-              onDeleteProject={
-                isOwner ? () => setProjectToDelete(project) : undefined
-              }
-            />
-          ))}
+        <div className="relative">
+          {canScrollLeft && (
+            <button
+              type="button"
+              onClick={() => scrollProjects(-1)}
+              className="absolute left-2 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-zinc-950/90 text-zinc-200 shadow-xl backdrop-blur-sm transition hover:scale-105 hover:bg-zinc-800"
+              aria-label="Show previous projects"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          )}
+          <div
+            ref={carouselRef}
+            className={`project-carousel flex touch-pan-x gap-5 overflow-x-auto py-2 ${isDragging ? "cursor-grabbing select-none scroll-auto" : "cursor-grab scroll-smooth"}`}
+            onScroll={updateCarouselControls}
+            onPointerDown={startDragging}
+            onPointerMove={dragProjects}
+            onPointerUp={stopDragging}
+            onPointerCancel={stopDragging}
+            onClickCapture={preventDraggedClick}
+            onDragStart={(event) => event.preventDefault()}
+          >
+            {projects.map((project, index) => (
+              <div
+                key={project.id}
+                className="shrink-0 basis-[86%] sm:basis-[58%] lg:basis-[calc((100%-2.5rem)/2.5)] [&>div]:h-full"
+              >
+                <ProjectCard
+                  project={toModalProject(project)}
+                  index={index}
+                  skillIcons={skillIcons}
+                  onOpenProject={(selected) => setSelectedProject(selected)}
+                  onEditProject={isOwner ? () => openEditor(project) : undefined}
+                  onDeleteProject={
+                    isOwner ? () => setProjectToDelete(project) : undefined
+                  }
+                />
+              </div>
+            ))}
+          </div>
+          {canScrollRight && (
+            <button
+              type="button"
+              onClick={() => scrollProjects(1)}
+              className="absolute right-2 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-zinc-950/90 text-zinc-200 shadow-xl backdrop-blur-sm transition hover:scale-105 hover:bg-zinc-800"
+              aria-label="Show more projects"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          )}
         </div>
       )}
       {isOwner && (

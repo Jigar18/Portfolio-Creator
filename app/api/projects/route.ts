@@ -21,6 +21,8 @@ type ProjectInput = {
   videoFormat?: unknown;
 };
 
+const MAX_PROJECTS = 4;
+
 async function parseProject(body: ProjectInput, userId: string) {
   const title = typeof body.title === "string" ? body.title.trim() : "";
   const description = typeof body.description === "string" ? body.description.trim() : "";
@@ -67,6 +69,13 @@ export async function POST(request: NextRequest) {
   try {
     const userId = await getRequestUserId(request);
     if (!userId) return NextResponse.json({ success: false, error: "Authentication token is missing" }, { status: 401 });
+    const projectCount = await db.project.count({ where: { userId } });
+    if (projectCount >= MAX_PROJECTS) {
+      return NextResponse.json(
+        { success: false, error: `A maximum of ${MAX_PROJECTS} projects is allowed` },
+        { status: 409 },
+      );
+    }
     const project = await db.project.create({ data: { ...await parseProject(await request.json(), userId), userId } });
     return NextResponse.json({ success: true, project }, { status: 201 });
   } catch (error) {

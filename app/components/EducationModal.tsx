@@ -108,7 +108,8 @@ export default function EducationModal({
                 onClick={onClose}
                 variant="ghost"
                 size="icon"
-                className="text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                className="rounded-full border border-slate-700 bg-slate-800/80 p-2 text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+                aria-label="Close education editor"
               >
                 <X className="h-5 w-5" />
               </Button>

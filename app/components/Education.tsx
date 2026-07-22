@@ -181,7 +181,7 @@ export default function Education() {
               <motion.div
                 key={edu.id || index}
                 {...{
-                  className: "relative min-h-[118px] rounded-lg px-4 py-4 transition-colors hover:bg-white/[0.025]"
+                  className: "relative min-h-[118px] rounded-lg px-4 py-4 transition-colors hover:bg-white/[0.035]"
                 }}
               >
                 {index > 0 && (

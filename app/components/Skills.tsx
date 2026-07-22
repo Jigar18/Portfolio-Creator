@@ -289,8 +289,14 @@ export default function Skills() {
         isOwner &&
         isEditModalOpen &&
         createPortal(
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setIsEditModalOpen(false)}
+          >
+            <div
+              className="bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+              onClick={(event) => event.stopPropagation()}
+            >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-slate-200 flex items-center gap-2">

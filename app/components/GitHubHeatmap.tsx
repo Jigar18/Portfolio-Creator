@@ -120,11 +120,11 @@ export default function GitHubHeatmap() {
               aria-checked={visible}
               disabled={saving}
               onClick={updateVisibility}
-              className="inline-flex items-center gap-2.5 text-xs font-medium text-zinc-400 transition-colors hover:text-zinc-200 disabled:cursor-wait disabled:opacity-60"
+              className="inline-flex items-center gap-2.5 rounded-full bg-black/20 px-3 py-2 text-xs font-medium text-zinc-300 transition-colors hover:bg-black/30 hover:text-white disabled:cursor-wait disabled:opacity-60"
             >
               <span>{visible ? "Shown publicly" : "Hidden publicly"}</span>
-              <span className={`relative h-5 w-9 rounded-full border transition-colors ${visible ? "border-zinc-400 bg-zinc-300" : "border-white/10 bg-zinc-700"}`}>
-                <span className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ${visible ? "translate-x-4" : "translate-x-0"}`} />
+              <span className={`relative h-5 w-9 rounded-full border shadow-inner ring-1 ring-black/30 transition-colors ${visible ? "border-white/30 bg-zinc-600" : "border-white/10 bg-zinc-800"}`}>
+                <span className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full border border-zinc-300 bg-white shadow-md transition-transform duration-200 ${visible ? "translate-x-4" : "translate-x-0"}`} />
               </span>
             </button>
           )}

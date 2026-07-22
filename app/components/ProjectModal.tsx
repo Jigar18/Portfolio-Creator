@@ -112,7 +112,7 @@ export default function ProjectModal({
         >
           {/* Modal Content */}
           <motion.div
-            {...{className:"relative w-[85%] max-w-5xl bg-gradient-to-b from-slate-900 to-slate-950 rounded-xl overflow-hidden shadow-2xl border border-slate-700",
+            {...{className:"relative flex max-h-[90vh] w-[85%] max-w-5xl flex-col overflow-hidden rounded-xl border border-slate-700 bg-gradient-to-b from-slate-900 to-slate-950 shadow-2xl",
             onClick:(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}}
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -129,9 +129,9 @@ export default function ProjectModal({
               <X className="h-5 w-5" />
             </Button>
 
-            <div className="flex max-h-[85vh] flex-col overflow-y-auto">
+            <div className="flex min-h-0 flex-1 flex-col">
               {/* Header section with title and navigation */}
-              <div className="p-8 border-b border-slate-700/50 bg-slate-800/20 backdrop-blur-sm">
+              <div className="shrink-0 border-b border-slate-700/50 bg-slate-800/20 p-8 backdrop-blur-sm">
                 <div className="flex justify-between items-center mb-2">
                   <div className="text-sm text-slate-400 flex items-center">
                     <span className="mr-2">
@@ -173,6 +173,7 @@ export default function ProjectModal({
                 </div>
               </div>
 
+              <div className="min-h-0 flex-1 overflow-y-auto">
               <div className="p-8 flex flex-col">
                 {/* 1. Description */}
                 <div className="mb-8">
@@ -337,6 +338,7 @@ export default function ProjectModal({
                   <span>Next</span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
+              </div>
               </div>
             </div>
           </motion.div>

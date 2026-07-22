@@ -32,7 +32,7 @@ export default function CertificateList({
           key={card.id}
           {...{
             className:
-              "relative group min-h-[108px] cursor-pointer rounded-lg px-4 py-4 transition-colors hover:bg-white/[0.025]",
+              "relative group min-h-[108px] cursor-pointer rounded-lg px-4 py-4 transition-colors hover:bg-white/[0.035]",
             onClick: () => onOpenCertificate(card),
           }}
           initial={{ opacity: 0, y: 10 }}
@@ -50,7 +50,7 @@ export default function CertificateList({
             className="absolute right-1 top-3 rounded-md p-1.5 text-zinc-500 opacity-0 transition-all duration-200 hover:bg-white/5 hover:text-zinc-200 group-hover:opacity-100"
             title="Delete certificate"
           >
-            <X className="h-2 w-2" />
+            <X className="h-4 w-4" />
           </button>}
 
           <div>
