@@ -27,18 +27,21 @@ export default function CertificateList({
 }: CertificateListProps) {
   return (
     <div className="space-y-1">
-      {cards.map((card) => (
+      {cards.map((card, index) => (
         <motion.div
           key={card.id}
           {...{
             className:
-              "relative group min-h-[108px] cursor-pointer rounded-xl px-4 py-4 transition-colors hover:bg-white/[0.035]",
+              "relative group min-h-[108px] cursor-pointer rounded-lg px-4 py-4 transition-colors hover:bg-white/[0.025]",
             onClick: () => onOpenCertificate(card),
           }}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: cards.indexOf(card) * 0.2 }}
         >
+          {index > 0 && (
+            <span className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+          )}
           {canEdit && <button
             onClick={(e) => {
               e.stopPropagation();
