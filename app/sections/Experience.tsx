@@ -378,7 +378,7 @@ export default function Experience() {
         >
           {/* Edit Button */}
           {isOwner && <button
-            className="absolute top-4 right-4 p-2 rounded-lg bg-slate-700/80 hover:bg-slate-600 text-slate-300 hover:text-white border border-slate-600 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-105"
+            className="absolute right-0 top-4 p-2 rounded-lg bg-slate-700/80 hover:bg-slate-600 text-slate-300 hover:text-white border border-slate-600 opacity-100 sm:right-4 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 hover:scale-105"
             onClick={() => handleOpenModal()}
             type="button"
           >
@@ -435,7 +435,7 @@ export default function Experience() {
                       <div className="relative flex-shrink-0 border-l border-zinc-600/70 pl-4 md:w-64 md:border-l-0 md:pl-0">
                         {/* Individual edit button for each experience */}
                         {isOwner && <button
-                          className="absolute right-0 top-0 rounded-md p-1.5 text-slate-400 opacity-0 transition-all duration-200 hover:bg-white/5 hover:text-white group-hover:opacity-100"
+                          className="absolute right-0 top-0 rounded-md p-1.5 text-slate-400 opacity-100 transition-all duration-200 hover:bg-white/5 hover:text-white sm:opacity-0 sm:group-hover:opacity-100"
                           onClick={() => handleOpenModal(index)}
                           type="button"
                         >
@@ -525,7 +525,7 @@ export default function Experience() {
             onClick={handleCloseModal}
           >
             <div
-              className="relative w-full max-w-2xl bg-slate-900 rounded-xl overflow-hidden shadow-2xl border border-slate-700 animate-in zoom-in-95 duration-200"
+              className="relative max-h-[calc(100dvh-2rem)] w-full max-w-2xl overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-2xl animate-in zoom-in-95 duration-200 sm:max-h-[90vh]"
               onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
               {/* Close button */}
@@ -538,7 +538,7 @@ export default function Experience() {
                 <X className="h-5 w-5" />
               </Button>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <h2 className="text-xl font-bold text-slate-100 mb-6 flex items-center gap-2">
                   <span className="bg-zinc-900/20 p-1.5 rounded text-zinc-400">
                     <Edit3 className="h-5 w-5" />
@@ -591,7 +591,7 @@ export default function Experience() {
                     </Label>
 
                     {/* Start Date */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div>
                         <Label className="text-slate-400 text-sm">
                           Start Month
@@ -647,7 +647,7 @@ export default function Experience() {
 
                     {/* End Date */}
                     {!tempIsCurrentRole && (
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                           <Label className="text-slate-400 text-sm">
                             End Month
@@ -709,7 +709,7 @@ export default function Experience() {
                 </div>
 
                 {/* Action buttons */}
-                <div className="flex justify-between mt-8">
+                <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
                   <div className="flex gap-3">
                     <Button
                       variant="outline"

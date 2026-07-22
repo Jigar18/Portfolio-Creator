@@ -67,7 +67,7 @@ export default function ProjectCard({
 
   return (
     <motion.div
-      {...{className:"relative group min-h-[25rem] overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] shadow-lg shadow-black/20"}}
+      {...{className:"relative group min-h-[19rem] overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] shadow-lg shadow-black/20 sm:min-h-[23.75rem]"}}
       whileHover={{ y: -5, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
       transition={{ duration: 0.3 }}
       initial={{ opacity: 0, y: 20 }}
@@ -76,28 +76,26 @@ export default function ProjectCard({
       {/* Project actions appear without competing with the content. */}
       {onEditProject && <button
         onClick={handleEdit}
-        className="absolute top-2 right-9 z-10 rounded-full bg-zinc-800/90 p-1.5 text-white opacity-0 transition-opacity duration-200 hover:bg-zinc-700 group-hover:opacity-100"
+        className="absolute top-2 right-9 z-10 rounded-full bg-zinc-800/90 p-1.5 text-white opacity-100 transition-opacity duration-200 hover:bg-zinc-700 sm:opacity-0 sm:group-hover:opacity-100"
         title="Edit project"
       >
         <Pencil className="h-3 w-3" />
       </button>}
       {onDeleteProject && <button
         onClick={handleDelete}
-        className="absolute top-2 right-2 p-1 bg-zinc-600/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-zinc-500 z-10"
+        className="absolute top-2 right-2 p-1 bg-zinc-600/80 rounded-full text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 hover:bg-zinc-500 z-10"
         title="Delete project"
       >
         <X className="h-3 w-3" />
       </button>}
 
-      <TooltipProvider delayDuration={200}>
+      <TooltipProvider delay={200}>
         <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              type="button"
-              className="group/preview relative h-56 w-full cursor-pointer"
-              onClick={handleClick}
-              aria-label={`View ${project.title}`}
-            >
+          <TooltipTrigger
+            className="group/preview relative h-[8.5rem] w-full cursor-pointer sm:h-[13.3rem]"
+            onClick={handleClick}
+            aria-label={`View ${project.title}`}
+          >
               <Image
                 src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
                 alt={project.title}
@@ -114,7 +112,6 @@ export default function ProjectCard({
                   <Eye size={30} />
                 </motion.span>
               </span>
-            </button>
           </TooltipTrigger>
           <TooltipContent side="top">View project</TooltipContent>
         </Tooltip>

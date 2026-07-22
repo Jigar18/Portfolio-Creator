@@ -294,7 +294,7 @@ export default function Skills() {
             onClick={() => setIsEditModalOpen(false)}
           >
             <div
-              className="bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+              className="max-h-[calc(100dvh-2rem)] w-full max-w-2xl overflow-y-auto rounded-lg border border-slate-700 bg-slate-800 shadow-xl sm:max-h-[80vh]"
               onClick={(event) => event.stopPropagation()}
             >
               <div className="p-6">

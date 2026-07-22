@@ -7,7 +7,6 @@ import ProfileImageModal from "./ProfileImageModal";
 import { useUser } from "../context/UserContext";
 
 export default function ProfileImage() {
-  const [isHovering, setIsHovering] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { userDetails, isOwner, refreshUserDetails, updateUserDetails } = useUser();
 
@@ -20,13 +19,11 @@ export default function ProfileImage() {
   return (
     <>
       <motion.div
-        {...{ className: "relative" }}
+        {...{ className: "group relative" }}
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
         whileHover={{ scale: 1.05 }}
-        onHoverStart={() => setIsHovering(true)}
-        onHoverEnd={() => setIsHovering(false)}
       >
         <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-4 border-slate-700 relative z-10">
           <img
@@ -41,15 +38,12 @@ export default function ProfileImage() {
         {isOwner && <motion.button
           {...{
             className:
-              "absolute bottom-0 right-0 bg-zinc-600 hover:bg-zinc-700 text-white p-2 rounded-full z-20 shadow-lg border-2 border-slate-700 cursor-pointer",
+              "absolute bottom-0 right-0 z-20 cursor-pointer rounded-full border-2 border-slate-700 bg-zinc-600 p-2 text-white opacity-100 shadow-lg transition-opacity hover:bg-zinc-700 sm:opacity-0 sm:group-hover:opacity-100",
             onClick: (e: React.MouseEvent<HTMLDivElement>) => {
               e.stopPropagation();
               setIsModalOpen(true);
             },
           }}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: isHovering ? 1 : 0, scale: isHovering ? 1 : 0.8 }}
-          transition={{ duration: 0.2 }}
           aria-label="Edit profile picture"
         >
           <Camera size={16} />

@@ -28,6 +28,12 @@ body {
   zoom: 0.9;
 }
 
+@media (max-width: 1023px) {
+  body {
+    zoom: 1;
+  }
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 15px;

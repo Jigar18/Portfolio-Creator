@@ -355,7 +355,7 @@ export default function Projects() {
             {projects.map((project, index) => (
               <div
                 key={project.id}
-                className="shrink-0 basis-[86%] sm:basis-[58%] lg:basis-[calc((100%-2.5rem)/2.5)] [&>div]:h-full"
+                className="shrink-0 basis-full sm:basis-[58%] lg:basis-[calc((100%-2.5rem)/2.5)] [&>div]:h-full"
               >
                 <ProjectCard
                   project={toModalProject(project)}

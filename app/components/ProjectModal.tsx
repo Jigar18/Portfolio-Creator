@@ -103,7 +103,7 @@ export default function ProjectModal({
     <AnimatePresence>
       {isOpen && currentProject && (
         <motion.div
-          {...{className:"fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm",
+          {...{className:"fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 backdrop-blur-sm sm:p-4",
           onClick:onClose}}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -112,7 +112,7 @@ export default function ProjectModal({
         >
           {/* Modal Content */}
           <motion.div
-            {...{className:"relative flex max-h-[90vh] w-[85%] max-w-5xl flex-col overflow-hidden rounded-xl border border-slate-700 bg-gradient-to-b from-slate-900 to-slate-950 shadow-2xl",
+            {...{className:"relative flex max-h-[94dvh] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-slate-700 bg-gradient-to-b from-slate-900 to-slate-950 shadow-2xl sm:max-h-[90vh] sm:w-[85%]",
             onClick:(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}}
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -121,7 +121,7 @@ export default function ProjectModal({
           >
             {/* Close button */}
             <Button
-              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700"
+              className="absolute right-3 top-3 z-10 rounded-full border border-slate-700 bg-slate-800/80 p-2 text-slate-300 hover:bg-slate-700 hover:text-white sm:right-4 sm:top-4"
               onClick={onClose}
               aria-label="Close modal"
               size="icon"
@@ -131,7 +131,7 @@ export default function ProjectModal({
 
             <div className="flex min-h-0 flex-1 flex-col">
               {/* Header section with title and navigation */}
-              <div className="shrink-0 border-b border-slate-700/50 bg-slate-800/20 p-8 backdrop-blur-sm">
+              <div className="shrink-0 border-b border-slate-700/50 bg-slate-800/20 p-4 pr-14 backdrop-blur-sm sm:p-8">
                 <div className="flex justify-between items-center mb-2">
                   <div className="text-sm text-slate-400 flex items-center">
                     <span className="mr-2">
@@ -161,7 +161,7 @@ export default function ProjectModal({
                 </div>
 
                 <div className="relative mb-2">
-                  <h3 className="text-3xl font-bold text-slate-100">
+                  <h3 className="break-words text-2xl font-bold text-slate-100 sm:text-3xl">
                     {currentProject.title}
                   </h3>
                   <motion.div
@@ -174,7 +174,7 @@ export default function ProjectModal({
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto">
-              <div className="p-8 flex flex-col">
+              <div className="flex flex-col p-4 sm:p-8">
                 {/* 1. Description */}
                 <div className="mb-8">
                   <h4 className="text-lg font-medium text-slate-100 mb-3 flex items-center gap-2">
@@ -318,7 +318,7 @@ export default function ProjectModal({
               </div>
 
               {/* Footer */}
-              <div className="p-6 border-t border-slate-700/50 bg-slate-800/20 flex justify-between items-center">
+              <div className="flex items-center justify-between border-t border-slate-700/50 bg-slate-800/20 p-4 sm:p-6">
                 <Button
                   onClick={handlePrevious}
                   disabled={currentIndex === 0}

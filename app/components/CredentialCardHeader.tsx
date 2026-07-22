@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 export const credentialEditButtonClass =
-  "inline-flex items-center justify-center rounded-lg border border-slate-600 bg-slate-700/80 p-2 text-slate-300 opacity-0 transition-all duration-200 hover:scale-105 hover:bg-slate-600 hover:text-white group-hover:opacity-100";
+  "inline-flex items-center justify-center rounded-lg border border-slate-600 bg-slate-700/80 p-2 text-slate-300 opacity-100 transition-all duration-200 hover:scale-105 hover:bg-slate-600 hover:text-white sm:opacity-0 sm:group-hover:opacity-100";
 
 interface CredentialCardHeaderProps {
   title: string;

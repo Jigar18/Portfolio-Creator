@@ -141,7 +141,7 @@ export default function ProfileImageModal({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md bg-slate-900 rounded-xl overflow-hidden shadow-2xl border border-slate-700"
+        className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-2xl sm:max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -154,7 +154,7 @@ export default function ProfileImageModal({
           <X className="h-5 w-5" />
         </Button>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           <h2 className="text-xl font-bold text-slate-100 mb-6 flex items-center gap-2">
             <span className="bg-zinc-600/20 p-1.5 rounded text-zinc-400">
               <Camera className="h-5 w-5" />
@@ -207,7 +207,7 @@ export default function ProfileImageModal({
           </div>
 
           {/* Action buttons */}
-          <div className="flex justify-between">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
             <Button
               variant="outline"
               onClick={onClose}

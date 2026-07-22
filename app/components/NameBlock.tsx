@@ -32,9 +32,9 @@ export default function NameBlock() {
   const displayLocation = userDetails?.location || "";
 
   return (
-    <div className="flex flex-col items-center sm:items-start">
+    <div className="min-w-0 flex flex-col items-center sm:items-start">
       <motion.h1
-        {...{ className: "text-3xl sm:text-4xl font-bold text-slate-100" }}
+        {...{ className: "break-words text-center text-3xl font-bold text-slate-100 sm:text-left sm:text-4xl" }}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -42,7 +42,7 @@ export default function NameBlock() {
         {displayName}
       </motion.h1>
       {displayLocation && <motion.p
-        {...{ className: "text-lg text-zinc-400 mt-1" }}
+        {...{ className: "mt-1 break-words text-center text-base text-zinc-400 sm:text-left sm:text-lg" }}
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}

@@ -126,7 +126,7 @@ export default function EditCertifications({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-full sm:max-w-[600px] bg-slate-900 text-slate-100 z-[60] rounded-xl border border-slate-800 shadow-xl">
+      <DialogContent className="fixed left-[50%] top-[50%] z-[60] max-h-[calc(100dvh-2rem)] translate-x-[-50%] translate-y-[-50%] overflow-y-auto rounded-xl border border-slate-800 bg-slate-900 text-slate-100 shadow-xl sm:max-w-[600px]">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader className="px-6 pt-6">
             <DialogTitle className="text-2xl font-bold text-slate-100">

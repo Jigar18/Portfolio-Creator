@@ -156,7 +156,7 @@ function InfoCard() {
       >
         {/* Edit Button */}
         {isOwner && <button
-          className="absolute top-4 right-4 p-2 rounded-lg bg-slate-700/80 hover:bg-slate-600 text-slate-300 hover:text-white border border-slate-600 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-105"
+          className="absolute right-3 top-3 p-2 rounded-lg bg-slate-700/80 hover:bg-slate-600 text-slate-300 hover:text-white border border-slate-600 opacity-100 sm:right-4 sm:top-4 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 hover:scale-105"
           onClick={handleOpenModal}
           type="button"
           title="Edit profile information"
@@ -164,8 +164,8 @@ function InfoCard() {
           <Edit3 className="h-4 w-4" />
         </button>}
 
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
-          <div className="flex flex-col sm:flex-row items-center gap-6">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-6 text-center sm:text-left">
+          <div className="flex min-w-0 flex-col sm:flex-row items-center gap-6">
             <ProfileImage />
             <NameBlock />
           </div>
@@ -183,7 +183,7 @@ function InfoCard() {
             onClick={handleCloseModal}
           >
             <div
-              className="relative w-full max-w-2xl bg-slate-900 rounded-xl overflow-hidden shadow-2xl border border-slate-700 animate-in zoom-in-95 duration-200"
+              className="relative max-h-[calc(100dvh-2rem)] w-full max-w-2xl overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-2xl animate-in zoom-in-95 duration-200 sm:max-h-[90vh]"
               onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
               {/* Close button */}
@@ -196,7 +196,7 @@ function InfoCard() {
                 <X className="h-5 w-5" />
               </Button>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <h2 className="text-xl font-bold text-slate-100 mb-6 flex items-center gap-2">
                   <span className="bg-zinc-900/20 p-1.5 rounded text-zinc-400">
                     <Edit3 className="h-5 w-5" />
@@ -256,7 +256,7 @@ function InfoCard() {
                   </div>
 
                   {/* Name Fields */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <Label
                         htmlFor="firstName"
@@ -406,7 +406,7 @@ function InfoCard() {
                 </div>
 
                 {/* Action buttons */}
-                <div className="flex justify-between mt-6">
+                <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
                   <Button
                     variant="outline"
                     onClick={handleCloseModal}

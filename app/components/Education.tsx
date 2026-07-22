@@ -181,18 +181,18 @@ export default function Education() {
               <motion.div
                 key={edu.id || index}
                 {...{
-                  className: "relative min-h-[118px] rounded-lg px-4 py-4 transition-colors hover:bg-white/[0.035]"
+                  className: "relative min-h-[118px] rounded-lg px-2 py-4 transition-colors hover:bg-white/[0.035] sm:px-4"
                 }}
               >
                 {index > 0 && (
                   <span className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                 )}
                 <div>
-                  <div className="mb-2 flex items-start justify-between gap-4">
+                  <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                     <h3 className="text-lg font-semibold text-slate-200">
                       {edu.school}
                     </h3>
-                    <span className="shrink-0 text-sm font-medium text-slate-400">
+                    <span className="shrink-0 text-xs font-medium text-slate-400 sm:text-sm">
                       {formatYears(edu.startYear, edu.endYear, edu.isCurrently)}
                     </span>
                   </div>

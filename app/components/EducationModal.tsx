@@ -86,7 +86,7 @@ export default function EducationModal({
         <motion.div
           {...{
             className:
-              "relative w-full max-w-4xl bg-slate-900 rounded-xl overflow-hidden shadow-2xl border border-slate-700 max-h-[90vh] overflow-y-auto",
+              "relative max-h-[calc(100dvh-2rem)] w-full max-w-4xl overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-2xl sm:max-h-[90vh]",
             onClick: (e: React.MouseEvent) => e.stopPropagation(),
           }}
           initial={{ scale: 0.9, opacity: 0 }}

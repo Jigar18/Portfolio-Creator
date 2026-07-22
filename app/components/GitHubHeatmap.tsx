@@ -39,6 +39,50 @@ const getContributionLevel = (count: number) => {
   return 4;
 };
 
+const formatLocalDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const includeLocalToday = (calendar: ContributionCalendar) => {
+  const weeks = calendar.weeks.map((week) => ({
+    contributionDays: [...week.contributionDays],
+  }));
+  const lastWeek = weeks.at(-1);
+  const latestDay = lastWeek?.contributionDays.at(-1);
+  if (!latestDay) return calendar;
+
+  const today = new Date();
+  const todayKey = formatLocalDate(today);
+  if (latestDay.date >= todayKey) return calendar;
+
+  const cursor = new Date(`${latestDay.date}T12:00:00`);
+  const missingDayCount = Math.round(
+    (new Date(`${todayKey}T12:00:00`).getTime() - cursor.getTime()) /
+      86_400_000,
+  );
+  if (missingDayCount < 1 || missingDayCount > 7) return calendar;
+
+  for (let index = 0; index < missingDayCount; index += 1) {
+    cursor.setDate(cursor.getDate() + 1);
+    const day: ContributionDay = {
+      contributionCount: 0,
+      date: formatLocalDate(cursor),
+      weekday: cursor.getDay(),
+    };
+    const currentWeek = weeks.at(-1);
+    if (!currentWeek || day.weekday === 0) {
+      weeks.push({ contributionDays: [day] });
+    } else {
+      currentWeek.contributionDays.push(day);
+    }
+  }
+
+  return { ...calendar, weeks };
+};
+
 export default function GitHubHeatmap() {
   const { isOwner, portfolioApiUrl } = useUser();
   const [visible, setVisible] = useState(true);
@@ -60,7 +104,7 @@ export default function GitHubHeatmap() {
       const data = (await response.json()) as ContributionResponse;
       setVisible(Boolean(data.visible));
       setAvailable(data.available !== false);
-      setCalendar(data.calendar ?? null);
+      setCalendar(data.calendar ? includeLocalToday(data.calendar) : null);
     } catch (error) {
       console.error("Unable to load GitHub activity", error);
       setAvailable(false);

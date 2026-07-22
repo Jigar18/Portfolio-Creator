@@ -107,7 +107,7 @@ export default function CertificateModal({
         <motion.div
           {...{
             className:
-              "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm",
+              "fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 backdrop-blur-sm sm:p-4",
             onClick: onClose,
           }}
           initial={{ opacity: 0 }}
@@ -119,7 +119,7 @@ export default function CertificateModal({
           <motion.div
             {...{
               className:
-                "relative w-[90%] max-w-5xl bg-slate-900 rounded-xl overflow-hidden shadow-2xl border border-slate-700",
+                "relative w-full max-w-5xl overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-2xl sm:w-[90%]",
               onClick: (e: React.MouseEvent<HTMLDivElement>) =>
                 e.stopPropagation(),
             }}
@@ -139,7 +139,7 @@ export default function CertificateModal({
             </Button>
 
             {/* Certificate viewer - Vertical layout */}
-            <div className="flex flex-col h-[80vh] max-h-[80vh]">
+            <div className="flex h-[94dvh] max-h-[94dvh] flex-col sm:h-[80vh] sm:max-h-[80vh]">
               {/* PDF viewer on top */}
               <div className="flex-1 bg-slate-800 relative">
                 {isLoadingPdf && !pdfLoadError && (
@@ -267,10 +267,10 @@ export default function CertificateModal({
               </div>
 
               {/* Certificate info below */}
-              <div className="w-full p-6 bg-slate-800/50 border-t border-slate-700">
+              <div className="w-full border-t border-slate-700 bg-slate-800/50 p-4 sm:p-6">
                 <div className="max-w-3xl mx-auto">
                   <div className="mb-8">
-                    <h2 className="text-3xl font-bold text-slate-100 mb-2 flex items-center gap-3">
+                    <h2 className="mb-2 flex items-center gap-3 break-words pr-10 text-xl font-bold text-slate-100 sm:text-3xl">
                       <span className="inline-flex p-2 rounded-lg bg-zinc-900/20 text-zinc-400 shadow-lg shadow-zinc-500/20 border border-zinc-800/30">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"

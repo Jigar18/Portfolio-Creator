@@ -67,11 +67,13 @@ function LogoutButton() {
       type="button"
       onClick={logout}
       disabled={loggingOut}
-      className="fixed right-5 top-5 z-40 inline-flex items-center gap-2 rounded-xl border border-white/15 bg-zinc-900/90 px-4 py-2.5 text-sm font-medium text-zinc-200 shadow-xl shadow-black/25 backdrop-blur-sm transition hover:border-white/30 hover:bg-zinc-800 hover:text-white disabled:cursor-wait disabled:opacity-60 sm:right-8 sm:top-8"
+      className="fixed right-4 top-4 z-40 inline-flex h-10 items-center gap-2 rounded-xl border border-white/15 bg-zinc-900/90 px-3 text-sm font-medium text-zinc-200 shadow-xl shadow-black/25 backdrop-blur-sm transition hover:border-white/30 hover:bg-zinc-800 hover:text-white disabled:cursor-wait disabled:opacity-60 sm:right-8 sm:top-8 sm:h-auto sm:px-4 sm:py-2.5"
       aria-label="Log out"
     >
       <LogOut className="h-4 w-4" />
-      {loggingOut ? "Logging out…" : logoutFailed ? "Try again" : "Log out"}
+      <span className="hidden sm:inline">
+        {loggingOut ? "Logging out…" : logoutFailed ? "Try again" : "Log out"}
+      </span>
     </button>
   );
 }
@@ -116,8 +118,8 @@ export default function Home() {
         <PortfolioViewCount />
         <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_76%_8%,rgba(255,255,255,0.08),transparent_28rem),radial-gradient(circle_at_5%_55%,rgba(255,255,255,0.04),transparent_24rem)]" />
         <div className="pointer-events-none fixed inset-0 opacity-[0.025] [background-image:linear-gradient(rgba(255,255,255,.7)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.7)_1px,transparent_1px)] [background-size:72px_72px]" />
-        <main className="relative mx-auto w-full max-w-7xl px-5 pb-6 pt-16 sm:px-8 sm:pb-9 sm:pt-20 lg:px-10 lg:pb-12 lg:pt-20">
-          <div className="space-y-16 lg:space-y-24">
+        <main className="relative mx-auto w-full max-w-7xl px-4 pb-6 pt-16 sm:px-8 sm:pb-9 sm:pt-20 lg:px-10 lg:pb-12 lg:pt-20">
+          <div className="space-y-12 sm:space-y-16 lg:space-y-24">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -126,7 +128,7 @@ export default function Home() {
             <InfoCard />
           </motion.div>
 
-          <div className="space-y-16 lg:space-y-24">
+          <div className="space-y-12 sm:space-y-16 lg:space-y-24">
             <motion.div
               {...{ className: "w-full" }}
               custom={1}
