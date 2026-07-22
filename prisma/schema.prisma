@@ -15,24 +15,27 @@ datasource db {
 }
 
 model User {
-  id                         String              @id @default(uuid())
-  githubId                   String              @unique
-  username                   String              @unique
-  installationId             String?             @unique
-  accessToken                String?
-  githubAccessTokenUpdatedAt DateTime?
-  showGitHubHeatmap          Boolean             @default(true)
-  createdAt                  DateTime            @default(now())
-  updatedAt                  DateTime            @updatedAt
-  skills                     Skill[]
-  experiences                Experience[]
-  details                    Details?
-  socialLinks                SocialLink[]
-  certifications             Certifications[]
-  education                  Education[]
-  projects                   Project[]
-  portfolioViews             PortfolioView[]
-  githubInstallation         GitHubInstallation? @relation(fields: [installationId], references: [id], onDelete: SetNull)
+  id                          String              @id @default(uuid())
+  githubId                    String              @unique
+  username                    String              @unique
+  installationId              String?             @unique
+  accessToken                 String?
+  githubRefreshToken          String?
+  githubAccessTokenUpdatedAt  DateTime?
+  githubAccessTokenExpiresAt  DateTime?
+  githubRefreshTokenExpiresAt DateTime?
+  showGitHubHeatmap           Boolean             @default(true)
+  createdAt                   DateTime            @default(now())
+  updatedAt                   DateTime            @updatedAt
+  skills                      Skill[]
+  experiences                 Experience[]
+  details                     Details?
+  socialLinks                 SocialLink[]
+  certifications              Certifications[]
+  education                   Education[]
+  projects                    Project[]
+  portfolioViews              PortfolioView[]
+  githubInstallation          GitHubInstallation? @relation(fields: [installationId], references: [id], onDelete: SetNull)
 }
 
 model PortfolioView {

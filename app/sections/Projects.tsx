@@ -22,6 +22,12 @@ import {
 import { useUser } from "../context/UserContext";
 import { SkillIconMap } from "../components/SkillIcon";
 import { primaryActionButtonClass } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 type ModalProject = Omit<PortfolioProject, "githubUrl" | "liveUrl"> & {
@@ -258,19 +264,19 @@ export default function Projects() {
         {isOwner && projects.length > 0 && (
           <div className="flex items-center gap-2">
             {projectLimitReached && (
-              <span
-                className="group/limit relative inline-flex rounded-full p-1.5 text-zinc-500 outline-none transition-colors hover:bg-white/[0.06] hover:text-zinc-200 focus-visible:ring-2 focus-visible:ring-white/30"
-                tabIndex={0}
-                aria-label="A maximum of four projects can be uploaded"
-              >
-                <Info className="h-4 w-4" />
-                <span
-                  role="tooltip"
-                  className="pointer-events-none absolute bottom-full right-0 z-20 mb-2 w-max max-w-64 translate-y-1 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs font-normal normal-case tracking-normal text-zinc-300 opacity-0 shadow-xl transition-all group-hover/limit:translate-y-0 group-hover/limit:opacity-100 group-focus-visible/limit:translate-y-0 group-focus-visible/limit:opacity-100"
-                >
-                  A maximum of four projects can be uploaded.
-                </span>
-              </span>
+              <TooltipProvider delay={200}>
+                <Tooltip>
+                  <TooltipTrigger
+                    className="inline-flex rounded-full p-1.5 text-zinc-500 outline-none transition-colors hover:bg-white/[0.06] hover:text-zinc-200 focus-visible:ring-2 focus-visible:ring-white/30"
+                    aria-label="Project upload limit"
+                  >
+                    <Info className="h-4 w-4" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top" align="end">
+                    A maximum of four projects can be uploaded.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
             <button
               onClick={() => openEditor()}

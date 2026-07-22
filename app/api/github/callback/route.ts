@@ -110,6 +110,22 @@ export async function GET(req: NextRequest) {
     if (!accessToken) {
       return NextResponse.json({ error: "GitHub did not return an access token" }, { status: 400 });
     }
+    const refreshToken = tokenResponse.data.refresh_token as string | undefined;
+    const expiresIn = Number(tokenResponse.data.expires_in);
+    const refreshExpiresIn = Number(tokenResponse.data.refresh_token_expires_in);
+    const issuedAt = Date.now();
+    const tokenData = {
+      accessToken,
+      githubRefreshToken: refreshToken ?? null,
+      githubAccessTokenUpdatedAt: new Date(issuedAt),
+      githubAccessTokenExpiresAt: Number.isFinite(expiresIn)
+        ? new Date(issuedAt + expiresIn * 1000)
+        : null,
+      githubRefreshTokenExpiresAt:
+        refreshToken && Number.isFinite(refreshExpiresIn)
+          ? new Date(issuedAt + refreshExpiresIn * 1000)
+          : null,
+    };
 
     const userResponse = await axios.get("https://api.github.com/user", {
       headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json" },
@@ -122,12 +138,11 @@ export async function GET(req: NextRequest) {
 
     const userDB = await db.user.upsert({
       where: { githubId: String(user.id) },
-      update: { username: user.login, accessToken, githubAccessTokenUpdatedAt: new Date() },
+      update: { username: user.login, ...tokenData },
       create: {
         githubId: String(user.id),
         username: user.login,
-        accessToken,
-        githubAccessTokenUpdatedAt: new Date(),
+        ...tokenData,
       },
       select: {
         id: true,

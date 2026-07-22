@@ -3,12 +3,6 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { ExternalLink, Github, Eye, Pencil, X } from "lucide-react";
 import { useRandomImage } from "@/utils/randomImageSelect";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import SkillIcon, { SkillIconMap } from "./SkillIcon";
 
 interface Project {
@@ -89,33 +83,29 @@ export default function ProjectCard({
         <X className="h-3 w-3" />
       </button>}
 
-      <TooltipProvider delay={200}>
-        <Tooltip>
-          <TooltipTrigger
-            className="group/preview relative h-[8.5rem] w-full cursor-pointer sm:h-[13.3rem]"
-            onClick={handleClick}
-            aria-label={`View ${project.title}`}
+      <button
+        type="button"
+        className="group/preview relative block h-[8.5rem] w-full cursor-pointer sm:h-[13.3rem]"
+        onClick={handleClick}
+        aria-label={`View ${project.title}`}
+      >
+        <Image
+          src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+          alt={project.title}
+          fill
+          className="object-cover"
+          style={{ backgroundColor: "#18181b", backgroundImage: randomBg }}
+        />
+        <span className="absolute inset-0 flex items-center justify-center bg-slate-900/70 opacity-0 transition-opacity duration-300 group-hover/preview:opacity-100">
+          <motion.span
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            {...{className:"text-slate-200/90 transition-colors hover:text-white"}}
           >
-              <Image
-                src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
-                alt={project.title}
-                fill
-                className="object-cover"
-                style={{ backgroundColor: "#18181b", backgroundImage: randomBg }}
-              />
-              <span className="absolute inset-0 flex items-center justify-center bg-slate-900/70 opacity-0 transition-opacity duration-300 group-hover/preview:opacity-100">
-                <motion.span
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  {...{className:"text-slate-200/90 transition-colors hover:text-white"}}
-                >
-                  <Eye size={30} />
-                </motion.span>
-              </span>
-          </TooltipTrigger>
-          <TooltipContent side="top">View project</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+            <Eye size={30} />
+          </motion.span>
+        </span>
+      </button>
 
       <div className="p-4">
         <h3

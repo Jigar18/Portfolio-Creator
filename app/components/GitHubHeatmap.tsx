@@ -20,6 +20,7 @@ type ContributionResponse = {
   success: boolean;
   visible?: boolean;
   available?: boolean;
+  contributionYear?: number;
   calendar?: ContributionCalendar;
 };
 
@@ -39,14 +40,9 @@ const getContributionLevel = (count: number) => {
   return 4;
 };
 
-const formatLocalDate = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
+const formatUtcDate = (date: Date) => date.toISOString().slice(0, 10);
 
-const includeLocalToday = (calendar: ContributionCalendar) => {
+const includeUtcToday = (calendar: ContributionCalendar) => {
   const weeks = calendar.weeks.map((week) => ({
     contributionDays: [...week.contributionDays],
   }));
@@ -55,22 +51,22 @@ const includeLocalToday = (calendar: ContributionCalendar) => {
   if (!latestDay) return calendar;
 
   const today = new Date();
-  const todayKey = formatLocalDate(today);
+  const todayKey = formatUtcDate(today);
   if (latestDay.date >= todayKey) return calendar;
 
-  const cursor = new Date(`${latestDay.date}T12:00:00`);
+  const cursor = new Date(`${latestDay.date}T00:00:00.000Z`);
   const missingDayCount = Math.round(
-    (new Date(`${todayKey}T12:00:00`).getTime() - cursor.getTime()) /
+    (new Date(`${todayKey}T00:00:00.000Z`).getTime() - cursor.getTime()) /
       86_400_000,
   );
   if (missingDayCount < 1 || missingDayCount > 7) return calendar;
 
   for (let index = 0; index < missingDayCount; index += 1) {
-    cursor.setDate(cursor.getDate() + 1);
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
     const day: ContributionDay = {
       contributionCount: 0,
-      date: formatLocalDate(cursor),
-      weekday: cursor.getDay(),
+      date: formatUtcDate(cursor),
+      weekday: cursor.getUTCDay(),
     };
     const currentWeek = weeks.at(-1);
     if (!currentWeek || day.weekday === 0) {
@@ -88,6 +84,7 @@ export default function GitHubHeatmap() {
   const [visible, setVisible] = useState(true);
   const [available, setAvailable] = useState(true);
   const [calendar, setCalendar] = useState<ContributionCalendar | null>(null);
+  const [contributionYear, setContributionYear] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -104,7 +101,8 @@ export default function GitHubHeatmap() {
       const data = (await response.json()) as ContributionResponse;
       setVisible(Boolean(data.visible));
       setAvailable(data.available !== false);
-      setCalendar(data.calendar ? includeLocalToday(data.calendar) : null);
+      setContributionYear(data.contributionYear ?? null);
+      setCalendar(data.calendar ? includeUtcToday(data.calendar) : null);
     } catch (error) {
       console.error("Unable to load GitHub activity", error);
       setAvailable(false);
@@ -217,7 +215,10 @@ export default function GitHubHeatmap() {
             </div>
 
             <div className="mt-5 flex flex-col gap-3 border-t border-white/[0.08] pt-4 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
-              <span>{calendar.totalContributions.toLocaleString()} contributions in the last year</span>
+              <span>
+                {calendar.totalContributions.toLocaleString()} contributions in{" "}
+                {contributionYear ?? new Date().getUTCFullYear()}
+              </span>
               <div className="flex items-center gap-2" aria-label="Contribution intensity from less to more">
                 <span>Less</span>
                 <span className="flex gap-1">

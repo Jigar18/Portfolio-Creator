@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getInstallationAccessTokenById } from "@/lib/accessToken";
+import {
+  getInstallationAccessTokenById,
+  getUserAccessTokenById,
+} from "@/lib/accessToken";
 import { resolvePortfolioUser } from "@/lib/publicPortfolio";
 import { getSession } from "@/lib/session";
 
 const CONTRIBUTIONS_QUERY = `
-  query ContributionCalendar($login: String!) {
+  query ContributionCalendar($login: String!, $from: DateTime!, $to: DateTime!) {
     user(login: $login) {
-      contributionsCollection {
+      contributionsCollection(from: $from, to: $to) {
         contributionCalendar {
           totalContributions
           weeks {
@@ -45,6 +48,34 @@ type GitHubContributionResponse = {
   errors?: Array<{ message: string }>;
 };
 
+const fetchContributionCalendar = async (
+  accessToken: string,
+  username: string,
+  from: string,
+  to: string,
+) => {
+  const response = await fetch("https://api.github.com/graphql", {
+    method: "POST",
+    headers: {
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      "User-Agent": "portfolio-creator",
+      "X-GitHub-Api-Version": "2022-11-28",
+    },
+    body: JSON.stringify({
+      query: CONTRIBUTIONS_QUERY,
+      variables: { login: username, from, to },
+    }),
+    cache: "no-store",
+  });
+
+  return {
+    response,
+    data: (await response.json()) as GitHubContributionResponse,
+  };
+};
+
 export async function GET(request: NextRequest) {
   try {
     const portfolioUser = await resolvePortfolioUser(request);
@@ -57,7 +88,6 @@ export async function GET(request: NextRequest) {
       select: {
         username: true,
         installationId: true,
-        accessToken: true,
         showGitHubHeatmap: true,
       },
     });
@@ -67,8 +97,16 @@ export async function GET(request: NextRequest) {
     if (!portfolioUser.isOwner && !user.showGitHubHeatmap) {
       return NextResponse.json({ success: true, visible: false });
     }
-    let githubAccessToken = user.accessToken;
-    if (user.installationId) {
+    let githubAccessToken: string | null = null;
+    try {
+      githubAccessToken = await getUserAccessTokenById(portfolioUser.id);
+    } catch (error) {
+      console.error(
+        "Unable to refresh the GitHub user token for contributions",
+        error instanceof Error ? error.message : "Unknown error",
+      );
+    }
+    if (!githubAccessToken && user.installationId) {
       try {
         githubAccessToken = await getInstallationAccessTokenById(user.installationId);
       } catch (error) {
@@ -83,19 +121,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, visible: user.showGitHubHeatmap, available: false });
     }
 
-    const githubResponse = await fetch("https://api.github.com/graphql", {
-      method: "POST",
-      headers: {
-        Accept: "application/vnd.github+json",
-        Authorization: `Bearer ${githubAccessToken}`,
-        "Content-Type": "application/json",
-        "User-Agent": "portfolio-creator",
-        "X-GitHub-Api-Version": "2022-11-28",
-      },
-      body: JSON.stringify({ query: CONTRIBUTIONS_QUERY, variables: { login: user.username } }),
-      cache: "no-store",
-    });
-    const githubData = (await githubResponse.json()) as GitHubContributionResponse;
+    const now = new Date();
+    const contributionYear = now.getUTCFullYear();
+    const from = `${contributionYear}-01-01T00:00:00.000Z`;
+    const to = now.toISOString();
+    let result = await fetchContributionCalendar(githubAccessToken, user.username, from, to);
+
+    if (result.response.status === 401 && user.installationId) {
+      try {
+        const installationToken = await getInstallationAccessTokenById(user.installationId);
+        result = await fetchContributionCalendar(installationToken, user.username, from, to);
+      } catch (error) {
+        console.error(
+          "Unable to retry GitHub contributions with an installation token",
+          error instanceof Error ? error.message : "Unknown error",
+        );
+      }
+    }
+
+    const { response: githubResponse, data: githubData } = result;
     const calendar = githubData.data?.user?.contributionsCollection.contributionCalendar;
     if (!githubResponse.ok || githubData.errors?.length || !calendar) {
       console.error("GitHub contribution query failed", githubData.errors ?? githubResponse.status);
@@ -109,6 +153,7 @@ export async function GET(request: NextRequest) {
       success: true,
       visible: user.showGitHubHeatmap,
       available: true,
+      contributionYear,
       calendar,
     });
     response.headers.set("Cache-Control", "no-store");
