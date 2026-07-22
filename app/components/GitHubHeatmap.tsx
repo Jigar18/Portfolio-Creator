@@ -2,11 +2,10 @@
 
 import { motion } from "framer-motion";
 import { Github, LoaderCircle } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
 
 type ContributionDay = {
-  color: string;
   contributionCount: number;
   date: string;
   weekday: number;
@@ -24,7 +23,21 @@ type ContributionResponse = {
   calendar?: ContributionCalendar;
 };
 
-const EMPTY_DAY_COLOR = "rgba(255,255,255,0.045)";
+const contributionLevels = [
+  "bg-white/[0.045]",
+  "bg-zinc-700",
+  "bg-zinc-500",
+  "bg-zinc-300",
+  "bg-zinc-50",
+];
+
+const getContributionLevel = (count: number) => {
+  if (count === 0) return 0;
+  if (count <= 2) return 1;
+  if (count <= 5) return 2;
+  if (count <= 9) return 3;
+  return 4;
+};
 
 export default function GitHubHeatmap() {
   const { isOwner, portfolioApiUrl } = useUser();
@@ -33,28 +46,6 @@ export default function GitHubHeatmap() {
   const [calendar, setCalendar] = useState<ContributionCalendar | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
-  const legendColors = useMemo(() => {
-    if (!calendar) return [EMPTY_DAY_COLOR];
-
-    const colorsByIntensity = new Map<string, number>();
-    calendar.weeks.forEach(({ contributionDays }) => {
-      contributionDays.forEach(({ color, contributionCount }) => {
-        if (contributionCount === 0) return;
-        const currentMinimum = colorsByIntensity.get(color);
-        if (currentMinimum === undefined || contributionCount < currentMinimum) {
-          colorsByIntensity.set(color, contributionCount);
-        }
-      });
-    });
-
-    return [
-      EMPTY_DAY_COLOR,
-      ...Array.from(colorsByIntensity.entries())
-        .sort(([, firstCount], [, secondCount]) => firstCount - secondCount)
-        .map(([color]) => color),
-    ];
-  }, [calendar]);
 
   const loadContributions = useCallback(async () => {
     try {
@@ -116,7 +107,7 @@ export default function GitHubHeatmap() {
       >
         <div className="flex flex-wrap items-center justify-between gap-4">
           <p className="flex items-center gap-3 text-xs font-medium uppercase tracking-[0.22em] text-zinc-400">
-            <span className="inline-flex rounded-lg border border-emerald-300/15 bg-emerald-400/10 p-2 text-emerald-300">
+            <span className="inline-flex rounded-lg border border-white/10 bg-white/[0.05] p-2 text-zinc-300">
               <Github className="h-4 w-4" />
             </span>
             GitHub activity
@@ -132,7 +123,7 @@ export default function GitHubHeatmap() {
               className="inline-flex items-center gap-2.5 text-xs font-medium text-zinc-400 transition-colors hover:text-zinc-200 disabled:cursor-wait disabled:opacity-60"
             >
               <span>{visible ? "Shown publicly" : "Hidden publicly"}</span>
-              <span className={`relative h-5 w-9 rounded-full border transition-colors ${visible ? "border-emerald-400/40 bg-emerald-500" : "border-white/10 bg-zinc-700"}`}>
+              <span className={`relative h-5 w-9 rounded-full border transition-colors ${visible ? "border-zinc-400 bg-zinc-300" : "border-white/10 bg-zinc-700"}`}>
                 <span className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ${visible ? "translate-x-4" : "translate-x-0"}`} />
               </span>
             </button>
@@ -171,12 +162,7 @@ export default function GitHubHeatmap() {
                       {week.contributionDays.map((day) => (
                         <span
                           key={day.date}
-                          className="relative aspect-square w-full rounded-[3px] border border-white/[0.05] transition-transform duration-150 hover:z-10 hover:scale-125"
-                          style={{
-                            backgroundColor: day.contributionCount === 0
-                              ? EMPTY_DAY_COLOR
-                              : day.color,
-                          }}
+                          className={`relative aspect-square w-full rounded-[3px] border border-white/[0.05] transition-transform duration-150 hover:z-10 hover:scale-125 ${contributionLevels[getContributionLevel(day.contributionCount)]}`}
                           title={`${day.contributionCount} contributions on ${day.date}`}
                         />
                       ))}
@@ -191,11 +177,11 @@ export default function GitHubHeatmap() {
               <div className="flex items-center gap-2" aria-label="Contribution intensity from less to more">
                 <span>Less</span>
                 <span className="flex gap-1">
-                  {legendColors.map((color) => (
+                  {contributionLevels.map((color, index) => (
                     <span
                       key={color}
-                      className="h-3 w-3 rounded-[3px] border border-white/[0.06]"
-                      style={{ backgroundColor: color }}
+                      className={`h-3 w-3 rounded-[3px] border border-white/[0.06] ${color}`}
+                      title={index === 0 ? "No contributions" : `Intensity level ${index}`}
                     />
                   ))}
                 </span>
