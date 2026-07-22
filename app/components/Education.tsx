@@ -163,7 +163,7 @@ export default function Education() {
         
         <div className="relative min-h-0 flex-1 pt-3">
         <div
-          className="credential-scrollbar h-full divide-y divide-white/10 overflow-x-hidden overflow-y-auto pr-1"
+          className="credential-scrollbar h-full space-y-2 overflow-x-hidden overflow-y-auto pr-1"
           onScroll={(event) => setEducationAtTop(event.currentTarget.scrollTop <= 2)}
         >
           {education.length === 0 ? (
@@ -181,10 +181,10 @@ export default function Education() {
               <motion.div
                 key={edu.id || index}
                 {...{
-                  className: "relative min-h-[118px] px-1 py-4 transition-colors hover:bg-white/[0.025]"
+                  className: "relative min-h-[118px] rounded-xl bg-white/[0.018] px-4 py-4 transition-colors hover:bg-white/[0.035]"
                 }}
               >
-                <div className="border-l border-zinc-600/70 pl-4">
+                <div>
                   <div className="mb-2 flex items-start justify-between gap-4">
                     <h3 className="text-lg font-semibold text-slate-200">
                       {edu.school}

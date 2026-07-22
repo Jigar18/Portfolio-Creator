@@ -43,6 +43,23 @@ const arrangeSocialLinks = (links: SocialLink[]) => {
   return arranged;
 };
 
+const socialIconColors: Record<string, string> = {
+  blog: "#f97316",
+  email: "#ea4335",
+  github: "#f4f4f5",
+  hackerrank: "#2ec866",
+  instagram: "#e4405f",
+  leetcode: "#f89f1b",
+  linkedin: "#0a66c2",
+  medium: "#f4f4f5",
+  portfolio: "#a78bfa",
+  twitter: "#f4f4f5",
+  youtube: "#ff0033",
+};
+
+const getSocialIconColor = (platform: string) =>
+  socialIconColors[platform.toLowerCase()] ?? "#a1a1aa";
+
 export default function Connect() {
   const { isOwner, portfolioApiUrl } = useUser();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -394,7 +411,9 @@ export default function Connect() {
                 className="inline-flex h-10 w-fit items-center gap-2.5 whitespace-nowrap rounded-xl border border-slate-600 bg-slate-700/75 px-3.5 text-sm font-medium text-slate-200 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-500 hover:bg-slate-600"
                 title={`Copy ${link.name} link`}
               >
-                {link.icon}
+                <span style={{ color: getSocialIconColor(link.name) }}>
+                  {link.icon}
+                </span>
                 <span>{link.name}</span>
               </button>
             ))}
@@ -442,7 +461,9 @@ export default function Connect() {
                   {Object.entries(tempSocialLinks).map(([platform, url]) => (
                     <div key={platform} className="space-y-2">
                       <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                        {getIconForPlatform(platform)}
+                        <span style={{ color: getSocialIconColor(platform) }}>
+                          {getIconForPlatform(platform)}
+                        </span>
                         {platform}
                       </label>
                       <input

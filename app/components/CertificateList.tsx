@@ -26,13 +26,13 @@ export default function CertificateList({
   portfolioUsername,
 }: CertificateListProps) {
   return (
-    <div className="divide-y divide-white/10">
+    <div className="space-y-1">
       {cards.map((card) => (
         <motion.div
           key={card.id}
           {...{
             className:
-              "relative group min-h-[108px] cursor-pointer px-1 py-4 transition-colors hover:bg-white/[0.025]",
+              "relative group min-h-[108px] cursor-pointer rounded-xl px-4 py-4 transition-colors hover:bg-white/[0.035]",
             onClick: () => onOpenCertificate(card),
           }}
           initial={{ opacity: 0, y: 10 }}
@@ -50,7 +50,7 @@ export default function CertificateList({
             <X className="h-2 w-2" />
           </button>}
 
-          <div className="border-l border-zinc-600/70 pl-4">
+          <div>
             <div>
               <h3 className="pr-8 font-medium text-slate-100">{card.title}</h3>
               <p className="text-slate-400 text-sm mt-1 line-clamp-2">
