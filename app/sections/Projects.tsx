@@ -199,16 +199,19 @@ export default function Projects() {
       startX: event.clientX,
       scrollLeft: event.currentTarget.scrollLeft,
     };
-    event.currentTarget.setPointerCapture(event.pointerId);
-    setIsDragging(true);
   };
 
   const dragProjects = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!dragRef.current.active) return;
     const distance = event.clientX - dragRef.current.startX;
-    if (Math.abs(distance) > 4) dragRef.current.moved = true;
+    if (Math.abs(distance) > 6 && !dragRef.current.moved) {
+      dragRef.current.moved = true;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      setIsDragging(true);
+    }
+    if (!dragRef.current.moved) return;
     event.currentTarget.scrollLeft = dragRef.current.scrollLeft - distance;
-    if (dragRef.current.moved) event.preventDefault();
+    event.preventDefault();
   };
 
   const stopDragging = (event: React.PointerEvent<HTMLDivElement>) => {
