@@ -272,7 +272,7 @@ export default function Projects() {
                   >
                     <Info className="h-4 w-4" />
                   </TooltipTrigger>
-                  <TooltipContent side="top" align="end">
+                  <TooltipContent side="top" sideOffset={8}>
                     A maximum of four projects can be uploaded.
                   </TooltipContent>
                 </Tooltip>

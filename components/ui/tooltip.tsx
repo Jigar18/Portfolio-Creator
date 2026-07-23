@@ -31,18 +31,23 @@ function TooltipContent({
   sideOffset = 4,
   align = "center",
   alignOffset = 0,
+  positionMethod = "fixed",
   children,
   ...props
 }: TooltipPrimitive.Popup.Props &
   Pick<
     TooltipPrimitive.Positioner.Props,
-    "align" | "alignOffset" | "side" | "sideOffset"
+    "align" | "alignOffset" | "positionMethod" | "side" | "sideOffset"
   >) {
+  const portalContainer =
+    typeof document === "undefined" ? null : document.documentElement;
+
   return (
-    <TooltipPrimitive.Portal>
+    <TooltipPrimitive.Portal container={portalContainer}>
       <TooltipPrimitive.Positioner
         align={align}
         alignOffset={alignOffset}
+        positionMethod={positionMethod}
         side={side}
         sideOffset={sideOffset}
         className="isolate z-50"

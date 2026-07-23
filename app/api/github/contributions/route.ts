@@ -8,9 +8,14 @@ import { resolvePortfolioUser } from "@/lib/publicPortfolio";
 import { getSession } from "@/lib/session";
 
 const CONTRIBUTIONS_QUERY = `
-  query ContributionCalendar($login: String!, $from: DateTime!, $to: DateTime!) {
+  query ContributionCalendar(
+    $login: String!
+    $calendarFrom: DateTime!
+    $yearFrom: DateTime!
+    $to: DateTime!
+  ) {
     user(login: $login) {
-      contributionsCollection(from: $from, to: $to) {
+      calendar: contributionsCollection(from: $calendarFrom, to: $to) {
         contributionCalendar {
           totalContributions
           weeks {
@@ -21,6 +26,11 @@ const CONTRIBUTIONS_QUERY = `
               weekday
             }
           }
+        }
+      }
+      year: contributionsCollection(from: $yearFrom, to: $to) {
+        contributionCalendar {
+          totalContributions
         }
       }
     }
@@ -37,10 +47,15 @@ type ContributionDay = {
 type GitHubContributionResponse = {
   data?: {
     user?: {
-      contributionsCollection: {
+      calendar: {
         contributionCalendar: {
           totalContributions: number;
           weeks: Array<{ contributionDays: ContributionDay[] }>;
+        };
+      };
+      year: {
+        contributionCalendar: {
+          totalContributions: number;
         };
       };
     } | null;
@@ -51,7 +66,8 @@ type GitHubContributionResponse = {
 const fetchContributionCalendar = async (
   accessToken: string,
   username: string,
-  from: string,
+  calendarFrom: string,
+  yearFrom: string,
   to: string,
 ) => {
   const response = await fetch("https://api.github.com/graphql", {
@@ -65,7 +81,7 @@ const fetchContributionCalendar = async (
     },
     body: JSON.stringify({
       query: CONTRIBUTIONS_QUERY,
-      variables: { login: username, from, to },
+      variables: { login: username, calendarFrom, yearFrom, to },
     }),
     cache: "no-store",
   });
@@ -123,14 +139,31 @@ export async function GET(request: NextRequest) {
 
     const now = new Date();
     const contributionYear = now.getUTCFullYear();
-    const from = `${contributionYear}-01-01T00:00:00.000Z`;
+    const calendarStart = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    );
+    calendarStart.setUTCDate(calendarStart.getUTCDate() - 364);
+    const calendarFrom = calendarStart.toISOString();
+    const yearFrom = `${contributionYear}-01-01T00:00:00.000Z`;
     const to = now.toISOString();
-    let result = await fetchContributionCalendar(githubAccessToken, user.username, from, to);
+    let result = await fetchContributionCalendar(
+      githubAccessToken,
+      user.username,
+      calendarFrom,
+      yearFrom,
+      to,
+    );
 
     if (result.response.status === 401 && user.installationId) {
       try {
         const installationToken = await getInstallationAccessTokenById(user.installationId);
-        result = await fetchContributionCalendar(installationToken, user.username, from, to);
+        result = await fetchContributionCalendar(
+          installationToken,
+          user.username,
+          calendarFrom,
+          yearFrom,
+          to,
+        );
       } catch (error) {
         console.error(
           "Unable to retry GitHub contributions with an installation token",
@@ -140,8 +173,15 @@ export async function GET(request: NextRequest) {
     }
 
     const { response: githubResponse, data: githubData } = result;
-    const calendar = githubData.data?.user?.contributionsCollection.contributionCalendar;
-    if (!githubResponse.ok || githubData.errors?.length || !calendar) {
+    const calendar = githubData.data?.user?.calendar.contributionCalendar;
+    const currentYearContributions =
+      githubData.data?.user?.year.contributionCalendar.totalContributions;
+    if (
+      !githubResponse.ok ||
+      githubData.errors?.length ||
+      !calendar ||
+      currentYearContributions === undefined
+    ) {
       console.error("GitHub contribution query failed", githubData.errors ?? githubResponse.status);
       return NextResponse.json(
         { success: false, error: "GitHub contribution activity is unavailable" },
@@ -154,6 +194,7 @@ export async function GET(request: NextRequest) {
       visible: user.showGitHubHeatmap,
       available: true,
       contributionYear,
+      currentYearContributions,
       calendar,
     });
     response.headers.set("Cache-Control", "no-store");

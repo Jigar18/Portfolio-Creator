@@ -21,6 +21,7 @@ type ContributionResponse = {
   visible?: boolean;
   available?: boolean;
   contributionYear?: number;
+  currentYearContributions?: number;
   calendar?: ContributionCalendar;
 };
 
@@ -85,6 +86,9 @@ export default function GitHubHeatmap() {
   const [available, setAvailable] = useState(true);
   const [calendar, setCalendar] = useState<ContributionCalendar | null>(null);
   const [contributionYear, setContributionYear] = useState<number | null>(null);
+  const [currentYearContributions, setCurrentYearContributions] = useState<
+    number | null
+  >(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -102,6 +106,7 @@ export default function GitHubHeatmap() {
       setVisible(Boolean(data.visible));
       setAvailable(data.available !== false);
       setContributionYear(data.contributionYear ?? null);
+      setCurrentYearContributions(data.currentYearContributions ?? null);
       setCalendar(data.calendar ? includeUtcToday(data.calendar) : null);
     } catch (error) {
       console.error("Unable to load GitHub activity", error);
@@ -187,7 +192,7 @@ export default function GitHubHeatmap() {
         ) : (
           <>
             <div className="mt-8 overflow-x-auto">
-              <div className="flex w-full min-w-[940px] gap-2 px-1.5 py-2">
+              <div className="flex w-full min-w-[760px] gap-2 px-1.5 py-2">
                 <div className="grid grid-rows-7 gap-1 pr-1 text-[9px] text-zinc-600">
                   {["", "Mon", "", "Wed", "", "Fri", ""].map((label, index) => (
                     <span key={`${label}-${index}`} className="flex w-5 items-center justify-end">
@@ -196,11 +201,11 @@ export default function GitHubHeatmap() {
                   ))}
                 </div>
                 <div
-                  className="grid min-w-0 flex-1 gap-1.5"
-                  style={{ gridTemplateColumns: `repeat(${calendar.weeks.length}, minmax(11px, 1fr))` }}
+                  className="grid min-w-0 flex-1 gap-1"
+                  style={{ gridTemplateColumns: `repeat(${calendar.weeks.length}, minmax(10px, 1fr))` }}
                 >
                   {calendar.weeks.map((week, weekIndex) => (
-                    <div key={weekIndex} className="grid grid-rows-7 gap-1.5">
+                    <div key={weekIndex} className="grid grid-rows-7 gap-1">
                       {week.contributionDays.map((day) => (
                         <span
                           key={day.date}
@@ -216,7 +221,7 @@ export default function GitHubHeatmap() {
 
             <div className="mt-5 flex flex-col gap-3 border-t border-white/[0.08] pt-4 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
               <span>
-                {calendar.totalContributions.toLocaleString()} contributions in{" "}
+                {(currentYearContributions ?? calendar.totalContributions).toLocaleString()} contributions in{" "}
                 {contributionYear ?? new Date().getUTCFullYear()}
               </span>
               <div className="flex items-center gap-2" aria-label="Contribution intensity from less to more">
