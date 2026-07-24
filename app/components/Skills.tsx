@@ -43,9 +43,15 @@ export default function Skills() {
     const viewport = skillsViewportRef.current;
     if (!viewport) return;
 
+    if (viewport.scrollHeight <= viewport.clientHeight + 1) {
+      setHiddenSkillCount(0);
+      return;
+    }
+
+    const viewportBottom = viewport.getBoundingClientRect().bottom;
     const hidden = Array.from(
       viewport.querySelectorAll<HTMLElement>("[data-skill]")
-    ).filter((item) => item.offsetTop + item.offsetHeight > viewport.clientHeight + 1);
+    ).filter((item) => item.getBoundingClientRect().bottom > viewportBottom + 1);
     setHiddenSkillCount(hidden.length);
   }, []);
 
